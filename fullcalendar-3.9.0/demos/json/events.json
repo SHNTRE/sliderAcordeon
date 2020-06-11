@@ -40,3 +40,18 @@
   {
     "title": "Happy Hour",
     "start": "2018-03-12T17:30:00-05:00"
+  },
+  {
+    "title": "Dinner",
+    "start": "2018-03-12T20:00:00"
+  },
+  {
+    "title": "Birthday Party",
+    "start": "2018-03-13T07:00:00-05:00"
+  },
+  {
+    "title": "Click for Google",
+    "url": "http://google.com/",
+    "start": "2018-03-28"
+  }
+]
