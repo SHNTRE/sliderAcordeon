@@ -8,23 +8,33 @@
 <script src='../lib/moment.min.js'></script>
 <script src='../lib/jquery.min.js'></script>
 <script src='../fullcalendar.min.js'></script>
-<script src='../locale-all.js'></script>
 <script>
 
   $(document).ready(function() {
-    var initialLocaleCode = 'en';
 
     $('#calendar').fullCalendar({
       header: {
         left: 'prev,next today',
         center: 'title',
-        right: 'month,agendaWeek,agendaDay,listMonth'
+        right: 'month,agendaWeek,agendaDay'
       },
       defaultDate: '2018-03-12',
-      locale: initialLocaleCode,
-      buttonIcons: false, // show the prev/next text
-      weekNumbers: true,
       navLinks: true, // can click day/week names to navigate views
+      selectable: true,
+      selectHelper: true,
+      select: function(start, end) {
+        var title = prompt('Event Title:');
+        var eventData;
+        if (title) {
+          eventData = {
+            title: title,
+            start: start,
+            end: end
+          };
+          $('#calendar').fullCalendar('renderEvent', eventData, true); // stick? = true
+        }
+        $('#calendar').fullCalendar('unselect');
+      },
       editable: true,
       eventLimit: true, // allow "more" link when too many events
       events: [
@@ -85,58 +95,26 @@
       ]
     });
 
-    // build the locale selector's options
-    $.each($.fullCalendar.locales, function(localeCode) {
-      $('#locale-selector').append(
-        $('<option/>')
-          .attr('value', localeCode)
-          .prop('selected', localeCode == initialLocaleCode)
-          .text(localeCode)
-      );
-    });
-
-    // when the selected option changes, dynamically change the calendar option
-    $('#locale-selector').on('change', function() {
-      if (this.value) {
-        $('#calendar').fullCalendar('option', 'locale', this.value);
-      }
-    });
   });
 
 </script>
 <style>
 
   body {
-    margin: 0;
+    margin: 40px 10px;
     padding: 0;
     font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
     font-size: 14px;
   }
 
-  #top {
-    background: #eee;
-    border-bottom: 1px solid #ddd;
-    padding: 0 10px;
-    line-height: 40px;
-    font-size: 12px;
-  }
-
   #calendar {
     max-width: 900px;
-    margin: 40px auto;
-    padding: 0 10px;
+    margin: 0 auto;
   }
 
 </style>
 </head>
 <body>
-
-  <div id='top'>
-
-    Locales:
-    <select id='locale-selector'></select>
-
-  </div>
 
   <div id='calendar'></div>
 
