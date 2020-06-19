@@ -95,4 +95,34 @@
   }
 
   .tzo {
-   
+    color: #000;
+  }
+
+</style>
+</head>
+<body>
+
+  <div id='top'>
+
+    <div class='left'>
+      Timezone:
+      <select id='timezone-selector'>
+        <option value='' selected>none</option>
+        <option value='local'>local</option>
+        <option value='UTC'>UTC</option>
+      </select>
+    </div>
+
+    <div class='right'>
+      <span id='loading'>loading...</span>
+      <span id='script-warning'><code>php/get-events.php</code> must be running.</span>
+    </div>
+
+    <div class='clear'></div>
+
+  </div>
+
+  <div id='calendar'></div>
+
+</body>
+</html>
