@@ -100,4 +100,60 @@ var extendStatics = Object.setPrototypeOf ||
     function (d, b) { for (var p in b)
         if (b.hasOwnProperty(p))
             d[p] = b[p]; };
-exports.__extends = 
+exports.__extends = function (d, b) {
+    extendStatics(d, b);
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_3__;
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var moment = __webpack_require__(0);
+var $ = __webpack_require__(3);
+/* FullCalendar-specific DOM Utilities
+----------------------------------------------------------------------------------------------------------------------*/
+// Given the scrollbar widths of some other container, create borders/margins on rowEls in order to match the left
+// and right space that was offset by the scrollbars. A 1-pixel border first, then margin beyond that.
+function compensateScroll(rowEls, scrollbarWidths) {
+    if (scrollbarWidths.left) {
+        rowEls.css({
+            'border-left-width': 1,
+            'margin-left': scrollbarWidths.left - 1
+        });
+    }
+    if (scrollbarWidths.right) {
+        rowEls.css({
+            'border-right-width': 1,
+            'margin-right': scrollbarWidths.right - 1
+        });
+    }
+}
+exports.compensateScroll = compensateScroll;
+// Undoes compensateScroll and restores all borders/margins
+function uncompensateScroll(rowEls) {
+    rowEls.css({
+        'margin-left': '',
+        'margin-right': '',
+        'border-left-width': '',
+        'border-right-width': ''
+    });
+}
+exports.uncompensateScroll = uncompensateScroll;
+// Make the mouse cursor express that an event is not allowed in the current area
+function disableCursor() {
+    $('body').addClass('fc-not-allowed');
+}
+exports.disableCursor = disableCursor;
+// Returns the mouse cursor to its original look
+function enableCursor() {
+    $('
