@@ -184,4 +184,48 @@ function distributeHeight(els, availableHeight, shouldRedistribute) {
             flexHeights.push($(el).height());
         }
         else {
-            // this element stretches past recommended height (non-expandable). mark the space as occupie
+            // this element stretches past recommended height (non-expandable). mark the space as occupied.
+            usedHeight += naturalOffset;
+        }
+    });
+    // readjust the recommended height to only consider the height available to non-maxed-out rows.
+    if (shouldRedistribute) {
+        availableHeight -= usedHeight;
+        minOffset1 = Math.floor(availableHeight / flexEls.length);
+        minOffset2 = Math.floor(availableHeight - minOffset1 * (flexEls.length - 1)); // *FLOORING NOTE*
+    }
+    // assign heights to all expandable elements
+    $(flexEls).each(function (i, el) {
+        var minOffset = i === flexEls.length - 1 ? minOffset2 : minOffset1;
+        var naturalOffset = flexOffsets[i];
+        var naturalHeight = flexHeights[i];
+        var newHeight = minOffset - (naturalOffset - naturalHeight); // subtract the margin/padding
+        if (naturalOffset < minOffset) {
+            $(el).height(newHeight);
+        }
+    });
+}
+exports.distributeHeight = distributeHeight;
+// Undoes distrubuteHeight, restoring all els to their natural height
+function undistributeHeight(els) {
+    els.height('');
+}
+exports.undistributeHeight = undistributeHeight;
+// Given `els`, a jQuery set of <td> cells, find the cell with the largest natural width and set the widths of all the
+// cells to be that width.
+// PREREQUISITE: if you want a cell to take up width, it needs to have a single inner element w/ display:inline
+function matchCellWidths(els) {
+    var maxInnerWidth = 0;
+    els.find('> *').each(function (i, innerEl) {
+        var innerWidth = $(innerEl).outerWidth();
+        if (innerWidth > maxInnerWidth) {
+            maxInnerWidth = innerWidth;
+        }
+    });
+    maxInnerWidth++; // sometimes not accurate of width the text needs to stay on one line. insurance
+    els.width(maxInnerWidth);
+    return maxInnerWidth;
+}
+exports.matchCellWidths = matchCellWidths;
+// Given one element that resides inside another,
+// Subtracts
