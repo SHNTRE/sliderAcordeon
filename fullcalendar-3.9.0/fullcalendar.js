@@ -156,4 +156,32 @@ function disableCursor() {
 exports.disableCursor = disableCursor;
 // Returns the mouse cursor to its original look
 function enableCursor() {
-    $('
+    $('body').removeClass('fc-not-allowed');
+}
+exports.enableCursor = enableCursor;
+// Given a total available height to fill, have `els` (essentially child rows) expand to accomodate.
+// By default, all elements that are shorter than the recommended height are expanded uniformly, not considering
+// any other els that are already too tall. if `shouldRedistribute` is on, it considers these tall rows and
+// reduces the available height.
+function distributeHeight(els, availableHeight, shouldRedistribute) {
+    // *FLOORING NOTE*: we floor in certain places because zoom can give inaccurate floating-point dimensions,
+    // and it is better to be shorter than taller, to avoid creating unnecessary scrollbars.
+    var minOffset1 = Math.floor(availableHeight / els.length); // for non-last element
+    var minOffset2 = Math.floor(availableHeight - minOffset1 * (els.length - 1)); // for last element *FLOORING NOTE*
+    var flexEls = []; // elements that are allowed to expand. array of DOM nodes
+    var flexOffsets = []; // amount of vertical space it takes up
+    var flexHeights = []; // actual css height
+    var usedHeight = 0;
+    undistributeHeight(els); // give all elements their natural height
+    // find elements that are below the recommended height (expandable).
+    // important to query for heights in a single first pass (to avoid reflow oscillation).
+    els.each(function (i, el) {
+        var minOffset = i === els.length - 1 ? minOffset2 : minOffset1;
+        var naturalOffset = $(el).outerHeight(true);
+        if (naturalOffset < minOffset) {
+            flexEls.push(el);
+            flexOffsets.push(naturalOffset);
+            flexHeights.push($(el).height());
+        }
+        else {
+            // this element stretches past recommended height (non-expandable). mark the space as occupie
