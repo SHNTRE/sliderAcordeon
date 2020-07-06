@@ -228,4 +228,45 @@ function matchCellWidths(els) {
 }
 exports.matchCellWidths = matchCellWidths;
 // Given one element that resides inside another,
-// Subtracts
+// Subtracts the height of the inner element from the outer element.
+function subtractInnerElHeight(outerEl, innerEl) {
+    var both = outerEl.add(innerEl);
+    var diff;
+    // effin' IE8/9/10/11 sometimes returns 0 for dimensions. this weird hack was the only thing that worked
+    both.css({
+        position: 'relative',
+        left: -1 // ensure reflow in case the el was already relative. negative is less likely to cause new scroll
+    });
+    diff = outerEl.outerHeight() - innerEl.outerHeight(); // grab the dimensions
+    both.css({ position: '', left: '' }); // undo hack
+    return diff;
+}
+exports.subtractInnerElHeight = subtractInnerElHeight;
+/* Element Geom Utilities
+----------------------------------------------------------------------------------------------------------------------*/
+// borrowed from https://github.com/jquery/jquery-ui/blob/1.11.0/ui/core.js#L51
+function getScrollParent(el) {
+    var position = el.css('position');
+    var scrollParent = el.parents().filter(function () {
+        var parent = $(this);
+        return (/(auto|scroll)/).test(parent.css('overflow') + parent.css('overflow-y') + parent.css('overflow-x'));
+    }).eq(0);
+    return position === 'fixed' || !scrollParent.length ? $(el[0].ownerDocument || document) : scrollParent;
+}
+exports.getScrollParent = getScrollParent;
+// Queries the outer bounding area of a jQuery element.
+// Returns a rectangle with absolute coordinates: left, right (exclusive), top, bottom (exclusive).
+// Origin is optional.
+function getOuterRect(el, origin) {
+    var offset = el.offset();
+    var left = offset.left - (origin ? origin.left : 0);
+    var top = offset.top - (origin ? origin.top : 0);
+    return {
+        left: left,
+        right: left + el.outerWidth(),
+        top: top,
+        bottom: top + el.outerHeight()
+    };
+}
+exports.getOuterRect = getOuterRect;
+// Que
