@@ -563,4 +563,54 @@ function computeGreatestUnit(start, end) {
 }
 exports.computeGreatestUnit = computeGreatestUnit;
 // like computeGreatestUnit, but has special abilities to interpret the source input for clues
-function computeDuration
+function computeDurationGreatestUnit(duration, durationInput) {
+    var unit = computeGreatestUnit(duration);
+    // prevent days:7 from being interpreted as a week
+    if (unit === 'week' && typeof durationInput === 'object' && durationInput.days) {
+        unit = 'day';
+    }
+    return unit;
+}
+exports.computeDurationGreatestUnit = computeDurationGreatestUnit;
+// Computes the number of units (like "hours") in the given range.
+// Range can be a {start,end} object, separate start/end args, or a Duration.
+// Results are based on Moment's .as() and .diff() methods, so results can depend on internal handling
+// of month-diffing logic (which tends to vary from version to version).
+function computeRangeAs(unit, start, end) {
+    if (end != null) {
+        return end.diff(start, unit, true);
+    }
+    else if (moment.isDuration(start)) {
+        return start.as(unit);
+    }
+    else {
+        return start.end.diff(start.start, unit, true);
+    }
+}
+// Intelligently divides a range (specified by a start/end params) by a duration
+function divideRangeByDuration(start, end, dur) {
+    var months;
+    if (durationHasTime(dur)) {
+        return (end - start) / dur;
+    }
+    months = dur.asMonths();
+    if (Math.abs(months) >= 1 && isInt(months)) {
+        return end.diff(start, 'months', true) / months;
+    }
+    return end.diff(start, 'days', true) / dur.asDays();
+}
+exports.divideRangeByDuration = divideRangeByDuration;
+// Intelligently divides one duration by another
+function divideDurationByDuration(dur1, dur2) {
+    var months1;
+    var months2;
+    if (durationHasTime(dur1) || durationHasTime(dur2)) {
+        return dur1 / dur2;
+    }
+    months1 = dur1.asMonths();
+    months2 = dur2.asMonths();
+    if (Math.abs(months1) >= 1 && isInt(months1) &&
+        Math.abs(months2) >= 1 && isInt(months2)) {
+        return months1 / months2;
+    }
+    return dur1.
