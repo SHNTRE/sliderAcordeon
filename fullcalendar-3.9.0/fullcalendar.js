@@ -305,4 +305,55 @@ function getContentRect(el, origin) {
 }
 exports.getContentRect = getContentRect;
 // Returns the computed left/right/top/bottom scrollbar widths for the given jQuery element.
-// WARNING: given element can't have borders (which will cause offsetWidth/offsetHeight to be larger
+// WARNING: given element can't have borders (which will cause offsetWidth/offsetHeight to be larger).
+// NOTE: should use clientLeft/clientTop, but very unreliable cross-browser.
+function getScrollbarWidths(el) {
+    var leftRightWidth = el[0].offsetWidth - el[0].clientWidth;
+    var bottomWidth = el[0].offsetHeight - el[0].clientHeight;
+    var widths;
+    leftRightWidth = sanitizeScrollbarWidth(leftRightWidth);
+    bottomWidth = sanitizeScrollbarWidth(bottomWidth);
+    widths = { left: 0, right: 0, top: 0, bottom: bottomWidth };
+    if (getIsLeftRtlScrollbars() && el.css('direction') === 'rtl') {
+        widths.left = leftRightWidth;
+    }
+    else {
+        widths.right = leftRightWidth;
+    }
+    return widths;
+}
+exports.getScrollbarWidths = getScrollbarWidths;
+// The scrollbar width computations in getScrollbarWidths are sometimes flawed when it comes to
+// retina displays, rounding, and IE11. Massage them into a usable value.
+function sanitizeScrollbarWidth(width) {
+    width = Math.max(0, width); // no negatives
+    width = Math.round(width);
+    return width;
+}
+// Logic for determining if, when the element is right-to-left, the scrollbar appears on the left side
+var _isLeftRtlScrollbars = null;
+function getIsLeftRtlScrollbars() {
+    if (_isLeftRtlScrollbars === null) {
+        _isLeftRtlScrollbars = computeIsLeftRtlScrollbars();
+    }
+    return _isLeftRtlScrollbars;
+}
+function computeIsLeftRtlScrollbars() {
+    var el = $('<div><div/></div>')
+        .css({
+        position: 'absolute',
+        top: -1000,
+        left: 0,
+        border: 0,
+        padding: 0,
+        overflow: 'scroll',
+        direction: 'rtl'
+    })
+        .appendTo('body');
+    var innerEl = el.children();
+    var res = innerEl.offset().left > el.offset().left; // is the inner div shifted to accommodate a left scrollbar?
+    el.remove();
+    return res;
+}
+// Retrieves a jQuery element's computed CSS value as a floating-point number.
+// If the queried value is
