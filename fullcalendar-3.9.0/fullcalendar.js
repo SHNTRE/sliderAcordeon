@@ -521,4 +521,46 @@ function flexibleCompare(a, b) {
 exports.flexibleCompare = flexibleCompare;
 /* Date Utilities
 ----------------------------------------------------------------------------------------------------------------------*/
-exports.dayIDs = ['sun', 'mon
+exports.dayIDs = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+exports.unitsDesc = ['year', 'month', 'week', 'day', 'hour', 'minute', 'second', 'millisecond']; // descending
+// Diffs the two moments into a Duration where full-days are recorded first, then the remaining time.
+// Moments will have their timezones normalized.
+function diffDayTime(a, b) {
+    return moment.duration({
+        days: a.clone().stripTime().diff(b.clone().stripTime(), 'days'),
+        ms: a.time() - b.time() // time-of-day from day start. disregards timezone
+    });
+}
+exports.diffDayTime = diffDayTime;
+// Diffs the two moments via their start-of-day (regardless of timezone). Produces whole-day durations.
+function diffDay(a, b) {
+    return moment.duration({
+        days: a.clone().stripTime().diff(b.clone().stripTime(), 'days')
+    });
+}
+exports.diffDay = diffDay;
+// Diffs two moments, producing a duration, made of a whole-unit-increment of the given unit. Uses rounding.
+function diffByUnit(a, b, unit) {
+    return moment.duration(Math.round(a.diff(b, unit, true)), // returnFloat=true
+    unit);
+}
+exports.diffByUnit = diffByUnit;
+// Computes the unit name of the largest whole-unit period of time.
+// For example, 48 hours will be "days" whereas 49 hours will be "hours".
+// Accepts start/end, a range object, or an original duration object.
+function computeGreatestUnit(start, end) {
+    var i;
+    var unit;
+    var val;
+    for (i = 0; i < exports.unitsDesc.length; i++) {
+        unit = exports.unitsDesc[i];
+        val = computeRangeAs(unit, start, end);
+        if (val >= 1 && isInt(val)) {
+            break;
+        }
+    }
+    return unit; // will be "milliseconds" if nothing else matches
+}
+exports.computeGreatestUnit = computeGreatestUnit;
+// like computeGreatestUnit, but has special abilities to interpret the source input for clues
+function computeDuration
