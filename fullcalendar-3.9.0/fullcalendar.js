@@ -356,4 +356,55 @@ function computeIsLeftRtlScrollbars() {
     return res;
 }
 // Retrieves a jQuery element's computed CSS value as a floating-point number.
-// If the queried value is
+// If the queried value is non-numeric (ex: IE can return "medium" for border width), will just return zero.
+function getCssFloat(el, prop) {
+    return parseFloat(el.css(prop)) || 0;
+}
+/* Mouse / Touch Utilities
+----------------------------------------------------------------------------------------------------------------------*/
+// Returns a boolean whether this was a left mouse click and no ctrl key (which means right click on Mac)
+function isPrimaryMouseButton(ev) {
+    return ev.which === 1 && !ev.ctrlKey;
+}
+exports.isPrimaryMouseButton = isPrimaryMouseButton;
+function getEvX(ev) {
+    var touches = ev.originalEvent.touches;
+    // on mobile FF, pageX for touch events is present, but incorrect,
+    // so, look at touch coordinates first.
+    if (touches && touches.length) {
+        return touches[0].pageX;
+    }
+    return ev.pageX;
+}
+exports.getEvX = getEvX;
+function getEvY(ev) {
+    var touches = ev.originalEvent.touches;
+    // on mobile FF, pageX for touch events is present, but incorrect,
+    // so, look at touch coordinates first.
+    if (touches && touches.length) {
+        return touches[0].pageY;
+    }
+    return ev.pageY;
+}
+exports.getEvY = getEvY;
+function getEvIsTouch(ev) {
+    return /^touch/.test(ev.type);
+}
+exports.getEvIsTouch = getEvIsTouch;
+function preventSelection(el) {
+    el.addClass('fc-unselectable')
+        .on('selectstart', preventDefault);
+}
+exports.preventSelection = preventSelection;
+function allowSelection(el) {
+    el.removeClass('fc-unselectable')
+        .off('selectstart', preventDefault);
+}
+exports.allowSelection = allowSelection;
+// Stops a mouse/touch event from doing it's native browser action
+function preventDefault(ev) {
+    ev.preventDefault();
+}
+exports.preventDefault = preventDefault;
+/* General Geometry Utils
+------------------------------------------------------------------------------------------------------
