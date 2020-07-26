@@ -613,4 +613,56 @@ function divideDurationByDuration(dur1, dur2) {
         Math.abs(months2) >= 1 && isInt(months2)) {
         return months1 / months2;
     }
-    return dur1.
+    return dur1.asDays() / dur2.asDays();
+}
+exports.divideDurationByDuration = divideDurationByDuration;
+// Intelligently multiplies a duration by a number
+function multiplyDuration(dur, n) {
+    var months;
+    if (durationHasTime(dur)) {
+        return moment.duration(dur * n);
+    }
+    months = dur.asMonths();
+    if (Math.abs(months) >= 1 && isInt(months)) {
+        return moment.duration({ months: months * n });
+    }
+    return moment.duration({ days: dur.asDays() * n });
+}
+exports.multiplyDuration = multiplyDuration;
+// Returns a boolean about whether the given duration has any time parts (hours/minutes/seconds/ms)
+function durationHasTime(dur) {
+    return Boolean(dur.hours() || dur.minutes() || dur.seconds() || dur.milliseconds());
+}
+exports.durationHasTime = durationHasTime;
+function isNativeDate(input) {
+    return Object.prototype.toString.call(input) === '[object Date]' || input instanceof Date;
+}
+exports.isNativeDate = isNativeDate;
+// Returns a boolean about whether the given input is a time string, like "06:40:00" or "06:00"
+function isTimeString(str) {
+    return typeof str === 'string' &&
+        /^\d+\:\d+(?:\:\d+\.?(?:\d{3})?)?$/.test(str);
+}
+exports.isTimeString = isTimeString;
+/* Logging and Debug
+----------------------------------------------------------------------------------------------------------------------*/
+function log() {
+    var args = [];
+    for (var _i = 0; _i < arguments.length; _i++) {
+        args[_i] = arguments[_i];
+    }
+    var console = window.console;
+    if (console && console.log) {
+        return console.log.apply(console, args);
+    }
+}
+exports.log = log;
+function warn() {
+    var args = [];
+    for (var _i = 0; _i < arguments.length; _i++) {
+        args[_i] = arguments[_i];
+    }
+    var console = window.console;
+    if (console && console.warn) {
+        return console.warn.apply(console, args);
+    }
