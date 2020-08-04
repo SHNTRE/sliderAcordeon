@@ -720,4 +720,86 @@ exports.mergeProps = mergeProps;
 function copyOwnProps(src, dest) {
     for (var name_1 in src) {
         if (hasOwnProp(src, name_1)) {
-            dest[name_1] = src[nam
+            dest[name_1] = src[name_1];
+        }
+    }
+}
+exports.copyOwnProps = copyOwnProps;
+function hasOwnProp(obj, name) {
+    return hasOwnPropMethod.call(obj, name);
+}
+exports.hasOwnProp = hasOwnProp;
+function applyAll(functions, thisObj, args) {
+    if ($.isFunction(functions)) {
+        functions = [functions];
+    }
+    if (functions) {
+        var i = void 0;
+        var ret = void 0;
+        for (i = 0; i < functions.length; i++) {
+            ret = functions[i].apply(thisObj, args) || ret;
+        }
+        return ret;
+    }
+}
+exports.applyAll = applyAll;
+function removeMatching(array, testFunc) {
+    var removeCnt = 0;
+    var i = 0;
+    while (i < array.length) {
+        if (testFunc(array[i])) {
+            array.splice(i, 1);
+            removeCnt++;
+        }
+        else {
+            i++;
+        }
+    }
+    return removeCnt;
+}
+exports.removeMatching = removeMatching;
+function removeExact(array, exactVal) {
+    var removeCnt = 0;
+    var i = 0;
+    while (i < array.length) {
+        if (array[i] === exactVal) {
+            array.splice(i, 1);
+            removeCnt++;
+        }
+        else {
+            i++;
+        }
+    }
+    return removeCnt;
+}
+exports.removeExact = removeExact;
+function isArraysEqual(a0, a1) {
+    var len = a0.length;
+    var i;
+    if (len == null || len !== a1.length) {
+        return false;
+    }
+    for (i = 0; i < len; i++) {
+        if (a0[i] !== a1[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+exports.isArraysEqual = isArraysEqual;
+function firstDefined() {
+    var args = [];
+    for (var _i = 0; _i < arguments.length; _i++) {
+        args[_i] = arguments[_i];
+    }
+    for (var i = 0; i < args.length; i++) {
+        if (args[i] !== undefined) {
+            return args[i];
+        }
+    }
+}
+exports.firstDefined = firstDefined;
+function htmlEscape(s) {
+    return (s + '').replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+       
