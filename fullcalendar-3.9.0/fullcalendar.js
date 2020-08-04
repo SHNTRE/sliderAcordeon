@@ -858,4 +858,63 @@ function proxy(obj, methodName) {
     };
 }
 exports.proxy = proxy;
-// Returns a function, that, as long as i
+// Returns a function, that, as long as it continues to be invoked, will not
+// be triggered. The function will be called after it stops being called for
+// N milliseconds. If `immediate` is passed, trigger the function on the
+// leading edge, instead of the trailing.
+// https://github.com/jashkenas/underscore/blob/1.6.0/underscore.js#L714
+function debounce(func, wait, immediate) {
+    if (immediate === void 0) { immediate = false; }
+    var timeout;
+    var args;
+    var context;
+    var timestamp;
+    var result;
+    var later = function () {
+        var last = +new Date() - timestamp;
+        if (last < wait) {
+            timeout = setTimeout(later, wait - last);
+        }
+        else {
+            timeout = null;
+            if (!immediate) {
+                result = func.apply(context, args);
+                context = args = null;
+            }
+        }
+    };
+    return function () {
+        context = this;
+        args = arguments;
+        timestamp = +new Date();
+        var callNow = immediate && !timeout;
+        if (!timeout) {
+            timeout = setTimeout(later, wait);
+        }
+        if (callNow) {
+            result = func.apply(context, args);
+            context = args = null;
+        }
+        return result;
+    };
+}
+exports.debounce = debounce;
+
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var moment = __webpack_require__(0);
+var moment_ext_1 = __webpack_require__(10);
+var UnzonedRange = /** @class */ (function () {
+    function UnzonedRange(startInput, endInput) {
+        // TODO: move these into footprint.
+        // Especially, doesn't make sense for null startMs/endMs.
+        this.isStart = true;
+        this.isEnd = true;
+        if (moment.isMoment(startInput)) {
+            startInput = startInput.clone().stripZone();
+        }
+        if (moment.isMom
