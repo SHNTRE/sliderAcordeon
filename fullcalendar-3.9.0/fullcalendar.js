@@ -802,4 +802,60 @@ exports.firstDefined = firstDefined;
 function htmlEscape(s) {
     return (s + '').replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
-       
+        .replace(/>/g, '&gt;')
+        .replace(/'/g, '&#039;')
+        .replace(/"/g, '&quot;')
+        .replace(/\n/g, '<br />');
+}
+exports.htmlEscape = htmlEscape;
+function stripHtmlEntities(text) {
+    return text.replace(/&.*?;/g, '');
+}
+exports.stripHtmlEntities = stripHtmlEntities;
+// Given a hash of CSS properties, returns a string of CSS.
+// Uses property names as-is (no camel-case conversion). Will not make statements for null/undefined values.
+function cssToStr(cssProps) {
+    var statements = [];
+    $.each(cssProps, function (name, val) {
+        if (val != null) {
+            statements.push(name + ':' + val);
+        }
+    });
+    return statements.join(';');
+}
+exports.cssToStr = cssToStr;
+// Given an object hash of HTML attribute names to values,
+// generates a string that can be injected between < > in HTML
+function attrsToStr(attrs) {
+    var parts = [];
+    $.each(attrs, function (name, val) {
+        if (val != null) {
+            parts.push(name + '="' + htmlEscape(val) + '"');
+        }
+    });
+    return parts.join(' ');
+}
+exports.attrsToStr = attrsToStr;
+function capitaliseFirstLetter(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+exports.capitaliseFirstLetter = capitaliseFirstLetter;
+function compareNumbers(a, b) {
+    return a - b;
+}
+exports.compareNumbers = compareNumbers;
+function isInt(n) {
+    return n % 1 === 0;
+}
+exports.isInt = isInt;
+// Returns a method bound to the given object context.
+// Just like one of the jQuery.proxy signatures, but without the undesired behavior of treating the same method with
+// different contexts as identical when binding/unbinding events.
+function proxy(obj, methodName) {
+    var method = obj[methodName];
+    return function () {
+        return method.apply(obj, arguments);
+    };
+}
+exports.proxy = proxy;
+// Returns a function, that, as long as i
