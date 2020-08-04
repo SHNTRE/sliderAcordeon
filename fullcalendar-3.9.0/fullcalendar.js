@@ -917,4 +917,54 @@ var UnzonedRange = /** @class */ (function () {
         if (moment.isMoment(startInput)) {
             startInput = startInput.clone().stripZone();
         }
-        if (moment.isMom
+        if (moment.isMoment(endInput)) {
+            endInput = endInput.clone().stripZone();
+        }
+        if (startInput) {
+            this.startMs = startInput.valueOf();
+        }
+        if (endInput) {
+            this.endMs = endInput.valueOf();
+        }
+    }
+    /*
+    SIDEEFFECT: will mutate eventRanges.
+    Will return a new array result.
+    Only works for non-open-ended ranges.
+    */
+    UnzonedRange.invertRanges = function (ranges, constraintRange) {
+        var invertedRanges = [];
+        var startMs = constraintRange.startMs; // the end of the previous range. the start of the new range
+        var i;
+        var dateRange;
+        // ranges need to be in order. required for our date-walking algorithm
+        ranges.sort(compareUnzonedRanges);
+        for (i = 0; i < ranges.length; i++) {
+            dateRange = ranges[i];
+            // add the span of time before the event (if there is any)
+            if (dateRange.startMs > startMs) {
+                invertedRanges.push(new UnzonedRange(startMs, dateRange.startMs));
+            }
+            if (dateRange.endMs > startMs) {
+                startMs = dateRange.endMs;
+            }
+        }
+        // add the span of time after the last event (if there is any)
+        if (startMs < constraintRange.endMs) {
+            invertedRanges.push(new UnzonedRange(startMs, constraintRange.endMs));
+        }
+        return invertedRanges;
+    };
+    UnzonedRange.prototype.intersect = function (otherRange) {
+        var startMs = this.startMs;
+        var endMs = this.endMs;
+        var newRange = null;
+        if (otherRange.startMs != null) {
+            if (startMs == null) {
+                startMs = otherRange.startMs;
+            }
+            else {
+                startMs = Math.max(startMs, otherRange.startMs);
+            }
+        }
+        if (otherRange.endMs != n
