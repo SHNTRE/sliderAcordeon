@@ -967,4 +967,47 @@ var UnzonedRange = /** @class */ (function () {
                 startMs = Math.max(startMs, otherRange.startMs);
             }
         }
-        if (otherRange.endMs != n
+        if (otherRange.endMs != null) {
+            if (endMs == null) {
+                endMs = otherRange.endMs;
+            }
+            else {
+                endMs = Math.min(endMs, otherRange.endMs);
+            }
+        }
+        if (startMs == null || endMs == null || startMs < endMs) {
+            newRange = new UnzonedRange(startMs, endMs);
+            newRange.isStart = this.isStart && startMs === this.startMs;
+            newRange.isEnd = this.isEnd && endMs === this.endMs;
+        }
+        return newRange;
+    };
+    UnzonedRange.prototype.intersectsWith = function (otherRange) {
+        return (this.endMs == null || otherRange.startMs == null || this.endMs > otherRange.startMs) &&
+            (this.startMs == null || otherRange.endMs == null || this.startMs < otherRange.endMs);
+    };
+    UnzonedRange.prototype.containsRange = function (innerRange) {
+        return (this.startMs == null || (innerRange.startMs != null && innerRange.startMs >= this.startMs)) &&
+            (this.endMs == null || (innerRange.endMs != null && innerRange.endMs <= this.endMs));
+    };
+    // `date` can be a moment, a Date, or a millisecond time.
+    UnzonedRange.prototype.containsDate = function (date) {
+        var ms = date.valueOf();
+        return (this.startMs == null || ms >= this.startMs) &&
+            (this.endMs == null || ms < this.endMs);
+    };
+    // If the given date is not within the given range, move it inside.
+    // (If it's past the end, make it one millisecond before the end).
+    // `date` can be a moment, a Date, or a millisecond time.
+    // Returns a MS-time.
+    UnzonedRange.prototype.constrainDate = function (date) {
+        var ms = date.valueOf();
+        if (this.startMs != null && ms < this.startMs) {
+            ms = this.startMs;
+        }
+        if (this.endMs != null && ms >= this.endMs) {
+            ms = this.endMs - 1;
+        }
+        return ms;
+    };
+   
