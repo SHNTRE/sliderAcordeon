@@ -1010,4 +1010,55 @@ var UnzonedRange = /** @class */ (function () {
         }
         return ms;
     };
-   
+    UnzonedRange.prototype.equals = function (otherRange) {
+        return this.startMs === otherRange.startMs && this.endMs === otherRange.endMs;
+    };
+    UnzonedRange.prototype.clone = function () {
+        var range = new UnzonedRange(this.startMs, this.endMs);
+        range.isStart = this.isStart;
+        range.isEnd = this.isEnd;
+        return range;
+    };
+    // Returns an ambig-zoned moment from startMs.
+    // BEWARE: returned moment is not localized.
+    // Formatting and start-of-week will be default.
+    UnzonedRange.prototype.getStart = function () {
+        if (this.startMs != null) {
+            return moment_ext_1.default.utc(this.startMs).stripZone();
+        }
+        return null;
+    };
+    // Returns an ambig-zoned moment from startMs.
+    // BEWARE: returned moment is not localized.
+    // Formatting and start-of-week will be default.
+    UnzonedRange.prototype.getEnd = function () {
+        if (this.endMs != null) {
+            return moment_ext_1.default.utc(this.endMs).stripZone();
+        }
+        return null;
+    };
+    UnzonedRange.prototype.as = function (unit) {
+        return moment.utc(this.endMs).diff(moment.utc(this.startMs), unit, true);
+    };
+    return UnzonedRange;
+}());
+exports.default = UnzonedRange;
+/*
+Only works for non-open-ended ranges.
+*/
+function compareUnzonedRanges(range1, range2) {
+    return range1.startMs - range2.startMs; // earlier ranges go first
+}
+
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var $ = __webpack_require__(3);
+var ParsableModelMixin_1 = __webpack_require__(208);
+var Class_1 = __webpack_require__(33);
+var EventDefParser_1 = __webpack_require__(49);
+var EventSource = /** @class */ (function (
