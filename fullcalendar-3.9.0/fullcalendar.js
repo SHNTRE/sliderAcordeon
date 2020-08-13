@@ -1061,4 +1061,61 @@ var $ = __webpack_require__(3);
 var ParsableModelMixin_1 = __webpack_require__(208);
 var Class_1 = __webpack_require__(33);
 var EventDefParser_1 = __webpack_require__(49);
-var EventSource = /** @class */ (function (
+var EventSource = /** @class */ (function (_super) {
+    tslib_1.__extends(EventSource, _super);
+    // can we do away with calendar? at least for the abstract?
+    // useful for buildEventDef
+    function EventSource(calendar) {
+        var _this = _super.call(this) || this;
+        _this.calendar = calendar;
+        _this.className = [];
+        _this.uid = String(EventSource.uuid++);
+        return _this;
+    }
+    /*
+    rawInput can be any data type!
+    */
+    EventSource.parse = function (rawInput, calendar) {
+        var source = new this(calendar);
+        if (typeof rawInput === 'object') {
+            if (source.applyProps(rawInput)) {
+                return source;
+            }
+        }
+        return false;
+    };
+    EventSource.normalizeId = function (id) {
+        if (id) {
+            return String(id);
+        }
+        return null;
+    };
+    EventSource.prototype.fetch = function (start, end, timezone) {
+        // subclasses must implement. must return a promise.
+    };
+    EventSource.prototype.removeEventDefsById = function (eventDefId) {
+        // optional for subclasses to implement
+    };
+    EventSource.prototype.removeAllEventDefs = function () {
+        // optional for subclasses to implement
+    };
+    /*
+    For compairing/matching
+    */
+    EventSource.prototype.getPrimitive = function (otherSource) {
+        // subclasses must implement
+    };
+    EventSource.prototype.parseEventDefs = function (rawEventDefs) {
+        var i;
+        var eventDef;
+        var eventDefs = [];
+        for (i = 0; i < rawEventDefs.length; i++) {
+            eventDef = this.parseEventDef(rawEventDefs[i]);
+            if (eventDef) {
+                eventDefs.push(eventDef);
+            }
+        }
+        return eventDefs;
+    };
+    EventSource.prototype.parseEventDef = function (rawInput) {
+        var calendarT
