@@ -1175,4 +1175,50 @@ EventSource.defineStandardProps({
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
-Utility 
+Utility methods for easily listening to events on another object,
+and more importantly, easily unlistening from them.
+
+USAGE:
+  import { default as ListenerMixin, ListenerInterface } from './ListenerMixin'
+in class:
+  listenTo: ListenerInterface['listenTo']
+  stopListeningTo: ListenerInterface['stopListeningTo']
+after class:
+  ListenerMixin.mixInto(TheClass)
+*/
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var $ = __webpack_require__(3);
+var Mixin_1 = __webpack_require__(14);
+var guid = 0;
+var ListenerMixin = /** @class */ (function (_super) {
+    tslib_1.__extends(ListenerMixin, _super);
+    function ListenerMixin() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    /*
+    Given an `other` object that has on/off methods, bind the given `callback` to an event by the given name.
+    The `callback` will be called with the `this` context of the object that .listenTo is being called on.
+    Can be called:
+      .listenTo(other, eventName, callback)
+    OR
+      .listenTo(other, {
+        eventName1: callback1,
+        eventName2: callback2
+      })
+    */
+    ListenerMixin.prototype.listenTo = function (other, arg, callback) {
+        if (typeof arg === 'object') {
+            for (var eventName in arg) {
+                if (arg.hasOwnProperty(eventName)) {
+                    this.listenTo(other, eventName, arg[eventName]);
+                }
+            }
+        }
+        else if (typeof arg === 'string') {
+            other.on(arg + '.' + this.getListenerNamespace(), // use event namespacing to identify this object
+            $.proxy(callback, this) // always use `this` context
+            // the usually-undesired jQuery guid behavior doesn't matter,
+            // because we always unbind via namespace
+            );
+        
