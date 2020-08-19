@@ -1118,4 +1118,61 @@ var EventSource = /** @class */ (function (_super) {
         return eventDefs;
     };
     EventSource.prototype.parseEventDef = function (rawInput) {
-        var calendarT
+        var calendarTransform = this.calendar.opt('eventDataTransform');
+        var sourceTransform = this.eventDataTransform;
+        if (calendarTransform) {
+            rawInput = calendarTransform(rawInput, this.calendar);
+        }
+        if (sourceTransform) {
+            rawInput = sourceTransform(rawInput, this.calendar);
+        }
+        return EventDefParser_1.default.parse(rawInput, this);
+    };
+    EventSource.prototype.applyManualStandardProps = function (rawProps) {
+        if (rawProps.id != null) {
+            this.id = EventSource.normalizeId(rawProps.id);
+        }
+        // TODO: converge with EventDef
+        if ($.isArray(rawProps.className)) {
+            this.className = rawProps.className;
+        }
+        else if (typeof rawProps.className === 'string') {
+            this.className = rawProps.className.split(/\s+/);
+        }
+        return true;
+    };
+    EventSource.uuid = 0;
+    EventSource.defineStandardProps = ParsableModelMixin_1.default.defineStandardProps;
+    EventSource.copyVerbatimStandardProps = ParsableModelMixin_1.default.copyVerbatimStandardProps;
+    return EventSource;
+}(Class_1.default));
+exports.default = EventSource;
+ParsableModelMixin_1.default.mixInto(EventSource);
+// Parsing
+// ---------------------------------------------------------------------------------------------------------------------
+EventSource.defineStandardProps({
+    // manually process...
+    id: false,
+    className: false,
+    // automatically transfer...
+    color: true,
+    backgroundColor: true,
+    borderColor: true,
+    textColor: true,
+    editable: true,
+    startEditable: true,
+    durationEditable: true,
+    rendering: true,
+    overlap: true,
+    constraint: true,
+    allDayDefault: true,
+    eventDataTransform: true
+});
+
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/*
+Utility 
