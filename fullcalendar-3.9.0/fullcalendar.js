@@ -1221,4 +1221,56 @@ var ListenerMixin = /** @class */ (function (_super) {
             // the usually-undesired jQuery guid behavior doesn't matter,
             // because we always unbind via namespace
             );
-        
+        }
+    };
+    /*
+    Causes the current object to stop listening to events on the `other` object.
+    `eventName` is optional. If omitted, will stop listening to ALL events on `other`.
+    */
+    ListenerMixin.prototype.stopListeningTo = function (other, eventName) {
+        other.off((eventName || '') + '.' + this.getListenerNamespace());
+    };
+    /*
+    Returns a string, unique to this object, to be used for event namespacing
+    */
+    ListenerMixin.prototype.getListenerNamespace = function () {
+        if (this.listenerId == null) {
+            this.listenerId = guid++;
+        }
+        return '_listener' + this.listenerId;
+    };
+    return ListenerMixin;
+}(Mixin_1.default));
+exports.default = ListenerMixin;
+
+
+/***/ }),
+/* 8 */,
+/* 9 */,
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var moment = __webpack_require__(0);
+var $ = __webpack_require__(3);
+var util_1 = __webpack_require__(4);
+var ambigDateOfMonthRegex = /^\s*\d{4}-\d\d$/;
+var ambigTimeOrZoneRegex = /^\s*\d{4}-(?:(\d\d-\d\d)|(W\d\d$)|(W\d\d-\d)|(\d\d\d))((T| )(\d\d(:\d\d(:\d\d(\.\d+)?)?)?)?)?$/;
+var newMomentProto = moment.fn; // where we will attach our new methods
+exports.newMomentProto = newMomentProto;
+var oldMomentProto = $.extend({}, newMomentProto); // copy of original moment methods
+exports.oldMomentProto = oldMomentProto;
+// tell momentjs to transfer these properties upon clone
+var momentProperties = moment.momentProperties;
+momentProperties.push('_fullCalendar');
+momentProperties.push('_ambigTime');
+momentProperties.push('_ambigZone');
+/*
+Call this if you want Moment's original format method to be used
+*/
+function oldMomentFormat(mom, formatStr) {
+    return oldMomentProto.format.call(mom, formatStr); // oldMomentProto defined in moment-ext.js
+}
+exports.oldMomentFormat = oldMomentFormat;
+// Creating
+// --------
