@@ -1310,4 +1310,53 @@ function makeMoment(args, parseAsUTC, parseZone) {
     var isAmbigTime;
     var isAmbigZone;
     var ambigMatch;
-    va
+    var mom;
+    if (moment.isMoment(input) || util_1.isNativeDate(input) || input === undefined) {
+        mom = moment.apply(null, args);
+    }
+    else {
+        isAmbigTime = false;
+        isAmbigZone = false;
+        if (isSingleString) {
+            if (ambigDateOfMonthRegex.test(input)) {
+                // accept strings like '2014-05', but convert to the first of the month
+                input += '-01';
+                args = [input]; // for when we pass it on to moment's constructor
+                isAmbigTime = true;
+                isAmbigZone = true;
+            }
+            else if ((ambigMatch = ambigTimeOrZoneRegex.exec(input))) {
+                isAmbigTime = !ambigMatch[5]; // no time part?
+                isAmbigZone = true;
+            }
+        }
+        else if ($.isArray(input)) {
+            // arrays have no timezone information, so assume ambiguous zone
+            isAmbigZone = true;
+        }
+        // otherwise, probably a string with a format
+        if (parseAsUTC || isAmbigTime) {
+            mom = moment.utc.apply(moment, args);
+        }
+        else {
+            mom = moment.apply(null, args);
+        }
+        if (isAmbigTime) {
+            mom._ambigTime = true;
+            mom._ambigZone = true; // ambiguous time always means ambiguous zone
+        }
+        else if (parseZone) {
+            if (isAmbigZone) {
+                mom._ambigZone = true;
+            }
+            else if (isSingleString) {
+                mom.utcOffset(input); // if not a valid zone, will assign UTC
+            }
+        }
+    }
+    mom._fullCalendar = true; // flag for extended functionality
+    return mom;
+}
+// Week Number
+// -------------------------------------------------------------------------------------------------
+// Returns the week number, considering the locale's 
