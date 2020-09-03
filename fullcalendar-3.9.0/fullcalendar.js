@@ -1273,4 +1273,41 @@ function oldMomentFormat(mom, formatStr) {
 }
 exports.oldMomentFormat = oldMomentFormat;
 // Creating
-// --------
+// -------------------------------------------------------------------------------------------------
+// Creates a new moment, similar to the vanilla moment(...) constructor, but with
+// extra features (ambiguous time, enhanced formatting). When given an existing moment,
+// it will function as a clone (and retain the zone of the moment). Anything else will
+// result in a moment in the local zone.
+var momentExt = function () {
+    return makeMoment(arguments);
+};
+exports.default = momentExt;
+// Sames as momentExt, but forces the resulting moment to be in the UTC timezone.
+momentExt.utc = function () {
+    var mom = makeMoment(arguments, true);
+    // Force it into UTC because makeMoment doesn't guarantee it
+    // (if given a pre-existing moment for example)
+    if (mom.hasTime()) {
+        mom.utc();
+    }
+    return mom;
+};
+// Same as momentExt, but when given an ISO8601 string, the timezone offset is preserved.
+// ISO8601 strings with no timezone offset will become ambiguously zoned.
+momentExt.parseZone = function () {
+    return makeMoment(arguments, true, true);
+};
+// Builds an enhanced moment from args. When given an existing moment, it clones. When given a
+// native Date, or called with no arguments (the current time), the resulting moment will be local.
+// Anything else needs to be "parsed" (a string or an array), and will be affected by:
+//    parseAsUTC - if there is no zone information, should we parse the input in UTC?
+//    parseZone - if there is zone information, should we force the zone of the moment?
+function makeMoment(args, parseAsUTC, parseZone) {
+    if (parseAsUTC === void 0) { parseAsUTC = false; }
+    if (parseZone === void 0) { parseZone = false; }
+    var input = args[0];
+    var isSingleString = args.length === 1 && typeof input === 'string';
+    var isAmbigTime;
+    var isAmbigZone;
+    var ambigMatch;
+    va
