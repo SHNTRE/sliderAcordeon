@@ -1640,4 +1640,65 @@ var SingleEventDef = /** @class */ (function (_super) {
     /*
     NOTE: if super-method fails, should still attempt to apply
     */
-  
+    SingleEventDef.prototype.applyManualStandardProps = function (rawProps) {
+        var superSuccess = _super.prototype.applyManualStandardProps.call(this, rawProps);
+        var dateProfile = EventDateProfile_1.default.parse(rawProps, this.source); // returns null on failure
+        if (dateProfile) {
+            this.dateProfile = dateProfile;
+            // make sure `date` shows up in the legacy event objects as-is
+            if (rawProps.date != null) {
+                this.miscProps.date = rawProps.date;
+            }
+            return superSuccess;
+        }
+        else {
+            return false;
+        }
+    };
+    return SingleEventDef;
+}(EventDef_1.default));
+exports.default = SingleEventDef;
+// Parsing
+// ---------------------------------------------------------------------------------------------------------------------
+SingleEventDef.defineStandardProps({
+    start: false,
+    date: false,
+    end: false,
+    allDay: false
+});
+
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var Mixin = /** @class */ (function () {
+    function Mixin() {
+    }
+    Mixin.mixInto = function (destClass) {
+        var _this = this;
+        Object.getOwnPropertyNames(this.prototype).forEach(function (name) {
+            if (!destClass.prototype[name]) {
+                destClass.prototype[name] = _this.prototype[name];
+            }
+        });
+    };
+    /*
+    will override existing methods
+    TODO: remove! not used anymore
+    */
+    Mixin.mixOver = function (destClass) {
+        var _this = this;
+        Object.getOwnPropertyNames(this.prototype).forEach(function (name) {
+            destClass.prototype[name] = _this.prototype[name];
+        });
+    };
+    return Mixin;
+}());
+exports.default = Mixin;
+
+
+/***/ }),
+/* 15 */
+/***/ (function(mod
