@@ -1359,4 +1359,46 @@ function makeMoment(args, parseAsUTC, parseZone) {
 }
 // Week Number
 // -------------------------------------------------------------------------------------------------
-// Returns the week number, considering the locale's 
+// Returns the week number, considering the locale's custom week number calcuation
+// `weeks` is an alias for `week`
+newMomentProto.week = newMomentProto.weeks = function (input) {
+    var weekCalc = this._locale._fullCalendar_weekCalc;
+    if (input == null && typeof weekCalc === 'function') {
+        return weekCalc(this);
+    }
+    else if (weekCalc === 'ISO') {
+        return oldMomentProto.isoWeek.apply(this, arguments); // ISO getter/setter
+    }
+    return oldMomentProto.week.apply(this, arguments); // local getter/setter
+};
+// Time-of-day
+// -------------------------------------------------------------------------------------------------
+// GETTER
+// Returns a Duration with the hours/minutes/seconds/ms values of the moment.
+// If the moment has an ambiguous time, a duration of 00:00 will be returned.
+//
+// SETTER
+// You can supply a Duration, a Moment, or a Duration-like argument.
+// When setting the time, and the moment has an ambiguous time, it then becomes unambiguous.
+newMomentProto.time = function (time) {
+    // Fallback to the original method (if there is one) if this moment wasn't created via FullCalendar.
+    // `time` is a generic enough method name where this precaution is necessary to avoid collisions w/ other plugins.
+    if (!this._fullCalendar) {
+        return oldMomentProto.time.apply(this, arguments);
+    }
+    if (time == null) {
+        return moment.duration({
+            hours: this.hours(),
+            minutes: this.minutes(),
+            seconds: this.seconds(),
+            milliseconds: this.milliseconds()
+        });
+    }
+    else {
+        this._ambigTime = false; // mark that the moment now has a time
+        if (!moment.isDuration(time) && !moment.isMoment(time)) {
+            time = moment.duration(time);
+        }
+        // The day value should cause overflow (so 24 hours becomes 00:00:00 of next day).
+        // Only for Duration times, not Moment times.
+       
