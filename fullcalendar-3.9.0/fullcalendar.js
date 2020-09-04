@@ -1536,4 +1536,56 @@ var EmitterMixin = /** @class */ (function (_super) {
         };
         // mimick jQuery's internal "proxy" system (risky, I know)
         // causing all functions with the same .guid to appear to be the same.
-        // https://github.com/jq
+        // https://github.com/jquery/jquery/blob/2.2.4/src/core.js#L448
+        // this is needed for calling .off with the original non-intercept handler.
+        if (!handler.guid) {
+            handler.guid = $.guid++;
+        }
+        intercept.guid = handler.guid;
+        return intercept;
+    };
+    EmitterMixin.prototype.off = function (types, handler) {
+        $(this).off(types, handler);
+        return this; // for chaining
+    };
+    EmitterMixin.prototype.trigger = function (types) {
+        var args = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            args[_i - 1] = arguments[_i];
+        }
+        // pass in "extra" info to the intercept
+        $(this).triggerHandler(types, { args: args });
+        return this; // for chaining
+    };
+    EmitterMixin.prototype.triggerWith = function (types, context, args) {
+        // `triggerHandler` is less reliant on the DOM compared to `trigger`.
+        // pass in "extra" info to the intercept.
+        $(this).triggerHandler(types, { context: context, args: args });
+        return this; // for chaining
+    };
+    EmitterMixin.prototype.hasHandlers = function (type) {
+        var hash = $._data(this, 'events'); // http://blog.jquery.com/2012/08/09/jquery-1-8-released/
+        return hash && hash[type] && hash[type].length > 0;
+    };
+    return EmitterMixin;
+}(Mixin_1.default));
+exports.default = EmitterMixin;
+
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+/*
+Meant to be immutable
+*/
+var ComponentFootprint = /** @class */ (function () {
+    function ComponentFootprint(unzonedRange, isAllDay) {
+        this.isAllDay = false; // component can choose to ignore this
+        this.unzonedRange = unzonedRange;
+        this.isAllDay = isAllDay;
+    }
+    /*
+    Only works for non-open-ended ranges.
+    */
