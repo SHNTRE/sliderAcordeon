@@ -1401,4 +1401,49 @@ newMomentProto.time = function (time) {
         }
         // The day value should cause overflow (so 24 hours becomes 00:00:00 of next day).
         // Only for Duration times, not Moment times.
-       
+        var dayHours = 0;
+        if (moment.isDuration(time)) {
+            dayHours = Math.floor(time.asDays()) * 24;
+        }
+        // We need to set the individual fields.
+        // Can't use startOf('day') then add duration. In case of DST at start of day.
+        return this.hours(dayHours + time.hours())
+            .minutes(time.minutes())
+            .seconds(time.seconds())
+            .milliseconds(time.milliseconds());
+    }
+};
+// Converts the moment to UTC, stripping out its time-of-day and timezone offset,
+// but preserving its YMD. A moment with a stripped time will display no time
+// nor timezone offset when .format() is called.
+newMomentProto.stripTime = function () {
+    if (!this._ambigTime) {
+        this.utc(true); // keepLocalTime=true (for keeping *date* value)
+        // set time to zero
+        this.set({
+            hours: 0,
+            minutes: 0,
+            seconds: 0,
+            ms: 0
+        });
+        // Mark the time as ambiguous. This needs to happen after the .utc() call, which might call .utcOffset(),
+        // which clears all ambig flags.
+        this._ambigTime = true;
+        this._ambigZone = true; // if ambiguous time, also ambiguous timezone offset
+    }
+    return this; // for chaining
+};
+// Returns if the moment has a non-ambiguous time (boolean)
+newMomentProto.hasTime = function () {
+    return !this._ambigTime;
+};
+// Timezone
+// -------------------------------------------------------------------------------------------------
+// Converts the moment to UTC, stripping out its timezone offset, but preserving its
+// YMD and time-of-day. A moment with a stripped timezone offset will display no
+// timezone offset when .format() is called.
+newMomentProto.stripZone = function () {
+    var wasAmbigTime;
+    if (!this._ambigZone) {
+        wasAmbigTime = this._ambigTime;
+   
