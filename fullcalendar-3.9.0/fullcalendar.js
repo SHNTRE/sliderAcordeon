@@ -1589,3 +1589,55 @@ var ComponentFootprint = /** @class */ (function () {
     /*
     Only works for non-open-ended ranges.
     */
+    ComponentFootprint.prototype.toLegacy = function (calendar) {
+        return {
+            start: calendar.msToMoment(this.unzonedRange.startMs, this.isAllDay),
+            end: calendar.msToMoment(this.unzonedRange.endMs, this.isAllDay)
+        };
+    };
+    return ComponentFootprint;
+}());
+exports.default = ComponentFootprint;
+
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var EventDef_1 = __webpack_require__(34);
+var EventInstance_1 = __webpack_require__(209);
+var EventDateProfile_1 = __webpack_require__(17);
+var SingleEventDef = /** @class */ (function (_super) {
+    tslib_1.__extends(SingleEventDef, _super);
+    function SingleEventDef() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    /*
+    Will receive start/end params, but will be ignored.
+    */
+    SingleEventDef.prototype.buildInstances = function () {
+        return [this.buildInstance()];
+    };
+    SingleEventDef.prototype.buildInstance = function () {
+        return new EventInstance_1.default(this, // definition
+        this.dateProfile);
+    };
+    SingleEventDef.prototype.isAllDay = function () {
+        return this.dateProfile.isAllDay();
+    };
+    SingleEventDef.prototype.clone = function () {
+        var def = _super.prototype.clone.call(this);
+        def.dateProfile = this.dateProfile;
+        return def;
+    };
+    SingleEventDef.prototype.rezone = function () {
+        var calendar = this.source.calendar;
+        var dateProfile = this.dateProfile;
+        this.dateProfile = new EventDateProfile_1.default(calendar.moment(dateProfile.start), dateProfile.end ? calendar.moment(dateProfile.end) : null, calendar);
+    };
+    /*
+    NOTE: if super-method fails, should still attempt to apply
+    */
+  
