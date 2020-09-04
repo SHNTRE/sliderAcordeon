@@ -1492,3 +1492,48 @@ newMomentProto.utcOffset = function (tzo) {
 
 
 /***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/*
+USAGE:
+  import { default as EmitterMixin, EmitterInterface } from './EmitterMixin'
+in class:
+  on: EmitterInterface['on']
+  one: EmitterInterface['one']
+  off: EmitterInterface['off']
+  trigger: EmitterInterface['trigger']
+  triggerWith: EmitterInterface['triggerWith']
+  hasHandlers: EmitterInterface['hasHandlers']
+after class:
+  EmitterMixin.mixInto(TheClass)
+*/
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var $ = __webpack_require__(3);
+var Mixin_1 = __webpack_require__(14);
+var EmitterMixin = /** @class */ (function (_super) {
+    tslib_1.__extends(EmitterMixin, _super);
+    function EmitterMixin() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    // jQuery-ification via $(this) allows a non-DOM object to have
+    // the same event handling capabilities (including namespaces).
+    EmitterMixin.prototype.on = function (types, handler) {
+        $(this).on(types, this._prepareIntercept(handler));
+        return this; // for chaining
+    };
+    EmitterMixin.prototype.one = function (types, handler) {
+        $(this).one(types, this._prepareIntercept(handler));
+        return this; // for chaining
+    };
+    EmitterMixin.prototype._prepareIntercept = function (handler) {
+        // handlers are always called with an "event" object as their first param.
+        // sneak the `this` context and arguments into the extra parameter object
+        // and forward them on to the original handler.
+        var intercept = function (ev, extra) {
+            return handler.apply(extra.context || this, extra.args || []);
+        };
+        // mimick jQuery's internal "proxy" system (risky, I know)
+        // causing all functions with the same .guid to appear to be the same.
+        // https://github.com/jq
