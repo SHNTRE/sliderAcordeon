@@ -1446,4 +1446,49 @@ newMomentProto.stripZone = function () {
     var wasAmbigTime;
     if (!this._ambigZone) {
         wasAmbigTime = this._ambigTime;
-   
+        this.utc(true); // keepLocalTime=true (for keeping date and time values)
+        // the above call to .utc()/.utcOffset() unfortunately might clear the ambig flags, so restore
+        this._ambigTime = wasAmbigTime || false;
+        // Mark the zone as ambiguous. This needs to happen after the .utc() call, which might call .utcOffset(),
+        // which clears the ambig flags.
+        this._ambigZone = true;
+    }
+    return this; // for chaining
+};
+// Returns of the moment has a non-ambiguous timezone offset (boolean)
+newMomentProto.hasZone = function () {
+    return !this._ambigZone;
+};
+// implicitly marks a zone
+newMomentProto.local = function (keepLocalTime) {
+    // for when converting from ambiguously-zoned to local,
+    // keep the time values when converting from UTC -> local
+    oldMomentProto.local.call(this, this._ambigZone || keepLocalTime);
+    // ensure non-ambiguous
+    // this probably already happened via local() -> utcOffset(), but don't rely on Moment's internals
+    this._ambigTime = false;
+    this._ambigZone = false;
+    return this; // for chaining
+};
+// implicitly marks a zone
+newMomentProto.utc = function (keepLocalTime) {
+    oldMomentProto.utc.call(this, keepLocalTime);
+    // ensure non-ambiguous
+    // this probably already happened via utc() -> utcOffset(), but don't rely on Moment's internals
+    this._ambigTime = false;
+    this._ambigZone = false;
+    return this;
+};
+// implicitly marks a zone (will probably get called upon .utc() and .local())
+newMomentProto.utcOffset = function (tzo) {
+    if (tzo != null) {
+        // these assignments needs to happen before the original zone method is called.
+        // I forget why, something to do with a browser crash.
+        this._ambigTime = false;
+        this._ambigZone = false;
+    }
+    return oldMomentProto.utcOffset.apply(this, arguments);
+};
+
+
+/***/ }),
