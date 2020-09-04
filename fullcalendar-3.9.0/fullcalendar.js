@@ -1701,4 +1701,53 @@ exports.default = Mixin;
 
 /***/ }),
 /* 15 */
-/***/ (function(mod
+/***/ (function(module, exports) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var Interaction = /** @class */ (function () {
+    function Interaction(component) {
+        this.view = component._getView();
+        this.component = component;
+    }
+    Interaction.prototype.opt = function (name) {
+        return this.view.opt(name);
+    };
+    Interaction.prototype.end = function () {
+        // subclasses can implement
+    };
+    return Interaction;
+}());
+exports.default = Interaction;
+
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.version = '3.9.0';
+// When introducing internal API incompatibilities (where fullcalendar plugins would break),
+// the minor version of the calendar should be upped (ex: 2.7.2 -> 2.8.0)
+// and the below integer should be incremented.
+exports.internalApiVersion = 12;
+var util_1 = __webpack_require__(4);
+exports.applyAll = util_1.applyAll;
+exports.debounce = util_1.debounce;
+exports.isInt = util_1.isInt;
+exports.htmlEscape = util_1.htmlEscape;
+exports.cssToStr = util_1.cssToStr;
+exports.proxy = util_1.proxy;
+exports.capitaliseFirstLetter = util_1.capitaliseFirstLetter;
+exports.getOuterRect = util_1.getOuterRect;
+exports.getClientRect = util_1.getClientRect;
+exports.getContentRect = util_1.getContentRect;
+exports.getScrollbarWidths = util_1.getScrollbarWidths;
+exports.preventDefault = util_1.preventDefault;
+exports.parseFieldSpecs = util_1.parseFieldSpecs;
+exports.compareByFieldSpecs = util_1.compareByFieldSpecs;
+exports.compareByFieldSpec = util_1.compareByFieldSpec;
+exports.flexibleCompare = util_1.flexibleCompare;
+exports.computeGreatestUnit = util_1.computeGreatestUnit;
+exports.divideRangeByDuration = util_1.divideRangeByDuration;
+exports.divideDurationByDuration = util_1.divideDurationByDuration;
+exports.multiplyDuration =
