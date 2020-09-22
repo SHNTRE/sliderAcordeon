@@ -1984,4 +1984,50 @@ var EventInstanceGroup = /** @class */ (function () {
             return this.sliceNormalRenderRanges(constraintRange);
         }
     };
-  
+    EventInstanceGroup.prototype.sliceNormalRenderRanges = function (constraintRange) {
+        var eventInstances = this.eventInstances;
+        var i;
+        var eventInstance;
+        var slicedRange;
+        var slicedEventRanges = [];
+        for (i = 0; i < eventInstances.length; i++) {
+            eventInstance = eventInstances[i];
+            slicedRange = eventInstance.dateProfile.unzonedRange.intersect(constraintRange);
+            if (slicedRange) {
+                slicedEventRanges.push(new EventRange_1.default(slicedRange, eventInstance.def, eventInstance));
+            }
+        }
+        return slicedEventRanges;
+    };
+    EventInstanceGroup.prototype.sliceInverseRenderRanges = function (constraintRange) {
+        var unzonedRanges = this.eventInstances.map(util_1.eventInstanceToUnzonedRange);
+        var ownerDef = this.getEventDef();
+        unzonedRanges = UnzonedRange_1.default.invertRanges(unzonedRanges, constraintRange);
+        return unzonedRanges.map(function (unzonedRange) {
+            return new EventRange_1.default(unzonedRange, ownerDef); // don't give an EventInstance
+        });
+    };
+    EventInstanceGroup.prototype.isInverse = function () {
+        return this.getEventDef().hasInverseRendering();
+    };
+    EventInstanceGroup.prototype.getEventDef = function () {
+        return this.explicitEventDef || this.eventInstances[0].def;
+    };
+    return EventInstanceGroup;
+}());
+exports.default = EventInstanceGroup;
+
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var $ = __webpack_require__(3);
+var Theme = /** @class */ (function () {
+    function Theme(optionsManager) {
+        this.optionsManager = optionsManager;
+        this.processIconOverride();
+    }
+    Theme.prototype.processIconOverride = function () {
+     
