@@ -2081,4 +2081,67 @@ exports.default = Theme;
 Theme.prototype.classes = {};
 Theme.prototype.iconClasses = {};
 Theme.prototype.baseIconClass = '';
-Theme.prototype.iconOverridePrefix
+Theme.prototype.iconOverridePrefix = '';
+
+
+/***/ }),
+/* 20 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var $ = __webpack_require__(3);
+var PromiseStub = {
+    construct: function (executor) {
+        var deferred = $.Deferred();
+        var promise = deferred.promise();
+        if (typeof executor === 'function') {
+            executor(function (val) {
+                deferred.resolve(val);
+                attachImmediatelyResolvingThen(promise, val);
+            }, function () {
+                deferred.reject();
+                attachImmediatelyRejectingThen(promise);
+            });
+        }
+        return promise;
+    },
+    resolve: function (val) {
+        var deferred = $.Deferred().resolve(val);
+        var promise = deferred.promise();
+        attachImmediatelyResolvingThen(promise, val);
+        return promise;
+    },
+    reject: function () {
+        var deferred = $.Deferred().reject();
+        var promise = deferred.promise();
+        attachImmediatelyRejectingThen(promise);
+        return promise;
+    }
+};
+exports.default = PromiseStub;
+function attachImmediatelyResolvingThen(promise, val) {
+    promise.then = function (onResolve) {
+        if (typeof onResolve === 'function') {
+            return PromiseStub.resolve(onResolve(val));
+        }
+        return promise;
+    };
+}
+function attachImmediatelyRejectingThen(promise) {
+    promise.then = function (onResolve, onReject) {
+        if (typeof onReject === 'function') {
+            onReject();
+        }
+        return promise;
+    };
+}
+
+
+/***/ }),
+/* 21 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var $ = __webpack_require__(3);
+var exportHooks = __webpack_require__(16);
+var EmitterMixin_1 = __webpack_require_
