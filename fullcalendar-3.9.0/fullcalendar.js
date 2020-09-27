@@ -2144,4 +2144,52 @@ function attachImmediatelyRejectingThen(promise) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var $ = __webpack_require__(3);
 var exportHooks = __webpack_require__(16);
-var EmitterMixin_1 = __webpack_require_
+var EmitterMixin_1 = __webpack_require__(11);
+var ListenerMixin_1 = __webpack_require__(7);
+exportHooks.touchMouseIgnoreWait = 500;
+var globalEmitter = null;
+var neededCount = 0;
+/*
+Listens to document and window-level user-interaction events, like touch events and mouse events,
+and fires these events as-is to whoever is observing a GlobalEmitter.
+Best when used as a singleton via GlobalEmitter.get()
+
+Normalizes mouse/touch events. For examples:
+- ignores the the simulated mouse events that happen after a quick tap: mousemove+mousedown+mouseup+click
+- compensates for various buggy scenarios where a touchend does not fire
+*/
+var GlobalEmitter = /** @class */ (function () {
+    function GlobalEmitter() {
+        this.isTouching = false;
+        this.mouseIgnoreDepth = 0;
+    }
+    // gets the singleton
+    GlobalEmitter.get = function () {
+        if (!globalEmitter) {
+            globalEmitter = new GlobalEmitter();
+            globalEmitter.bind();
+        }
+        return globalEmitter;
+    };
+    // called when an object knows it will need a GlobalEmitter in the near future.
+    GlobalEmitter.needed = function () {
+        GlobalEmitter.get(); // ensures globalEmitter
+        neededCount++;
+    };
+    // called when the object that originally called needed() doesn't need a GlobalEmitter anymore.
+    GlobalEmitter.unneeded = function () {
+        neededCount--;
+        if (!neededCount) {
+            globalEmitter.unbind();
+            globalEmitter = null;
+        }
+    };
+    GlobalEmitter.prototype.bind = function () {
+        var _this = this;
+        this.listenTo($(document), {
+            touchstart: this.handleTouchStart,
+            touchcancel: this.handleTouchCancel,
+            touchend: this.handleTouchEnd,
+            mousedown: this.handleMouseDown,
+            mousemove: this.handleMouseMove,
+            mouseup:
