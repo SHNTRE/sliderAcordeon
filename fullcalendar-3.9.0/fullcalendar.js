@@ -2192,4 +2192,39 @@ var GlobalEmitter = /** @class */ (function () {
             touchend: this.handleTouchEnd,
             mousedown: this.handleMouseDown,
             mousemove: this.handleMouseMove,
-            mouseup:
+            mouseup: this.handleMouseUp,
+            click: this.handleClick,
+            selectstart: this.handleSelectStart,
+            contextmenu: this.handleContextMenu
+        });
+        // because we need to call preventDefault
+        // because https://www.chromestatus.com/features/5093566007214080
+        // TODO: investigate performance because this is a global handler
+        window.addEventListener('touchmove', this.handleTouchMoveProxy = function (ev) {
+            _this.handleTouchMove($.Event(ev));
+        }, { passive: false } // allows preventDefault()
+        );
+        // attach a handler to get called when ANY scroll action happens on the page.
+        // this was impossible to do with normal on/off because 'scroll' doesn't bubble.
+        // http://stackoverflow.com/a/32954565/96342
+        window.addEventListener('scroll', this.handleScrollProxy = function (ev) {
+            _this.handleScroll($.Event(ev));
+        }, true // useCapture
+        );
+    };
+    GlobalEmitter.prototype.unbind = function () {
+        this.stopListeningTo($(document));
+        window.removeEventListener('touchmove', this.handleTouchMoveProxy);
+        window.removeEventListener('scroll', this.handleScrollProxy, true // useCapture
+        );
+    };
+    // Touch Handlers
+    // -----------------------------------------------------------------------------------------------------------------
+    GlobalEmitter.prototype.handleTouchStart = function (ev) {
+        // if a previous touch interaction never ended with a touchend, then implicitly end it,
+        // but since a new touch interaction is about to begin, don't start the mouse ignore period.
+        this.stopTouch(ev, true); // skipMouseIgnore=true
+        this.isTouching = true;
+        this.trigger('touchstart', ev);
+    };
+    GlobalEmitter.prototype.handleTouchMove =
