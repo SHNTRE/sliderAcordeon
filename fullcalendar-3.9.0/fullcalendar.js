@@ -2227,4 +2227,54 @@ var GlobalEmitter = /** @class */ (function () {
         this.isTouching = true;
         this.trigger('touchstart', ev);
     };
-    GlobalEmitter.prototype.handleTouchMove =
+    GlobalEmitter.prototype.handleTouchMove = function (ev) {
+        if (this.isTouching) {
+            this.trigger('touchmove', ev);
+        }
+    };
+    GlobalEmitter.prototype.handleTouchCancel = function (ev) {
+        if (this.isTouching) {
+            this.trigger('touchcancel', ev);
+            // Have touchcancel fire an artificial touchend. That way, handlers won't need to listen to both.
+            // If touchend fires later, it won't have any effect b/c isTouching will be false.
+            this.stopTouch(ev);
+        }
+    };
+    GlobalEmitter.prototype.handleTouchEnd = function (ev) {
+        this.stopTouch(ev);
+    };
+    // Mouse Handlers
+    // -----------------------------------------------------------------------------------------------------------------
+    GlobalEmitter.prototype.handleMouseDown = function (ev) {
+        if (!this.shouldIgnoreMouse()) {
+            this.trigger('mousedown', ev);
+        }
+    };
+    GlobalEmitter.prototype.handleMouseMove = function (ev) {
+        if (!this.shouldIgnoreMouse()) {
+            this.trigger('mousemove', ev);
+        }
+    };
+    GlobalEmitter.prototype.handleMouseUp = function (ev) {
+        if (!this.shouldIgnoreMouse()) {
+            this.trigger('mouseup', ev);
+        }
+    };
+    GlobalEmitter.prototype.handleClick = function (ev) {
+        if (!this.shouldIgnoreMouse()) {
+            this.trigger('click', ev);
+        }
+    };
+    // Misc Handlers
+    // -----------------------------------------------------------------------------------------------------------------
+    GlobalEmitter.prototype.handleSelectStart = function (ev) {
+        this.trigger('selectstart', ev);
+    };
+    GlobalEmitter.prototype.handleContextMenu = function (ev) {
+        this.trigger('contextmenu', ev);
+    };
+    GlobalEmitter.prototype.handleScroll = function (ev) {
+        this.trigger('scroll', ev);
+    };
+    // Utils
+    // -------------------------------------------------------------------
