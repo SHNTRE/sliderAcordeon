@@ -2277,4 +2277,61 @@ var GlobalEmitter = /** @class */ (function () {
         this.trigger('scroll', ev);
     };
     // Utils
-    // -------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------------
+    GlobalEmitter.prototype.stopTouch = function (ev, skipMouseIgnore) {
+        if (skipMouseIgnore === void 0) { skipMouseIgnore = false; }
+        if (this.isTouching) {
+            this.isTouching = false;
+            this.trigger('touchend', ev);
+            if (!skipMouseIgnore) {
+                this.startTouchMouseIgnore();
+            }
+        }
+    };
+    GlobalEmitter.prototype.startTouchMouseIgnore = function () {
+        var _this = this;
+        var wait = exportHooks.touchMouseIgnoreWait;
+        if (wait) {
+            this.mouseIgnoreDepth++;
+            setTimeout(function () {
+                _this.mouseIgnoreDepth--;
+            }, wait);
+        }
+    };
+    GlobalEmitter.prototype.shouldIgnoreMouse = function () {
+        return this.isTouching || Boolean(this.mouseIgnoreDepth);
+    };
+    return GlobalEmitter;
+}());
+exports.default = GlobalEmitter;
+ListenerMixin_1.default.mixInto(GlobalEmitter);
+EmitterMixin_1.default.mixInto(GlobalEmitter);
+
+
+/***/ }),
+/* 22 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var exportHooks = __webpack_require__(16);
+exports.viewHash = {};
+exportHooks.views = exports.viewHash;
+function defineView(viewName, viewConfig) {
+    exports.viewHash[viewName] = viewConfig;
+}
+exports.defineView = defineView;
+function getViewConfig(viewName) {
+    return exports.viewHash[viewName];
+}
+exports.getViewConfig = getViewConfig;
+
+
+/***/ }),
+/* 23 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var util_1 = __webpack_require__(4);
+var DragListener_1 = __webpack_require__(54);
+/* Tracks mouse movements over a component and raises events about which hit th
