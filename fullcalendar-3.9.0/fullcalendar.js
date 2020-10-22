@@ -2334,4 +2334,41 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var tslib_1 = __webpack_require__(2);
 var util_1 = __webpack_require__(4);
 var DragListener_1 = __webpack_require__(54);
-/* Tracks mouse movements over a component and raises events about which hit th
+/* Tracks mouse movements over a component and raises events about which hit the mouse is over.
+------------------------------------------------------------------------------------------------------------------------
+options:
+- subjectEl
+- subjectCenter
+*/
+var HitDragListener = /** @class */ (function (_super) {
+    tslib_1.__extends(HitDragListener, _super);
+    function HitDragListener(component, options) {
+        var _this = _super.call(this, options) || this;
+        _this.component = component;
+        return _this;
+    }
+    // Called when drag listening starts (but a real drag has not necessarily began).
+    // ev might be undefined if dragging was started manually.
+    HitDragListener.prototype.handleInteractionStart = function (ev) {
+        var subjectEl = this.subjectEl;
+        var subjectRect;
+        var origPoint;
+        var point;
+        this.component.hitsNeeded();
+        this.computeScrollBounds(); // for autoscroll
+        if (ev) {
+            origPoint = { left: util_1.getEvX(ev), top: util_1.getEvY(ev) };
+            point = origPoint;
+            // constrain the point to bounds of the element being dragged
+            if (subjectEl) {
+                subjectRect = util_1.getOuterRect(subjectEl); // used for centering as well
+                point = util_1.constrainPoint(point, subjectRect);
+            }
+            this.origHit = this.queryHit(point.left, point.top);
+            // treat the center of the subject as the collision point?
+            if (subjectEl && this.options.subjectCenter) {
+                // only consider the area the subject overlaps the hit. best for large subjects.
+                // TODO: skip this if hit didn't supply left/right/top/bottom
+                if (this.origHit) {
+                    subjectRect = util_1.intersectRects(this.origHit, subjectRect) ||
+              
