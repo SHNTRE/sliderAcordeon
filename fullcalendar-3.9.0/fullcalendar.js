@@ -2371,4 +2371,49 @@ var HitDragListener = /** @class */ (function (_super) {
                 // TODO: skip this if hit didn't supply left/right/top/bottom
                 if (this.origHit) {
                     subjectRect = util_1.intersectRects(this.origHit, subjectRect) ||
-              
+                        subjectRect; // in case there is no intersection
+                }
+                point = util_1.getRectCenter(subjectRect);
+            }
+            this.coordAdjust = util_1.diffPoints(point, origPoint); // point - origPoint
+        }
+        else {
+            this.origHit = null;
+            this.coordAdjust = null;
+        }
+        // call the super-method. do it after origHit has been computed
+        _super.prototype.handleInteractionStart.call(this, ev);
+    };
+    // Called when the actual drag has started
+    HitDragListener.prototype.handleDragStart = function (ev) {
+        var hit;
+        _super.prototype.handleDragStart.call(this, ev);
+        // might be different from this.origHit if the min-distance is large
+        hit = this.queryHit(util_1.getEvX(ev), util_1.getEvY(ev));
+        // report the initial hit the mouse is over
+        // especially important if no min-distance and drag starts immediately
+        if (hit) {
+            this.handleHitOver(hit);
+        }
+    };
+    // Called when the drag moves
+    HitDragListener.prototype.handleDrag = function (dx, dy, ev) {
+        var hit;
+        _super.prototype.handleDrag.call(this, dx, dy, ev);
+        hit = this.queryHit(util_1.getEvX(ev), util_1.getEvY(ev));
+        if (!isHitsEqual(hit, this.hit)) {
+            if (this.hit) {
+                this.handleHitOut();
+            }
+            if (hit) {
+                this.handleHitOver(hit);
+            }
+        }
+    };
+    // Called when dragging has been stopped
+    HitDragListener.prototype.handleDragEnd = function (ev) {
+        this.handleHitDone();
+        _super.prototype.handleDragEnd.call(this, ev);
+    };
+    // Called when a the mouse has just moved over a new hit
+    HitDragListener.prototype.handleHitO
