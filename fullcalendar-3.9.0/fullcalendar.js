@@ -2416,4 +2416,51 @@ var HitDragListener = /** @class */ (function (_super) {
         _super.prototype.handleDragEnd.call(this, ev);
     };
     // Called when a the mouse has just moved over a new hit
-    HitDragListener.prototype.handleHitO
+    HitDragListener.prototype.handleHitOver = function (hit) {
+        var isOrig = isHitsEqual(hit, this.origHit);
+        this.hit = hit;
+        this.trigger('hitOver', this.hit, isOrig, this.origHit);
+    };
+    // Called when the mouse has just moved out of a hit
+    HitDragListener.prototype.handleHitOut = function () {
+        if (this.hit) {
+            this.trigger('hitOut', this.hit);
+            this.handleHitDone();
+            this.hit = null;
+        }
+    };
+    // Called after a hitOut. Also called before a dragStop
+    HitDragListener.prototype.handleHitDone = function () {
+        if (this.hit) {
+            this.trigger('hitDone', this.hit);
+        }
+    };
+    // Called when the interaction ends, whether there was a real drag or not
+    HitDragListener.prototype.handleInteractionEnd = function (ev, isCancelled) {
+        _super.prototype.handleInteractionEnd.call(this, ev, isCancelled);
+        this.origHit = null;
+        this.hit = null;
+        this.component.hitsNotNeeded();
+    };
+    // Called when scrolling has stopped, whether through auto scroll, or the user scrolling
+    HitDragListener.prototype.handleScrollEnd = function () {
+        _super.prototype.handleScrollEnd.call(this);
+        // hits' absolute positions will be in new places after a user's scroll.
+        // HACK for recomputing.
+        if (this.isDragging) {
+            this.component.releaseHits();
+            this.component.prepareHits();
+        }
+    };
+    // Gets the hit underneath the coordinates for the given mouse event
+    HitDragListener.prototype.queryHit = function (left, top) {
+        if (this.coordAdjust) {
+            left += this.coordAdjust.left;
+            top += this.coordAdjust.top;
+        }
+        return this.component.queryHit(left, top);
+    };
+    return HitDragListener;
+}(DragListener_1.default));
+exports.default = HitDragListener;
+// Returns `true` if the hits are identically equal. `false` otherwi
