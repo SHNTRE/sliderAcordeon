@@ -2463,4 +2463,61 @@ var HitDragListener = /** @class */ (function (_super) {
     return HitDragListener;
 }(DragListener_1.default));
 exports.default = HitDragListener;
-// Returns `true` if the hits are identically equal. `false` otherwi
+// Returns `true` if the hits are identically equal. `false` otherwise. Must be from the same component.
+// Two null values will be considered equal, as two "out of the component" states are the same.
+function isHitsEqual(hit0, hit1) {
+    if (!hit0 && !hit1) {
+        return true;
+    }
+    if (hit0 && hit1) {
+        return hit0.component === hit1.component &&
+            isHitPropsWithin(hit0, hit1) &&
+            isHitPropsWithin(hit1, hit0); // ensures all props are identical
+    }
+    return false;
+}
+// Returns true if all of subHit's non-standard properties are within superHit
+function isHitPropsWithin(subHit, superHit) {
+    for (var propName in subHit) {
+        if (!/^(component|left|right|top|bottom)$/.test(propName)) {
+            if (subHit[propName] !== superHit[propName]) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+
+/***/ }),
+/* 24 */,
+/* 25 */,
+/* 26 */,
+/* 27 */,
+/* 28 */,
+/* 29 */,
+/* 30 */,
+/* 31 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var $ = __webpack_require__(3);
+var moment = __webpack_require__(0);
+var exportHooks = __webpack_require__(16);
+var options_1 = __webpack_require__(32);
+var util_1 = __webpack_require__(4);
+exports.localeOptionHash = {};
+exportHooks.locales = exports.localeOptionHash;
+// NOTE: can't guarantee any of these computations will run because not every locale has datepicker
+// configs, so make sure there are English fallbacks for these in the defaults file.
+var dpComputableOptions = {
+    buttonText: function (dpOptions) {
+        return {
+            // the translations sometimes wrongly contain HTML entities
+            prev: util_1.stripHtmlEntities(dpOptions.prevText),
+            next: util_1.stripHtmlEntities(dpOptions.nextText),
+            today: util_1.stripHtmlEntities(dpOptions.currentText)
+        };
+    },
+    // Produces format strings like "MMMM YYYY" -> "September 2014"
+    monthYearFormat: 
