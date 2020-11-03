@@ -2557,4 +2557,50 @@ var momComputableOptions = {
         return momOptions.longDateFormat('LT')
             .replace(':mm', '(:mm)')
             .replace(/(\Wmm)$/, '($1)') // like above, but for foreign locales
-            .replace(/\s*a$/i, 't'); // convert to AM/PM/am/pm to lowercase one-letter. remove any spaces b
+            .replace(/\s*a$/i, 't'); // convert to AM/PM/am/pm to lowercase one-letter. remove any spaces beforehand
+    },
+    // Produces format strings like "ha" / "H" -> "6pm" / "18"
+    hourFormat: function (momOptions) {
+        return momOptions.longDateFormat('LT')
+            .replace(':mm', '')
+            .replace(/(\Wmm)$/, '') // like above, but for foreign locales
+            .replace(/\s*a$/i, 'a'); // convert AM/PM/am/pm to lowercase. remove any spaces beforehand
+    },
+    // Produces format strings like "h:mm" -> "6:30" (with no AM/PM)
+    noMeridiemTimeFormat: function (momOptions) {
+        return momOptions.longDateFormat('LT')
+            .replace(/\s*a$/i, ''); // remove trailing AM/PM
+    }
+};
+// options that should be computed off live calendar options (considers override options)
+// TODO: best place for this? related to locale?
+// TODO: flipping text based on isRTL is a bad idea because the CSS `direction` might want to handle it
+var instanceComputableOptions = {
+    // Produces format strings for results like "Mo 16"
+    smallDayDateFormat: function (options) {
+        return options.isRTL ?
+            'D dd' :
+            'dd D';
+    },
+    // Produces format strings for results like "Wk 5"
+    weekFormat: function (options) {
+        return options.isRTL ?
+            'w[ ' + options.weekNumberTitle + ']' :
+            '[' + options.weekNumberTitle + ' ]w';
+    },
+    // Produces format strings for results like "Wk5"
+    smallWeekFormat: function (options) {
+        return options.isRTL ?
+            'w[' + options.weekNumberTitle + ']' :
+            '[' + options.weekNumberTitle + ']w';
+    }
+};
+// TODO: make these computable properties in optionsManager
+function populateInstanceComputableOptions(options) {
+    $.each(instanceComputableOptions, function (name, func) {
+        if (options[name] == null) {
+            options[name] = func(options);
+        }
+    });
+}
+exports.populateInstanceCompu
