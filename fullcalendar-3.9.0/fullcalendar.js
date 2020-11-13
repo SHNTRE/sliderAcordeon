@@ -2638,4 +2638,55 @@ function locale(localeCode, newFcOptions) {
     var fcOptions;
     var momOptions;
     // get the FullCalendar internal option hash for this locale. create if necessary
-    fcOptions = exports.localeOptionHash[localeCode] || (expo
+    fcOptions = exports.localeOptionHash[localeCode] || (exports.localeOptionHash[localeCode] = {});
+    // provided new options for this locales? merge them in
+    if (newFcOptions) {
+        fcOptions = exports.localeOptionHash[localeCode] = options_1.mergeOptions([fcOptions, newFcOptions]);
+    }
+    // compute locale options that weren't defined.
+    // always do this. newFcOptions can be undefined when initializing from i18n file,
+    // so no way to tell if this is an initialization or a default-setting.
+    momOptions = getMomentLocaleData(localeCode); // will fall back to en
+    $.each(momComputableOptions, function (name, func) {
+        if (fcOptions[name] == null) {
+            fcOptions[name] = (func)(momOptions, fcOptions);
+        }
+    });
+    // set it as the default locale for FullCalendar
+    options_1.globalDefaults.locale = localeCode;
+}
+exports.locale = locale;
+// Returns moment's internal locale data. If doesn't exist, returns English.
+function getMomentLocaleData(localeCode) {
+    return moment.localeData(localeCode) || moment.localeData('en');
+}
+exports.getMomentLocaleData = getMomentLocaleData;
+// Initialize English by forcing computation of moment-derived options.
+// Also, sets it as the default.
+locale('en', options_1.englishDefaults);
+
+
+/***/ }),
+/* 32 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var util_1 = __webpack_require__(4);
+exports.globalDefaults = {
+    titleRangeSeparator: ' \u2013 ',
+    monthYearFormat: 'MMMM YYYY',
+    defaultTimedEventDuration: '02:00:00',
+    defaultAllDayEventDuration: { days: 1 },
+    forceEventDuration: false,
+    nextDayThreshold: '09:00:00',
+    // display
+    columnHeader: true,
+    defaultView: 'month',
+    aspectRatio: 1.35,
+    header: {
+        left: 'title',
+        center: '',
+        right: 'today prev,next'
+    },
+    weekends: true,
+    weekNumbers:
