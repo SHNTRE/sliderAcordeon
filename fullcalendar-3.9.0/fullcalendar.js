@@ -2762,4 +2762,65 @@ exports.rtlDefaults = {
     themeButtonIcons: {
         prev: 'circle-triangle-e',
         next: 'circle-triangle-w',
-        nextYe
+        nextYear: 'seek-prev',
+        prevYear: 'seek-next'
+    }
+};
+var complexOptions = [
+    'header',
+    'footer',
+    'buttonText',
+    'buttonIcons',
+    'themeButtonIcons'
+];
+// Merges an array of option objects into a single object
+function mergeOptions(optionObjs) {
+    return util_1.mergeProps(optionObjs, complexOptions);
+}
+exports.mergeOptions = mergeOptions;
+
+
+/***/ }),
+/* 33 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var util_1 = __webpack_require__(4);
+// Class that all other classes will inherit from
+var Class = /** @class */ (function () {
+    function Class() {
+    }
+    // Called on a class to create a subclass.
+    // LIMITATION: cannot provide a constructor!
+    Class.extend = function (members) {
+        var SubClass = /** @class */ (function (_super) {
+            tslib_1.__extends(SubClass, _super);
+            function SubClass() {
+                return _super !== null && _super.apply(this, arguments) || this;
+            }
+            return SubClass;
+        }(this));
+        util_1.copyOwnProps(members, SubClass.prototype);
+        return SubClass;
+    };
+    // Adds new member variables/methods to the class's prototype.
+    // Can be called with another class, or a plain object hash containing new members.
+    Class.mixin = function (members) {
+        util_1.copyOwnProps(members, this.prototype);
+    };
+    return Class;
+}());
+exports.default = Class;
+
+
+/***/ }),
+/* 34 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var $ = __webpack_require__(3);
+var ParsableModelMixin_1 = __webpack_require__(208);
+var EventDef = /** @class */ (function () {
+    function EventDef(source) {
+        this.source
