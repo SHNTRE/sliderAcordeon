@@ -2877,4 +2877,56 @@ var EventDef = /** @class */ (function () {
             return this.overlap;
         }
         if (this.source.overlap != null) {
- 
+            return this.source.overlap;
+        }
+        return this.source.calendar.opt('eventOverlap'); // what about View option?
+    };
+    EventDef.prototype.isStartExplicitlyEditable = function () {
+        if (this.startEditable != null) {
+            return this.startEditable;
+        }
+        return this.source.startEditable;
+    };
+    EventDef.prototype.isDurationExplicitlyEditable = function () {
+        if (this.durationEditable != null) {
+            return this.durationEditable;
+        }
+        return this.source.durationEditable;
+    };
+    EventDef.prototype.isExplicitlyEditable = function () {
+        if (this.editable != null) {
+            return this.editable;
+        }
+        return this.source.editable;
+    };
+    EventDef.prototype.toLegacy = function () {
+        var obj = $.extend({}, this.miscProps);
+        obj._id = this.uid;
+        obj.source = this.source;
+        obj.className = this.className.slice(); // copy
+        obj.allDay = this.isAllDay();
+        if (this.rawId != null) {
+            obj.id = this.rawId;
+        }
+        EventDef.copyVerbatimStandardProps(this, obj);
+        return obj;
+    };
+    EventDef.prototype.applyManualStandardProps = function (rawProps) {
+        if (rawProps.id != null) {
+            this.id = EventDef.normalizeId((this.rawId = rawProps.id));
+        }
+        else {
+            this.id = EventDef.generateId();
+        }
+        if (rawProps._id != null) {
+            this.uid = String(rawProps._id);
+        }
+        else {
+            this.uid = EventDef.generateId();
+        }
+        // TODO: converge with EventSource
+        if ($.isArray(rawProps.className)) {
+            this.className = rawProps.className;
+        }
+        if (typeof rawProps.className === 'string') {
+        
