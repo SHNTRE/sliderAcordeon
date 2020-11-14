@@ -2689,4 +2689,77 @@ exports.globalDefaults = {
         right: 'today prev,next'
     },
     weekends: true,
-    weekNumbers:
+    weekNumbers: false,
+    weekNumberTitle: 'W',
+    weekNumberCalculation: 'local',
+    // editable: false,
+    // nowIndicator: false,
+    scrollTime: '06:00:00',
+    minTime: '00:00:00',
+    maxTime: '24:00:00',
+    showNonCurrentDates: true,
+    // event ajax
+    lazyFetching: true,
+    startParam: 'start',
+    endParam: 'end',
+    timezoneParam: 'timezone',
+    timezone: false,
+    // allDayDefault: undefined,
+    // locale
+    locale: null,
+    isRTL: false,
+    buttonText: {
+        prev: 'prev',
+        next: 'next',
+        prevYear: 'prev year',
+        nextYear: 'next year',
+        year: 'year',
+        today: 'today',
+        month: 'month',
+        week: 'week',
+        day: 'day'
+    },
+    // buttonIcons: null,
+    allDayText: 'all-day',
+    // allows setting a min-height to the event segment to prevent short events overlapping each other
+    agendaEventMinHeight: 0,
+    // jquery-ui theming
+    theme: false,
+    // themeButtonIcons: null,
+    // eventResizableFromStart: false,
+    dragOpacity: .75,
+    dragRevertDuration: 500,
+    dragScroll: true,
+    // selectable: false,
+    unselectAuto: true,
+    // selectMinDistance: 0,
+    dropAccept: '*',
+    eventOrder: 'title',
+    // eventRenderWait: null,
+    eventLimit: false,
+    eventLimitText: 'more',
+    eventLimitClick: 'popover',
+    dayPopoverFormat: 'LL',
+    handleWindowResize: true,
+    windowResizeDelay: 100,
+    longPressDelay: 1000
+};
+exports.englishDefaults = {
+    dayPopoverFormat: 'dddd, MMMM D'
+};
+exports.rtlDefaults = {
+    header: {
+        left: 'next,prev today',
+        center: '',
+        right: 'title'
+    },
+    buttonIcons: {
+        prev: 'right-single-arrow',
+        next: 'left-single-arrow',
+        prevYear: 'right-double-arrow',
+        nextYear: 'left-double-arrow'
+    },
+    themeButtonIcons: {
+        prev: 'circle-triangle-e',
+        next: 'circle-triangle-w',
+        nextYe
