@@ -2823,4 +2823,58 @@ var $ = __webpack_require__(3);
 var ParsableModelMixin_1 = __webpack_require__(208);
 var EventDef = /** @class */ (function () {
     function EventDef(source) {
-        this.source
+        this.source = source;
+        this.className = [];
+        this.miscProps = {};
+    }
+    EventDef.parse = function (rawInput, source) {
+        var def = new this(source);
+        if (def.applyProps(rawInput)) {
+            return def;
+        }
+        return false;
+    };
+    EventDef.normalizeId = function (id) {
+        return String(id);
+    };
+    EventDef.generateId = function () {
+        return '_fc' + (EventDef.uuid++);
+    };
+    EventDef.prototype.clone = function () {
+        var copy = new this.constructor(this.source);
+        copy.id = this.id;
+        copy.rawId = this.rawId;
+        copy.uid = this.uid; // not really unique anymore :(
+        EventDef.copyVerbatimStandardProps(this, copy);
+        copy.className = this.className.slice(); // copy
+        copy.miscProps = $.extend({}, this.miscProps);
+        return copy;
+    };
+    EventDef.prototype.hasInverseRendering = function () {
+        return this.getRendering() === 'inverse-background';
+    };
+    EventDef.prototype.hasBgRendering = function () {
+        var rendering = this.getRendering();
+        return rendering === 'inverse-background' || rendering === 'background';
+    };
+    EventDef.prototype.getRendering = function () {
+        if (this.rendering != null) {
+            return this.rendering;
+        }
+        return this.source.rendering;
+    };
+    EventDef.prototype.getConstraint = function () {
+        if (this.constraint != null) {
+            return this.constraint;
+        }
+        if (this.source.constraint != null) {
+            return this.source.constraint;
+        }
+        return this.source.calendar.opt('eventConstraint'); // what about View option?
+    };
+    EventDef.prototype.getOverlap = function () {
+        if (this.overlap != null) {
+            return this.overlap;
+        }
+        if (this.source.overlap != null) {
+ 
