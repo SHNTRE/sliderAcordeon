@@ -2988,4 +2988,57 @@ function eventInstanceToEventRange(eventInstance) {
 }
 exports.eventInstanceToEventRange = eventInstanceToEventRange;
 function eventRangeToEventFootprint(eventRange) {
-    return new EventFootprint_1.default(new ComponentFootprint_1.default(eventRa
+    return new EventFootprint_1.default(new ComponentFootprint_1.default(eventRange.unzonedRange, eventRange.eventDef.isAllDay()), eventRange.eventDef, eventRange.eventInstance // might not exist
+    );
+}
+exports.eventRangeToEventFootprint = eventRangeToEventFootprint;
+function eventInstanceToUnzonedRange(eventInstance) {
+    return eventInstance.dateProfile.unzonedRange;
+}
+exports.eventInstanceToUnzonedRange = eventInstanceToUnzonedRange;
+function eventFootprintToComponentFootprint(eventFootprint) {
+    return eventFootprint.componentFootprint;
+}
+exports.eventFootprintToComponentFootprint = eventFootprintToComponentFootprint;
+
+
+/***/ }),
+/* 36 */
+/***/ (function(module, exports) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var EventFootprint = /** @class */ (function () {
+    function EventFootprint(componentFootprint, eventDef, eventInstance) {
+        this.componentFootprint = componentFootprint;
+        this.eventDef = eventDef;
+        if (eventInstance) {
+            this.eventInstance = eventInstance;
+        }
+    }
+    EventFootprint.prototype.getEventLegacy = function () {
+        return (this.eventInstance || this.eventDef).toLegacy();
+    };
+    return EventFootprint;
+}());
+exports.default = EventFootprint;
+
+
+/***/ }),
+/* 37 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var util_1 = __webpack_require__(4);
+var EventDateProfile_1 = __webpack_require__(17);
+var EventDef_1 = __webpack_require__(34);
+var EventDefDateMutation_1 = __webpack_require__(50);
+var SingleEventDef_1 = __webpack_require__(13);
+var EventDefMutation = /** @class */ (function () {
+    function EventDefMutation() {
+    }
+    EventDefMutation.createFromRawProps = function (eventInstance, rawProps, largeUnit) {
+        var eventDef = eventInstance.def;
+        var dateProps = {};
+        var standardProps = {};
+        var miscProps = {};
+    
