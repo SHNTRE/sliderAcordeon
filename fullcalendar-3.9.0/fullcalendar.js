@@ -2929,4 +2929,63 @@ var EventDef = /** @class */ (function () {
             this.className = rawProps.className;
         }
         if (typeof rawProps.className === 'string') {
-        
+            this.className = rawProps.className.split(/\s+/);
+        }
+        return true;
+    };
+    EventDef.prototype.applyMiscProps = function (rawProps) {
+        $.extend(this.miscProps, rawProps);
+    };
+    EventDef.uuid = 0;
+    EventDef.defineStandardProps = ParsableModelMixin_1.default.defineStandardProps;
+    EventDef.copyVerbatimStandardProps = ParsableModelMixin_1.default.copyVerbatimStandardProps;
+    return EventDef;
+}());
+exports.default = EventDef;
+ParsableModelMixin_1.default.mixInto(EventDef);
+EventDef.defineStandardProps({
+    // not automatically assigned (`false`)
+    _id: false,
+    id: false,
+    className: false,
+    source: false,
+    // automatically assigned (`true`)
+    title: true,
+    url: true,
+    rendering: true,
+    constraint: true,
+    overlap: true,
+    editable: true,
+    startEditable: true,
+    durationEditable: true,
+    color: true,
+    backgroundColor: true,
+    borderColor: true,
+    textColor: true
+});
+
+
+/***/ }),
+/* 35 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var EventRange_1 = __webpack_require__(211);
+var EventFootprint_1 = __webpack_require__(36);
+var ComponentFootprint_1 = __webpack_require__(12);
+function eventDefsToEventInstances(eventDefs, unzonedRange) {
+    var eventInstances = [];
+    var i;
+    for (i = 0; i < eventDefs.length; i++) {
+        eventInstances.push.apply(eventInstances, // append
+        eventDefs[i].buildInstances(unzonedRange));
+    }
+    return eventInstances;
+}
+exports.eventDefsToEventInstances = eventDefsToEventInstances;
+function eventInstanceToEventRange(eventInstance) {
+    return new EventRange_1.default(eventInstance.dateProfile.unzonedRange, eventInstance.def, eventInstance);
+}
+exports.eventInstanceToEventRange = eventInstanceToEventRange;
+function eventRangeToEventFootprint(eventRange) {
+    return new EventFootprint_1.default(new ComponentFootprint_1.default(eventRa
