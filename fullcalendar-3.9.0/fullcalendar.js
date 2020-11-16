@@ -3041,4 +3041,49 @@ var EventDefMutation = /** @class */ (function () {
         var dateProps = {};
         var standardProps = {};
         var miscProps = {};
-    
+        var verbatimStandardProps = {};
+        var eventDefId = null;
+        var className = null;
+        var propName;
+        var dateProfile;
+        var dateMutation;
+        var defMutation;
+        for (propName in rawProps) {
+            if (EventDateProfile_1.default.isStandardProp(propName)) {
+                dateProps[propName] = rawProps[propName];
+            }
+            else if (eventDef.isStandardProp(propName)) {
+                standardProps[propName] = rawProps[propName];
+            }
+            else if (eventDef.miscProps[propName] !== rawProps[propName]) {
+                miscProps[propName] = rawProps[propName];
+            }
+        }
+        dateProfile = EventDateProfile_1.default.parse(dateProps, eventDef.source);
+        if (dateProfile) {
+            dateMutation = EventDefDateMutation_1.default.createFromDiff(eventInstance.dateProfile, dateProfile, largeUnit);
+        }
+        if (standardProps.id !== eventDef.id) {
+            eventDefId = standardProps.id; // only apply if there's a change
+        }
+        if (!util_1.isArraysEqual(standardProps.className, eventDef.className)) {
+            className = standardProps.className; // only apply if there's a change
+        }
+        EventDef_1.default.copyVerbatimStandardProps(standardProps, // src
+        verbatimStandardProps // dest
+        );
+        defMutation = new EventDefMutation();
+        defMutation.eventDefId = eventDefId;
+        defMutation.className = className;
+        defMutation.verbatimStandardProps = verbatimStandardProps;
+        defMutation.miscProps = miscProps;
+        if (dateMutation) {
+            defMutation.dateMutation = dateMutation;
+        }
+        return defMutation;
+    };
+    /*
+    eventDef assumed to be a SingleEventDef.
+    returns an undo function.
+    */
+    EventDefMutation
