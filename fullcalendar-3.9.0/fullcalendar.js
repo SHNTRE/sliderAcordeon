@@ -3086,4 +3086,62 @@ var EventDefMutation = /** @class */ (function () {
     eventDef assumed to be a SingleEventDef.
     returns an undo function.
     */
-    EventDefMutation
+    EventDefMutation.prototype.mutateSingle = function (eventDef) {
+        var origDateProfile;
+        if (this.dateMutation) {
+            origDateProfile = eventDef.dateProfile;
+            eventDef.dateProfile = this.dateMutation.buildNewDateProfile(origDateProfile, eventDef.source.calendar);
+        }
+        // can't undo
+        // TODO: more DRY with EventDef::applyManualStandardProps
+        if (this.eventDefId != null) {
+            eventDef.id = EventDef_1.default.normalizeId((eventDef.rawId = this.eventDefId));
+        }
+        // can't undo
+        // TODO: more DRY with EventDef::applyManualStandardProps
+        if (this.className) {
+            eventDef.className = this.className;
+        }
+        // can't undo
+        if (this.verbatimStandardProps) {
+            SingleEventDef_1.default.copyVerbatimStandardProps(this.verbatimStandardProps, // src
+            eventDef // dest
+            );
+        }
+        // can't undo
+        if (this.miscProps) {
+            eventDef.applyMiscProps(this.miscProps);
+        }
+        if (origDateProfile) {
+            return function () {
+                eventDef.dateProfile = origDateProfile;
+            };
+        }
+        else {
+            return function () { };
+        }
+    };
+    EventDefMutation.prototype.setDateMutation = function (dateMutation) {
+        if (dateMutation && !dateMutation.isEmpty()) {
+            this.dateMutation = dateMutation;
+        }
+        else {
+            this.dateMutation = null;
+        }
+    };
+    EventDefMutation.prototype.isEmpty = function () {
+        return !this.dateMutation;
+    };
+    return EventDefMutation;
+}());
+exports.default = EventDefMutation;
+
+
+/***/ }),
+/* 38 */
+/***/ (function(module, exports) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = {
+    sourceClasses: [],
+    registerClass: function (Eve
