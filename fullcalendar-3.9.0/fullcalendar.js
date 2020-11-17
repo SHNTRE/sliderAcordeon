@@ -3144,4 +3144,59 @@ exports.default = EventDefMutation;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
     sourceClasses: [],
-    registerClass: function (Eve
+    registerClass: function (EventSourceClass) {
+        this.sourceClasses.unshift(EventSourceClass); // give highest priority
+    },
+    parse: function (rawInput, calendar) {
+        var sourceClasses = this.sourceClasses;
+        var i;
+        var eventSource;
+        for (i = 0; i < sourceClasses.length; i++) {
+            eventSource = sourceClasses[i].parse(rawInput, calendar);
+            if (eventSource) {
+                return eventSource;
+            }
+        }
+    }
+};
+
+
+/***/ }),
+/* 39 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var $ = __webpack_require__(3);
+var util_1 = __webpack_require__(4);
+var Class_1 = __webpack_require__(33);
+/*
+Embodies a div that has potential scrollbars
+*/
+var Scroller = /** @class */ (function (_super) {
+    tslib_1.__extends(Scroller, _super);
+    function Scroller(options) {
+        var _this = _super.call(this) || this;
+        options = options || {};
+        _this.overflowX = options.overflowX || options.overflow || 'auto';
+        _this.overflowY = options.overflowY || options.overflow || 'auto';
+        return _this;
+    }
+    Scroller.prototype.render = function () {
+        this.el = this.renderEl();
+        this.applyOverflow();
+    };
+    Scroller.prototype.renderEl = function () {
+        return (this.scrollEl = $('<div class="fc-scroller"></div>'));
+    };
+    // sets to natural height, unlocks overflow
+    Scroller.prototype.clear = function () {
+        this.setHeight('auto');
+        this.applyOverflow();
+    };
+    Scroller.prototype.destroy = function () {
+        this.el.remove();
+    };
+    // Overflow
+    // -----------------------------------------------------------------------------------------------------------------
+    Scroller.prototype.applyOverflow = function () {
