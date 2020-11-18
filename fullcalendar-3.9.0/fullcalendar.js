@@ -3200,3 +3200,45 @@ var Scroller = /** @class */ (function (_super) {
     // Overflow
     // -----------------------------------------------------------------------------------------------------------------
     Scroller.prototype.applyOverflow = function () {
+        this.scrollEl.css({
+            'overflow-x': this.overflowX,
+            'overflow-y': this.overflowY
+        });
+    };
+    // Causes any 'auto' overflow values to resolves to 'scroll' or 'hidden'.
+    // Useful for preserving scrollbar widths regardless of future resizes.
+    // Can pass in scrollbarWidths for optimization.
+    Scroller.prototype.lockOverflow = function (scrollbarWidths) {
+        var overflowX = this.overflowX;
+        var overflowY = this.overflowY;
+        scrollbarWidths = scrollbarWidths || this.getScrollbarWidths();
+        if (overflowX === 'auto') {
+            overflowX = (scrollbarWidths.top || scrollbarWidths.bottom || // horizontal scrollbars?
+                // OR scrolling pane with massless scrollbars?
+                this.scrollEl[0].scrollWidth - 1 > this.scrollEl[0].clientWidth) ? 'scroll' : 'hidden';
+        }
+        if (overflowY === 'auto') {
+            overflowY = (scrollbarWidths.left || scrollbarWidths.right || // vertical scrollbars?
+                // OR scrolling pane with massless scrollbars?
+                this.scrollEl[0].scrollHeight - 1 > this.scrollEl[0].clientHeight) ? 'scroll' : 'hidden';
+        }
+        this.scrollEl.css({ 'overflow-x': overflowX, 'overflow-y': overflowY });
+    };
+    // Getters / Setters
+    // -----------------------------------------------------------------------------------------------------------------
+    Scroller.prototype.setHeight = function (height) {
+        this.scrollEl.height(height);
+    };
+    Scroller.prototype.getScrollTop = function () {
+        return this.scrollEl.scrollTop();
+    };
+    Scroller.prototype.setScrollTop = function (top) {
+        this.scrollEl.scrollTop(top);
+    };
+    Scroller.prototype.getClientWidth = function () {
+        return this.scrollEl[0].clientWidth;
+    };
+    Scroller.prototype.getClientHeight = function () {
+        return this.scrollEl[0].clientHeight;
+    };
+    Scroller
