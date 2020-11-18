@@ -3241,4 +3241,48 @@ var Scroller = /** @class */ (function (_super) {
     Scroller.prototype.getClientHeight = function () {
         return this.scrollEl[0].clientHeight;
     };
-    Scroller
+    Scroller.prototype.getScrollbarWidths = function () {
+        return util_1.getScrollbarWidths(this.scrollEl);
+    };
+    return Scroller;
+}(Class_1.default));
+exports.default = Scroller;
+
+
+/***/ }),
+/* 40 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var $ = __webpack_require__(3);
+var util_1 = __webpack_require__(4);
+var DateComponent_1 = __webpack_require__(219);
+var GlobalEmitter_1 = __webpack_require__(21);
+var InteractiveDateComponent = /** @class */ (function (_super) {
+    tslib_1.__extends(InteractiveDateComponent, _super);
+    function InteractiveDateComponent(_view, _options) {
+        var _this = _super.call(this, _view, _options) || this;
+        // self-config, overridable by subclasses
+        _this.segSelector = '.fc-event-container > *'; // what constitutes an event element?
+        if (_this.dateSelectingClass) {
+            _this.dateClicking = new _this.dateClickingClass(_this);
+        }
+        if (_this.dateSelectingClass) {
+            _this.dateSelecting = new _this.dateSelectingClass(_this);
+        }
+        if (_this.eventPointingClass) {
+            _this.eventPointing = new _this.eventPointingClass(_this);
+        }
+        if (_this.eventDraggingClass && _this.eventPointing) {
+            _this.eventDragging = new _this.eventDraggingClass(_this, _this.eventPointing);
+        }
+        if (_this.eventResizingClass && _this.eventPointing) {
+            _this.eventResizing = new _this.eventResizingClass(_this, _this.eventPointing);
+        }
+        if (_this.externalDroppingClass) {
+            _this.externalDropping = new _this.externalDroppingClass(_this);
+        }
+        return _this;
+    }
+    // Sets the container element that the view should render inside of, does global DOM-related in
