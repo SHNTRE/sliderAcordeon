@@ -3325,4 +3325,47 @@ var InteractiveDateComponent = /** @class */ (function (_super) {
             if (!$(ev.target).is(_this.segSelector + ':not(.fc-helper),' + // directly on an event element
                 _this.segSelector + ':not(.fc-helper) *,' + // within an event element
                 '.fc-more,' + // a "more.." link
-                'a[data-goto]' // a clickable nav
+                'a[data-goto]' // a clickable nav link
+            )) {
+                return handler.call(_this, ev);
+            }
+        });
+    };
+    InteractiveDateComponent.prototype.bindAllSegHandlersToEl = function (el) {
+        [
+            this.eventPointing,
+            this.eventDragging,
+            this.eventResizing
+        ].forEach(function (eventInteraction) {
+            if (eventInteraction) {
+                eventInteraction.bindToEl(el);
+            }
+        });
+    };
+    InteractiveDateComponent.prototype.bindSegHandlerToEl = function (el, name, handler) {
+        var _this = this;
+        el.on(name, this.segSelector, function (ev) {
+            var segEl = $(ev.currentTarget);
+            if (!segEl.is('.fc-helper')) {
+                var seg = segEl.data('fc-seg'); // grab segment data. put there by View::renderEventsPayload
+                if (seg && !_this.shouldIgnoreEventPointing()) {
+                    return handler.call(_this, seg, ev); // context will be the Grid
+                }
+            }
+        });
+    };
+    InteractiveDateComponent.prototype.shouldIgnoreMouse = function () {
+        // HACK
+        // This will still work even though bindDateHandlerToEl doesn't use GlobalEmitter.
+        return GlobalEmitter_1.default.get().shouldIgnoreMouse();
+    };
+    InteractiveDateComponent.prototype.shouldIgnoreTouch = function () {
+        var view = this._getView();
+        // On iOS (and Android?) when a new selection is initiated overtop another selection,
+        // the touchend never fires because the elements gets removed mid-touch-interaction (my theory).
+        // HACK: simply don't allow this to happen.
+        // ALSO: prevent selection when an *event* is already raised.
+        return view.isSelected || view.selectedEvent;
+    };
+    InteractiveDateComponent.prototype.shouldIgnoreEventPointing = function () {
+        // o
