@@ -3285,4 +3285,44 @@ var InteractiveDateComponent = /** @class */ (function (_super) {
         }
         return _this;
     }
-    // Sets the container element that the view should render inside of, does global DOM-related in
+    // Sets the container element that the view should render inside of, does global DOM-related initializations,
+    // and renders all the non-date-related content inside.
+    InteractiveDateComponent.prototype.setElement = function (el) {
+        _super.prototype.setElement.call(this, el);
+        if (this.dateClicking) {
+            this.dateClicking.bindToEl(el);
+        }
+        if (this.dateSelecting) {
+            this.dateSelecting.bindToEl(el);
+        }
+        this.bindAllSegHandlersToEl(el);
+    };
+    InteractiveDateComponent.prototype.removeElement = function () {
+        this.endInteractions();
+        _super.prototype.removeElement.call(this);
+    };
+    InteractiveDateComponent.prototype.executeEventUnrender = function () {
+        this.endInteractions();
+        _super.prototype.executeEventUnrender.call(this);
+    };
+    InteractiveDateComponent.prototype.bindGlobalHandlers = function () {
+        _super.prototype.bindGlobalHandlers.call(this);
+        if (this.externalDropping) {
+            this.externalDropping.bindToDocument();
+        }
+    };
+    InteractiveDateComponent.prototype.unbindGlobalHandlers = function () {
+        _super.prototype.unbindGlobalHandlers.call(this);
+        if (this.externalDropping) {
+            this.externalDropping.unbindFromDocument();
+        }
+    };
+    InteractiveDateComponent.prototype.bindDateHandlerToEl = function (el, name, handler) {
+        var _this = this;
+        // attach a handler to the grid's root element.
+        // jQuery will take care of unregistering them when removeElement gets called.
+        this.el.on(name, function (ev) {
+            if (!$(ev.target).is(_this.segSelector + ':not(.fc-helper),' + // directly on an event element
+                _this.segSelector + ':not(.fc-helper) *,' + // within an event element
+                '.fc-more,' + // a "more.." link
+                'a[data-goto]' // a clickable nav
