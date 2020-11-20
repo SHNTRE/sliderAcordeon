@@ -3368,4 +3368,44 @@ var InteractiveDateComponent = /** @class */ (function (_super) {
         return view.isSelected || view.selectedEvent;
     };
     InteractiveDateComponent.prototype.shouldIgnoreEventPointing = function () {
-        // o
+        // only call the handlers if there is not a drag/resize in progress
+        return (this.eventDragging && this.eventDragging.isDragging) ||
+            (this.eventResizing && this.eventResizing.isResizing);
+    };
+    InteractiveDateComponent.prototype.canStartSelection = function (seg, ev) {
+        return util_1.getEvIsTouch(ev) &&
+            !this.canStartResize(seg, ev) &&
+            (this.isEventDefDraggable(seg.footprint.eventDef) ||
+                this.isEventDefResizable(seg.footprint.eventDef));
+    };
+    InteractiveDateComponent.prototype.canStartDrag = function (seg, ev) {
+        return !this.canStartResize(seg, ev) &&
+            this.isEventDefDraggable(seg.footprint.eventDef);
+    };
+    InteractiveDateComponent.prototype.canStartResize = function (seg, ev) {
+        var view = this._getView();
+        var eventDef = seg.footprint.eventDef;
+        return (!util_1.getEvIsTouch(ev) || view.isEventDefSelected(eventDef)) &&
+            this.isEventDefResizable(eventDef) &&
+            $(ev.target).is('.fc-resizer');
+    };
+    // Kills all in-progress dragging.
+    // Useful for when public API methods that result in re-rendering are invoked during a drag.
+    // Also useful for when touch devices misbehave and don't fire their touchend.
+    InteractiveDateComponent.prototype.endInteractions = function () {
+        [
+            this.dateClicking,
+            this.dateSelecting,
+            this.eventPointing,
+            this.eventDragging,
+            this.eventResizing
+        ].forEach(function (interaction) {
+            if (interaction) {
+                interaction.end();
+            }
+        });
+    };
+    // Event Drag-n-Drop
+    // ---------------------------------------------------------------------------------------------------------------
+    // Computes if the given event is allowed to be dragged by the user
+    Inter
