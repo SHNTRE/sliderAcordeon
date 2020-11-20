@@ -3443,4 +3443,42 @@ var InteractiveDateComponent = /** @class */ (function (_super) {
         var isResizable = eventDef.isDurationExplicitlyEditable();
         if (isResizable == null) {
             isResizable = this.opt('eventDurationEditable');
-         
+            if (isResizable == null) {
+                isResizable = this.isEventDefGenerallyEditable(eventDef);
+            }
+        }
+        return isResizable;
+    };
+    // Event Mutation / Constraints
+    // ---------------------------------------------------------------------------------------------------------------
+    // Diffs the two dates, returning a duration, based on granularity of the grid
+    // TODO: port isTimeScale into this system?
+    InteractiveDateComponent.prototype.diffDates = function (a, b) {
+        if (this.largeUnit) {
+            return util_1.diffByUnit(a, b, this.largeUnit);
+        }
+        else {
+            return util_1.diffDayTime(a, b);
+        }
+    };
+    // is it allowed, in relation to the view's validRange?
+    // NOTE: very similar to isExternalInstanceGroupAllowed
+    InteractiveDateComponent.prototype.isEventInstanceGroupAllowed = function (eventInstanceGroup) {
+        var view = this._getView();
+        var dateProfile = this.dateProfile;
+        var eventFootprints = this.eventRangesToEventFootprints(eventInstanceGroup.getAllEventRanges());
+        var i;
+        for (i = 0; i < eventFootprints.length; i++) {
+            // TODO: just use getAllEventRanges directly
+            if (!dateProfile.validUnzonedRange.containsRange(eventFootprints[i].componentFootprint.unzonedRange)) {
+                return false;
+            }
+        }
+        return view.calendar.constraints.isEventInstanceGroupAllowed(eventInstanceGroup);
+    };
+    // NOTE: very similar to isEventInstanceGroupAllowed
+    // when it's a completely anonymous external drag, no event.
+    InteractiveDateComponent.prototype.isExternalInstanceGroupAllowed = function (eventInstanceGroup) {
+        var view = this._getView();
+        var dateProfile = this.dateProfile;
+       
