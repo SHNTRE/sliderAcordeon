@@ -3481,4 +3481,47 @@ var InteractiveDateComponent = /** @class */ (function (_super) {
     InteractiveDateComponent.prototype.isExternalInstanceGroupAllowed = function (eventInstanceGroup) {
         var view = this._getView();
         var dateProfile = this.dateProfile;
-       
+        var eventFootprints = this.eventRangesToEventFootprints(eventInstanceGroup.getAllEventRanges());
+        var i;
+        for (i = 0; i < eventFootprints.length; i++) {
+            if (!dateProfile.validUnzonedRange.containsRange(eventFootprints[i].componentFootprint.unzonedRange)) {
+                return false;
+            }
+        }
+        for (i = 0; i < eventFootprints.length; i++) {
+            // treat it as a selection
+            // TODO: pass in eventInstanceGroup instead
+            //  because we don't want calendar's constraint system to depend on a component's
+            //  determination of footprints.
+            if (!view.calendar.constraints.isSelectionFootprintAllowed(eventFootprints[i].componentFootprint)) {
+                return false;
+            }
+        }
+        return true;
+    };
+    return InteractiveDateComponent;
+}(DateComponent_1.default));
+exports.default = InteractiveDateComponent;
+
+
+/***/ }),
+/* 41 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var $ = __webpack_require__(3);
+var moment = __webpack_require__(0);
+var util_1 = __webpack_require__(4);
+var RenderQueue_1 = __webpack_require__(218);
+var DateProfileGenerator_1 = __webpack_require__(221);
+var InteractiveDateComponent_1 = __webpack_require__(40);
+var GlobalEmitter_1 = __webpack_require__(21);
+var UnzonedRange_1 = __webpack_require__(5);
+/* An abstract class from which other views inherit from
+----------------------------------------------------------------------------------------------------------------------*/
+var View = /** @class */ (function (_super) {
+    tslib_1.__extends(View, _super);
+    function View(calendar, viewSpec) {
+        var _this = _super.call(this, null, viewSpec.options) || this;
+        _this.batchRen
