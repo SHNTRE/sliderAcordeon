@@ -3408,4 +3408,39 @@ var InteractiveDateComponent = /** @class */ (function (_super) {
     // Event Drag-n-Drop
     // ---------------------------------------------------------------------------------------------------------------
     // Computes if the given event is allowed to be dragged by the user
-    Inter
+    InteractiveDateComponent.prototype.isEventDefDraggable = function (eventDef) {
+        return this.isEventDefStartEditable(eventDef);
+    };
+    InteractiveDateComponent.prototype.isEventDefStartEditable = function (eventDef) {
+        var isEditable = eventDef.isStartExplicitlyEditable();
+        if (isEditable == null) {
+            isEditable = this.opt('eventStartEditable');
+            if (isEditable == null) {
+                isEditable = this.isEventDefGenerallyEditable(eventDef);
+            }
+        }
+        return isEditable;
+    };
+    InteractiveDateComponent.prototype.isEventDefGenerallyEditable = function (eventDef) {
+        var isEditable = eventDef.isExplicitlyEditable();
+        if (isEditable == null) {
+            isEditable = this.opt('editable');
+        }
+        return isEditable;
+    };
+    // Event Resizing
+    // ---------------------------------------------------------------------------------------------------------------
+    // Computes if the given event is allowed to be resized from its starting edge
+    InteractiveDateComponent.prototype.isEventDefResizableFromStart = function (eventDef) {
+        return this.opt('eventResizableFromStart') && this.isEventDefResizable(eventDef);
+    };
+    // Computes if the given event is allowed to be resized from its ending edge
+    InteractiveDateComponent.prototype.isEventDefResizableFromEnd = function (eventDef) {
+        return this.isEventDefResizable(eventDef);
+    };
+    // Computes if the given event is allowed to be resized by the user at all
+    InteractiveDateComponent.prototype.isEventDefResizable = function (eventDef) {
+        var isResizable = eventDef.isDurationExplicitlyEditable();
+        if (isResizable == null) {
+            isResizable = this.opt('eventDurationEditable');
+         
