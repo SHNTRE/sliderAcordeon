@@ -3573,4 +3573,43 @@ var View = /** @class */ (function (_super) {
     };
     View.prototype.startBatchRender = function () {
         if (!(this.batchRenderDepth++)) {
-            this.renderQueu
+            this.renderQueue.pause();
+        }
+    };
+    View.prototype.stopBatchRender = function () {
+        if (!(--this.batchRenderDepth)) {
+            this.renderQueue.resume();
+        }
+    };
+    View.prototype.requestRender = function (func, namespace, actionType) {
+        this.renderQueue.queue(func, namespace, actionType);
+    };
+    // given func will auto-bind to `this`
+    View.prototype.whenSizeUpdated = function (func) {
+        if (this.renderQueue.isRunning) {
+            this.renderQueue.one('stop', func.bind(this));
+        }
+        else {
+            func.call(this);
+        }
+    };
+    /* Title and Date Formatting
+    ------------------------------------------------------------------------------------------------------------------*/
+    // Computes what the title at the top of the calendar should be for this view
+    View.prototype.computeTitle = function (dateProfile) {
+        var unzonedRange;
+        // for views that span a large unit of time, show the proper interval, ignoring stray days before and after
+        if (/^(year|month)$/.test(dateProfile.currentRangeUnit)) {
+            unzonedRange = dateProfile.currentUnzonedRange;
+        }
+        else {
+            unzonedRange = dateProfile.activeUnzonedRange;
+        }
+        return this.formatRange({
+            start: this.calendar.msToMoment(unzonedRange.startMs, dateProfile.isRangeAllDay),
+            end: this.calendar.msToMoment(unzonedRange.endMs, dateProfile.isRangeAllDay)
+        }, dateProfile.isRangeAllDay, this.opt('titleFormat') || this.computeTitleFormat(dateProfile), this.opt('titleRangeSeparator'));
+    };
+    // Generates the format string that should be used to generate the title for the current date range.
+    // Attempts to compute the most appropriate format if not explicitly specified with `titleFormat`.
+    View.prototy
