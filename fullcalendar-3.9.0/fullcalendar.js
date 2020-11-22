@@ -3612,4 +3612,40 @@ var View = /** @class */ (function (_super) {
     };
     // Generates the format string that should be used to generate the title for the current date range.
     // Attempts to compute the most appropriate format if not explicitly specified with `titleFormat`.
-    View.prototy
+    View.prototype.computeTitleFormat = function (dateProfile) {
+        var currentRangeUnit = dateProfile.currentRangeUnit;
+        if (currentRangeUnit === 'year') {
+            return 'YYYY';
+        }
+        else if (currentRangeUnit === 'month') {
+            return this.opt('monthYearFormat'); // like "September 2014"
+        }
+        else if (dateProfile.currentUnzonedRange.as('days') > 1) {
+            return 'll'; // multi-day range. shorter, like "Sep 9 - 10 2014"
+        }
+        else {
+            return 'LL'; // one day. longer, like "September 9 2014"
+        }
+    };
+    // Date Setting/Unsetting
+    // -----------------------------------------------------------------------------------------------------------------
+    View.prototype.setDate = function (date) {
+        var currentDateProfile = this.get('dateProfile');
+        var newDateProfile = this.dateProfileGenerator.build(date, undefined, true); // forceToValid=true
+        if (!currentDateProfile ||
+            !currentDateProfile.activeUnzonedRange.equals(newDateProfile.activeUnzonedRange)) {
+            this.set('dateProfile', newDateProfile);
+        }
+    };
+    View.prototype.unsetDate = function () {
+        this.unset('dateProfile');
+    };
+    // Event Data
+    // -----------------------------------------------------------------------------------------------------------------
+    View.prototype.fetchInitialEvents = function (dateProfile) {
+        var calendar = this.calendar;
+        var forceAllDay = dateProfile.isRangeAllDay && !this.usesMinMaxTime;
+        return calendar.requestEvents(calendar.msToMoment(dateProfile.activeUnzonedRange.startMs, forceAllDay), calendar.msToMoment(dateProfile.activeUnzonedRange.endMs, forceAllDay));
+    };
+    View.prototype.bindEventChanges = function () {
+        this.listenTo(this.calendar,
