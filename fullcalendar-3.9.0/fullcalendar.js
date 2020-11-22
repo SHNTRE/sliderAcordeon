@@ -3524,4 +3524,53 @@ var View = /** @class */ (function (_super) {
     tslib_1.__extends(View, _super);
     function View(calendar, viewSpec) {
         var _this = _super.call(this, null, viewSpec.options) || this;
-        _this.batchRen
+        _this.batchRenderDepth = 0;
+        _this.isSelected = false; // boolean whether a range of time is user-selected or not
+        _this.calendar = calendar;
+        _this.viewSpec = viewSpec;
+        // shortcuts
+        _this.type = viewSpec.type;
+        // .name is deprecated
+        _this.name = _this.type;
+        _this.initRenderQueue();
+        _this.initHiddenDays();
+        _this.dateProfileGenerator = new _this.dateProfileGeneratorClass(_this);
+        _this.bindBaseRenderHandlers();
+        _this.eventOrderSpecs = util_1.parseFieldSpecs(_this.opt('eventOrder'));
+        // legacy
+        if (_this['initialize']) {
+            _this['initialize']();
+        }
+        return _this;
+    }
+    View.prototype._getView = function () {
+        return this;
+    };
+    // Retrieves an option with the given name
+    View.prototype.opt = function (name) {
+        return this.options[name];
+    };
+    /* Render Queue
+    ------------------------------------------------------------------------------------------------------------------*/
+    View.prototype.initRenderQueue = function () {
+        this.renderQueue = new RenderQueue_1.default({
+            event: this.opt('eventRenderWait')
+        });
+        this.renderQueue.on('start', this.onRenderQueueStart.bind(this));
+        this.renderQueue.on('stop', this.onRenderQueueStop.bind(this));
+        this.on('before:change', this.startBatchRender);
+        this.on('change', this.stopBatchRender);
+    };
+    View.prototype.onRenderQueueStart = function () {
+        this.calendar.freezeContentHeight();
+        this.addScroll(this.queryScroll());
+    };
+    View.prototype.onRenderQueueStop = function () {
+        if (this.calendar.updateViewSize()) {
+            this.popScroll();
+        }
+        this.calendar.thawContentHeight();
+    };
+    View.prototype.startBatchRender = function () {
+        if (!(this.batchRenderDepth++)) {
+            this.renderQueu
