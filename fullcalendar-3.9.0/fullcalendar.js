@@ -3648,4 +3648,51 @@ var View = /** @class */ (function (_super) {
         return calendar.requestEvents(calendar.msToMoment(dateProfile.activeUnzonedRange.startMs, forceAllDay), calendar.msToMoment(dateProfile.activeUnzonedRange.endMs, forceAllDay));
     };
     View.prototype.bindEventChanges = function () {
-        this.listenTo(this.calendar,
+        this.listenTo(this.calendar, 'eventsReset', this.resetEvents); // TODO: make this a real event
+    };
+    View.prototype.unbindEventChanges = function () {
+        this.stopListeningTo(this.calendar, 'eventsReset');
+    };
+    View.prototype.setEvents = function (eventsPayload) {
+        this.set('currentEvents', eventsPayload);
+        this.set('hasEvents', true);
+    };
+    View.prototype.unsetEvents = function () {
+        this.unset('currentEvents');
+        this.unset('hasEvents');
+    };
+    View.prototype.resetEvents = function (eventsPayload) {
+        this.startBatchRender();
+        this.unsetEvents();
+        this.setEvents(eventsPayload);
+        this.stopBatchRender();
+    };
+    // Date High-level Rendering
+    // -----------------------------------------------------------------------------------------------------------------
+    View.prototype.requestDateRender = function (dateProfile) {
+        var _this = this;
+        this.requestRender(function () {
+            _this.executeDateRender(dateProfile);
+        }, 'date', 'init');
+    };
+    View.prototype.requestDateUnrender = function () {
+        var _this = this;
+        this.requestRender(function () {
+            _this.executeDateUnrender();
+        }, 'date', 'destroy');
+    };
+    // if dateProfile not specified, uses current
+    View.prototype.executeDateRender = function (dateProfile) {
+        _super.prototype.executeDateRender.call(this, dateProfile);
+        if (this['render']) {
+            this['render'](); // TODO: deprecate
+        }
+        this.trigger('datesRendered');
+        this.addScroll({ isDateInit: true });
+        this.startNowIndicator(); // shouldn't render yet because updateSize will be called soon
+    };
+    View.prototype.executeDateUnrender = function () {
+        this.unselect();
+        this.stopNowIndicator();
+        this.trigger('before:datesUnrendered');
+        if (this['dest
