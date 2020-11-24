@@ -3695,4 +3695,50 @@ var View = /** @class */ (function (_super) {
         this.unselect();
         this.stopNowIndicator();
         this.trigger('before:datesUnrendered');
-        if (this['dest
+        if (this['destroy']) {
+            this['destroy'](); // TODO: deprecate
+        }
+        _super.prototype.executeDateUnrender.call(this);
+    };
+    // "Base" rendering
+    // -----------------------------------------------------------------------------------------------------------------
+    View.prototype.bindBaseRenderHandlers = function () {
+        var _this = this;
+        this.on('datesRendered', function () {
+            _this.whenSizeUpdated(_this.triggerViewRender);
+        });
+        this.on('before:datesUnrendered', function () {
+            _this.triggerViewDestroy();
+        });
+    };
+    View.prototype.triggerViewRender = function () {
+        this.publiclyTrigger('viewRender', {
+            context: this,
+            args: [this, this.el]
+        });
+    };
+    View.prototype.triggerViewDestroy = function () {
+        this.publiclyTrigger('viewDestroy', {
+            context: this,
+            args: [this, this.el]
+        });
+    };
+    // Event High-level Rendering
+    // -----------------------------------------------------------------------------------------------------------------
+    View.prototype.requestEventsRender = function (eventsPayload) {
+        var _this = this;
+        this.requestRender(function () {
+            _this.executeEventRender(eventsPayload);
+            _this.whenSizeUpdated(_this.triggerAfterEventsRendered);
+        }, 'event', 'init');
+    };
+    View.prototype.requestEventsUnrender = function () {
+        var _this = this;
+        this.requestRender(function () {
+            _this.triggerBeforeEventsDestroyed();
+            _this.executeEventUnrender();
+        }, 'event', 'destroy');
+    };
+    // Business Hour High-level Rendering
+    // -----------------------------------------------------------------------------------------------------------------
+    View.
