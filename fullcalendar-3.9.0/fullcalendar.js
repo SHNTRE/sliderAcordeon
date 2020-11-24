@@ -3813,4 +3813,50 @@ var View = /** @class */ (function (_super) {
     // Won't cause side effects if indicator isn't rendered.
     View.prototype.stopNowIndicator = function () {
         if (this.isNowIndicatorRendered) {
-            if
+            if (this.nowIndicatorTimeoutID) {
+                clearTimeout(this.nowIndicatorTimeoutID);
+                this.nowIndicatorTimeoutID = null;
+            }
+            if (this.nowIndicatorIntervalID) {
+                clearInterval(this.nowIndicatorIntervalID);
+                this.nowIndicatorIntervalID = null;
+            }
+            this.unrenderNowIndicator();
+            this.isNowIndicatorRendered = false;
+        }
+    };
+    /* Dimensions
+    ------------------------------------------------------------------------------------------------------------------*/
+    View.prototype.updateSize = function (totalHeight, isAuto, isResize) {
+        if (this['setHeight']) {
+            this['setHeight'](totalHeight, isAuto);
+        }
+        else {
+            _super.prototype.updateSize.call(this, totalHeight, isAuto, isResize);
+        }
+        this.updateNowIndicator();
+    };
+    /* Scroller
+    ------------------------------------------------------------------------------------------------------------------*/
+    View.prototype.addScroll = function (scroll) {
+        var queuedScroll = this.queuedScroll || (this.queuedScroll = {});
+        $.extend(queuedScroll, scroll);
+    };
+    View.prototype.popScroll = function () {
+        this.applyQueuedScroll();
+        this.queuedScroll = null;
+    };
+    View.prototype.applyQueuedScroll = function () {
+        if (this.queuedScroll) {
+            this.applyScroll(this.queuedScroll);
+        }
+    };
+    View.prototype.queryScroll = function () {
+        var scroll = {};
+        if (this.isDatesRendered) {
+            $.extend(scroll, this.queryDateScroll());
+        }
+        return scroll;
+    };
+    View.prototype.applyScroll = function (scroll) {
+        if (scroll.isDateInit && this.isDatesRen
