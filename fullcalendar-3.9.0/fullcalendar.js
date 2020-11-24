@@ -3741,4 +3741,42 @@ var View = /** @class */ (function (_super) {
     };
     // Business Hour High-level Rendering
     // -----------------------------------------------------------------------------------------------------------------
-    View.
+    View.prototype.requestBusinessHoursRender = function (businessHourGenerator) {
+        var _this = this;
+        this.requestRender(function () {
+            _this.renderBusinessHours(businessHourGenerator);
+        }, 'businessHours', 'init');
+    };
+    View.prototype.requestBusinessHoursUnrender = function () {
+        var _this = this;
+        this.requestRender(function () {
+            _this.unrenderBusinessHours();
+        }, 'businessHours', 'destroy');
+    };
+    // Misc view rendering utils
+    // -----------------------------------------------------------------------------------------------------------------
+    // Binds DOM handlers to elements that reside outside the view container, such as the document
+    View.prototype.bindGlobalHandlers = function () {
+        _super.prototype.bindGlobalHandlers.call(this);
+        this.listenTo(GlobalEmitter_1.default.get(), {
+            touchstart: this.processUnselect,
+            mousedown: this.handleDocumentMousedown
+        });
+    };
+    // Unbinds DOM handlers from elements that reside outside the view container
+    View.prototype.unbindGlobalHandlers = function () {
+        _super.prototype.unbindGlobalHandlers.call(this);
+        this.stopListeningTo(GlobalEmitter_1.default.get());
+    };
+    /* Now Indicator
+    ------------------------------------------------------------------------------------------------------------------*/
+    // Immediately render the current time indicator and begins re-rendering it at an interval,
+    // which is defined by this.getNowIndicatorUnit().
+    // TODO: somehow do this for the current whole day's background too
+    View.prototype.startNowIndicator = function () {
+        var _this = this;
+        var unit;
+        var update;
+        var delay; // ms wait value
+        if (this.opt('nowIndicator')) {
+            unit = this.getNo
