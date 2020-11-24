@@ -3779,4 +3779,38 @@ var View = /** @class */ (function (_super) {
         var update;
         var delay; // ms wait value
         if (this.opt('nowIndicator')) {
-            unit = this.getNo
+            unit = this.getNowIndicatorUnit();
+            if (unit) {
+                update = util_1.proxy(this, 'updateNowIndicator'); // bind to `this`
+                this.initialNowDate = this.calendar.getNow();
+                this.initialNowQueriedMs = new Date().valueOf();
+                // wait until the beginning of the next interval
+                delay = this.initialNowDate.clone().startOf(unit).add(1, unit).valueOf() - this.initialNowDate.valueOf();
+                this.nowIndicatorTimeoutID = setTimeout(function () {
+                    _this.nowIndicatorTimeoutID = null;
+                    update();
+                    delay = +moment.duration(1, unit);
+                    delay = Math.max(100, delay); // prevent too frequent
+                    _this.nowIndicatorIntervalID = setInterval(update, delay); // update every interval
+                }, delay);
+            }
+            // rendering will be initiated in updateSize
+        }
+    };
+    // rerenders the now indicator, computing the new current time from the amount of time that has passed
+    // since the initial getNow call.
+    View.prototype.updateNowIndicator = function () {
+        if (this.isDatesRendered &&
+            this.initialNowDate // activated before?
+        ) {
+            this.unrenderNowIndicator(); // won't unrender if unnecessary
+            this.renderNowIndicator(this.initialNowDate.clone().add(new Date().valueOf() - this.initialNowQueriedMs) // add ms
+            );
+            this.isNowIndicatorRendered = true;
+        }
+    };
+    // Immediately unrenders the view's current time indicator and stops any re-rendering timers.
+    // Won't cause side effects if indicator isn't rendered.
+    View.prototype.stopNowIndicator = function () {
+        if (this.isNowIndicatorRendered) {
+            if
