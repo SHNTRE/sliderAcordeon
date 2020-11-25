@@ -3903,4 +3903,42 @@ var View = /** @class */ (function (_super) {
             ]
         });
     };
-    /* External Elemen
+    /* External Element Drag-n-Drop
+    ------------------------------------------------------------------------------------------------------------------*/
+    // Must be called when an external element, via jQuery UI, has been dropped onto the calendar.
+    // `meta` is the parsed data that has been embedded into the dragging event.
+    // `dropLocation` is an object that contains the new zoned start/end/allDay values for the event.
+    View.prototype.reportExternalDrop = function (singleEventDef, isEvent, isSticky, el, ev, ui) {
+        if (isEvent) {
+            this.calendar.eventManager.addEventDef(singleEventDef, isSticky);
+        }
+        this.triggerExternalDrop(singleEventDef, isEvent, el, ev, ui);
+    };
+    // Triggers external-drop handlers that have subscribed via the API
+    View.prototype.triggerExternalDrop = function (singleEventDef, isEvent, el, ev, ui) {
+        // trigger 'drop' regardless of whether element represents an event
+        this.publiclyTrigger('drop', {
+            context: el[0],
+            args: [
+                singleEventDef.dateProfile.start.clone(),
+                ev,
+                ui,
+                this
+            ]
+        });
+        if (isEvent) {
+            // signal an external event landed
+            this.publiclyTrigger('eventReceive', {
+                context: this,
+                args: [
+                    singleEventDef.buildInstance().toLegacy(),
+                    this
+                ]
+            });
+        }
+    };
+    /* Event Resizing
+    ------------------------------------------------------------------------------------------------------------------*/
+    // Must be called when an event in the view has been resized to a new length
+    View.prototype.reportEventResize = function (eventInstance, eventMutation, el, ev) {
+        var eventManage
