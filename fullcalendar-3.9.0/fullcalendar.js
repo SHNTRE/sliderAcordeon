@@ -3859,4 +3859,48 @@ var View = /** @class */ (function (_super) {
         return scroll;
     };
     View.prototype.applyScroll = function (scroll) {
-        if (scroll.isDateInit && this.isDatesRen
+        if (scroll.isDateInit && this.isDatesRendered) {
+            $.extend(scroll, this.computeInitialDateScroll());
+        }
+        if (this.isDatesRendered) {
+            this.applyDateScroll(scroll);
+        }
+    };
+    View.prototype.computeInitialDateScroll = function () {
+        return {}; // subclasses must implement
+    };
+    View.prototype.queryDateScroll = function () {
+        return {}; // subclasses must implement
+    };
+    View.prototype.applyDateScroll = function (scroll) {
+        // subclasses must implement
+    };
+    /* Event Drag-n-Drop
+    ------------------------------------------------------------------------------------------------------------------*/
+    View.prototype.reportEventDrop = function (eventInstance, eventMutation, el, ev) {
+        var eventManager = this.calendar.eventManager;
+        var undoFunc = eventManager.mutateEventsWithId(eventInstance.def.id, eventMutation);
+        var dateMutation = eventMutation.dateMutation;
+        // update the EventInstance, for handlers
+        if (dateMutation) {
+            eventInstance.dateProfile = dateMutation.buildNewDateProfile(eventInstance.dateProfile, this.calendar);
+        }
+        this.triggerEventDrop(eventInstance, 
+        // a drop doesn't necessarily mean a date mutation (ex: resource change)
+        (dateMutation && dateMutation.dateDelta) || moment.duration(), undoFunc, el, ev);
+    };
+    // Triggers event-drop handlers that have subscribed via the API
+    View.prototype.triggerEventDrop = function (eventInstance, dateDelta, undoFunc, el, ev) {
+        this.publiclyTrigger('eventDrop', {
+            context: el[0],
+            args: [
+                eventInstance.toLegacy(),
+                dateDelta,
+                undoFunc,
+                ev,
+                {},
+                this
+            ]
+        });
+    };
+    /* External Elemen
