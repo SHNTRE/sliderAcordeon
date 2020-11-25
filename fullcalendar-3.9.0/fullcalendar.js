@@ -3941,4 +3941,48 @@ var View = /** @class */ (function (_super) {
     ------------------------------------------------------------------------------------------------------------------*/
     // Must be called when an event in the view has been resized to a new length
     View.prototype.reportEventResize = function (eventInstance, eventMutation, el, ev) {
-        var eventManage
+        var eventManager = this.calendar.eventManager;
+        var undoFunc = eventManager.mutateEventsWithId(eventInstance.def.id, eventMutation);
+        // update the EventInstance, for handlers
+        eventInstance.dateProfile = eventMutation.dateMutation.buildNewDateProfile(eventInstance.dateProfile, this.calendar);
+        this.triggerEventResize(eventInstance, eventMutation.dateMutation.endDelta, undoFunc, el, ev);
+    };
+    // Triggers event-resize handlers that have subscribed via the API
+    View.prototype.triggerEventResize = function (eventInstance, durationDelta, undoFunc, el, ev) {
+        this.publiclyTrigger('eventResize', {
+            context: el[0],
+            args: [
+                eventInstance.toLegacy(),
+                durationDelta,
+                undoFunc,
+                ev,
+                {},
+                this
+            ]
+        });
+    };
+    /* Selection (time range)
+    ------------------------------------------------------------------------------------------------------------------*/
+    // Selects a date span on the view. `start` and `end` are both Moments.
+    // `ev` is the native mouse event that begin the interaction.
+    View.prototype.select = function (footprint, ev) {
+        this.unselect(ev);
+        this.renderSelectionFootprint(footprint);
+        this.reportSelection(footprint, ev);
+    };
+    View.prototype.renderSelectionFootprint = function (footprint) {
+        if (this['renderSelection']) {
+            this['renderSelection'](footprint.toLegacy(this.calendar));
+        }
+        else {
+            _super.prototype.renderSelectionFootprint.call(this, footprint);
+        }
+    };
+    // Called when a new selection is made. Updates internal state and triggers handlers.
+    View.prototype.reportSelection = function (footprint, ev) {
+        this.isSelected = true;
+        this.triggerSelect(footprint, ev);
+    };
+    // Triggers handlers to 'select'
+    View.prototype.triggerSelect = function (footprint, ev) {
+      
