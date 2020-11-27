@@ -4032,3 +4032,46 @@ var View = /** @class */ (function (_super) {
             this.getEventSegs().forEach(function (seg) {
                 if (seg.el) {
                     seg.el.removeClass('fc-selected');
+                }
+            });
+            this.selectedEventInstance = null;
+        }
+    };
+    View.prototype.isEventDefSelected = function (eventDef) {
+        // event references might change on refetchEvents(), while selectedEventInstance doesn't,
+        // so compare IDs
+        return this.selectedEventInstance && this.selectedEventInstance.def.id === eventDef.id;
+    };
+    /* Mouse / Touch Unselecting (time range & event unselection)
+    ------------------------------------------------------------------------------------------------------------------*/
+    // TODO: move consistently to down/start or up/end?
+    // TODO: don't kill previous selection if touch scrolling
+    View.prototype.handleDocumentMousedown = function (ev) {
+        if (util_1.isPrimaryMouseButton(ev)) {
+            this.processUnselect(ev);
+        }
+    };
+    View.prototype.processUnselect = function (ev) {
+        this.processRangeUnselect(ev);
+        this.processEventUnselect(ev);
+    };
+    View.prototype.processRangeUnselect = function (ev) {
+        var ignore;
+        // is there a time-range selection?
+        if (this.isSelected && this.opt('unselectAuto')) {
+            // only unselect if the clicked element is not identical to or inside of an 'unselectCancel' element
+            ignore = this.opt('unselectCancel');
+            if (!ignore || !$(ev.target).closest(ignore).length) {
+                this.unselect(ev);
+            }
+        }
+    };
+    View.prototype.processEventUnselect = function (ev) {
+        if (this.selectedEventInstance) {
+            if (!$(ev.target).closest('.fc-selected').length) {
+                this.unselectEventInstance();
+            }
+        }
+    };
+    /* Triggers
+    --------------------------------------------
