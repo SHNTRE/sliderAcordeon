@@ -4074,4 +4074,46 @@ var View = /** @class */ (function (_super) {
         }
     };
     /* Triggers
-    --------------------------------------------
+    ------------------------------------------------------------------------------------------------------------------*/
+    View.prototype.triggerBaseRendered = function () {
+        this.publiclyTrigger('viewRender', {
+            context: this,
+            args: [this, this.el]
+        });
+    };
+    View.prototype.triggerBaseUnrendered = function () {
+        this.publiclyTrigger('viewDestroy', {
+            context: this,
+            args: [this, this.el]
+        });
+    };
+    // Triggers handlers to 'dayClick'
+    // Span has start/end of the clicked area. Only the start is useful.
+    View.prototype.triggerDayClick = function (footprint, dayEl, ev) {
+        var dateProfile = this.calendar.footprintToDateProfile(footprint); // abuse of "Event"DateProfile?
+        this.publiclyTrigger('dayClick', {
+            context: dayEl,
+            args: [dateProfile.start, ev, this]
+        });
+    };
+    /* Date Utils
+    ------------------------------------------------------------------------------------------------------------------*/
+    // For DateComponent::getDayClasses
+    View.prototype.isDateInOtherMonth = function (date, dateProfile) {
+        return false;
+    };
+    // Arguments after name will be forwarded to a hypothetical function value
+    // WARNING: passed-in arguments will be given to generator functions as-is and can cause side-effects.
+    // Always clone your objects if you fear mutation.
+    View.prototype.getUnzonedRangeOption = function (name) {
+        var val = this.opt(name);
+        if (typeof val === 'function') {
+            val = val.apply(null, Array.prototype.slice.call(arguments, 1));
+        }
+        if (val) {
+            return this.calendar.parseUnzonedRange(val);
+        }
+    };
+    /* Hidden Days
+    ------------------------------------------------------------------------------------------------------------------*/
+    // Initializes internal variables rela
