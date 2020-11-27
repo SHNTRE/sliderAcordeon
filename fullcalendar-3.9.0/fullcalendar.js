@@ -3985,4 +3985,50 @@ var View = /** @class */ (function (_super) {
     };
     // Triggers handlers to 'select'
     View.prototype.triggerSelect = function (footprint, ev) {
-      
+        var dateProfile = this.calendar.footprintToDateProfile(footprint); // abuse of "Event"DateProfile?
+        this.publiclyTrigger('select', {
+            context: this,
+            args: [
+                dateProfile.start,
+                dateProfile.end,
+                ev,
+                this
+            ]
+        });
+    };
+    // Undoes a selection. updates in the internal state and triggers handlers.
+    // `ev` is the native mouse event that began the interaction.
+    View.prototype.unselect = function (ev) {
+        if (this.isSelected) {
+            this.isSelected = false;
+            if (this['destroySelection']) {
+                this['destroySelection'](); // TODO: deprecate
+            }
+            this.unrenderSelection();
+            this.publiclyTrigger('unselect', {
+                context: this,
+                args: [ev, this]
+            });
+        }
+    };
+    /* Event Selection
+    ------------------------------------------------------------------------------------------------------------------*/
+    View.prototype.selectEventInstance = function (eventInstance) {
+        if (!this.selectedEventInstance ||
+            this.selectedEventInstance !== eventInstance) {
+            this.unselectEventInstance();
+            this.getEventSegs().forEach(function (seg) {
+                if (seg.footprint.eventInstance === eventInstance &&
+                    seg.el // necessary?
+                ) {
+                    seg.el.addClass('fc-selected');
+                }
+            });
+            this.selectedEventInstance = eventInstance;
+        }
+    };
+    View.prototype.unselectEventInstance = function () {
+        if (this.selectedEventInstance) {
+            this.getEventSegs().forEach(function (seg) {
+                if (seg.el) {
+                    seg.el.removeClass('fc-selected');
