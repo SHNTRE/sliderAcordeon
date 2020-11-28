@@ -4116,4 +4116,50 @@ var View = /** @class */ (function (_super) {
     };
     /* Hidden Days
     ------------------------------------------------------------------------------------------------------------------*/
-    // Initializes internal variables rela
+    // Initializes internal variables related to calculating hidden days-of-week
+    View.prototype.initHiddenDays = function () {
+        var hiddenDays = this.opt('hiddenDays') || []; // array of day-of-week indices that are hidden
+        var isHiddenDayHash = []; // is the day-of-week hidden? (hash with day-of-week-index -> bool)
+        var dayCnt = 0;
+        var i;
+        if (this.opt('weekends') === false) {
+            hiddenDays.push(0, 6); // 0=sunday, 6=saturday
+        }
+        for (i = 0; i < 7; i++) {
+            if (!(isHiddenDayHash[i] = $.inArray(i, hiddenDays) !== -1)) {
+                dayCnt++;
+            }
+        }
+        if (!dayCnt) {
+            throw new Error('invalid hiddenDays'); // all days were hidden? bad.
+        }
+        this.isHiddenDayHash = isHiddenDayHash;
+    };
+    // Remove days from the beginning and end of the range that are computed as hidden.
+    // If the whole range is trimmed off, returns null
+    View.prototype.trimHiddenDays = function (inputUnzonedRange) {
+        var start = inputUnzonedRange.getStart();
+        var end = inputUnzonedRange.getEnd();
+        if (start) {
+            start = this.skipHiddenDays(start);
+        }
+        if (end) {
+            end = this.skipHiddenDays(end, -1, true);
+        }
+        if (start === null || end === null || start < end) {
+            return new UnzonedRange_1.default(start, end);
+        }
+        return null;
+    };
+    // Is the current day hidden?
+    // `day` is a day-of-week index (0-6), or a Moment
+    View.prototype.isHiddenDay = function (day) {
+        if (moment.isMoment(day)) {
+            day = day.day();
+        }
+        return this.isHiddenDayHash[day];
+    };
+    // Incrementing the current day until it is no longer a hidden day, returning a copy.
+    // DOES NOT CONSIDER validUnzonedRange!
+    // If the initial value of `date` is not a hidden day, don't do anything.
+    // Pass `isExcl
