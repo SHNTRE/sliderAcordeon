@@ -4252,4 +4252,51 @@ var EventRenderer = /** @class */ (function () {
         this.displayEventTime = displayEventTime;
         this.displayEventEnd = displayEventEnd;
     };
-    Eve
+    EventRenderer.prototype.render = function (eventsPayload) {
+        var dateProfile = this.component._getDateProfile();
+        var eventDefId;
+        var instanceGroup;
+        var eventRanges;
+        var bgRanges = [];
+        var fgRanges = [];
+        for (eventDefId in eventsPayload) {
+            instanceGroup = eventsPayload[eventDefId];
+            eventRanges = instanceGroup.sliceRenderRanges(dateProfile.activeUnzonedRange);
+            if (instanceGroup.getEventDef().hasBgRendering()) {
+                bgRanges.push.apply(bgRanges, eventRanges);
+            }
+            else {
+                fgRanges.push.apply(fgRanges, eventRanges);
+            }
+        }
+        this.renderBgRanges(bgRanges);
+        this.renderFgRanges(fgRanges);
+    };
+    EventRenderer.prototype.unrender = function () {
+        this.unrenderBgRanges();
+        this.unrenderFgRanges();
+    };
+    EventRenderer.prototype.renderFgRanges = function (eventRanges) {
+        var eventFootprints = this.component.eventRangesToEventFootprints(eventRanges);
+        var segs = this.component.eventFootprintsToSegs(eventFootprints);
+        // render an `.el` on each seg
+        // returns a subset of the segs. segs that were actually rendered
+        segs = this.renderFgSegEls(segs);
+        if (this.renderFgSegs(segs) !== false) {
+            this.fgSegs = segs;
+        }
+    };
+    EventRenderer.prototype.unrenderFgRanges = function () {
+        this.unrenderFgSegs(this.fgSegs || []);
+        this.fgSegs = null;
+    };
+    EventRenderer.prototype.renderBgRanges = function (eventRanges) {
+        var eventFootprints = this.component.eventRangesToEventFootprints(eventRanges);
+        var segs = this.component.eventFootprintsToSegs(eventFootprints);
+        if (this.renderBgSegs(segs) !== false) {
+            this.bgSegs = segs;
+        }
+    };
+    EventRenderer.prototype.unrenderBgRanges = function () {
+        this.unrenderBgSegs();
+  
