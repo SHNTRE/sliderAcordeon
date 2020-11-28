@@ -4208,4 +4208,48 @@ View.watch('title', ['dateProfile'], function (deps) {
 });
 View.watch('legacyDateProps', ['dateProfile'], function (deps) {
     var calendar = this.calendar;
-    var date
+    var dateProfile = deps.dateProfile;
+    // DEPRECATED, but we need to keep it updated...
+    this.start = calendar.msToMoment(dateProfile.activeUnzonedRange.startMs, dateProfile.isRangeAllDay);
+    this.end = calendar.msToMoment(dateProfile.activeUnzonedRange.endMs, dateProfile.isRangeAllDay);
+    this.intervalStart = calendar.msToMoment(dateProfile.currentUnzonedRange.startMs, dateProfile.isRangeAllDay);
+    this.intervalEnd = calendar.msToMoment(dateProfile.currentUnzonedRange.endMs, dateProfile.isRangeAllDay);
+});
+
+
+/***/ }),
+/* 42 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var $ = __webpack_require__(3);
+var util_1 = __webpack_require__(4);
+var EventRenderer = /** @class */ (function () {
+    function EventRenderer(component, fillRenderer) {
+        this.view = component._getView();
+        this.component = component;
+        this.fillRenderer = fillRenderer;
+    }
+    EventRenderer.prototype.opt = function (name) {
+        return this.view.opt(name);
+    };
+    // Updates values that rely on options and also relate to range
+    EventRenderer.prototype.rangeUpdated = function () {
+        var displayEventTime;
+        var displayEventEnd;
+        this.eventTimeFormat =
+            this.opt('eventTimeFormat') ||
+                this.opt('timeFormat') || // deprecated
+                this.computeEventTimeFormat();
+        displayEventTime = this.opt('displayEventTime');
+        if (displayEventTime == null) {
+            displayEventTime = this.computeDisplayEventTime(); // might be based off of range
+        }
+        displayEventEnd = this.opt('displayEventEnd');
+        if (displayEventEnd == null) {
+            displayEventEnd = this.computeDisplayEventEnd(); // might be based off of range
+        }
+        this.displayEventTime = displayEventTime;
+        this.displayEventEnd = displayEventEnd;
+    };
+    Eve
