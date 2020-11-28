@@ -4162,4 +4162,50 @@ var View = /** @class */ (function (_super) {
     // Incrementing the current day until it is no longer a hidden day, returning a copy.
     // DOES NOT CONSIDER validUnzonedRange!
     // If the initial value of `date` is not a hidden day, don't do anything.
-    // Pass `isExcl
+    // Pass `isExclusive` as `true` if you are dealing with an end date.
+    // `inc` defaults to `1` (increment one day forward each time)
+    View.prototype.skipHiddenDays = function (date, inc, isExclusive) {
+        if (inc === void 0) { inc = 1; }
+        if (isExclusive === void 0) { isExclusive = false; }
+        var out = date.clone();
+        while (this.isHiddenDayHash[(out.day() + (isExclusive ? inc : 0) + 7) % 7]) {
+            out.add(inc, 'days');
+        }
+        return out;
+    };
+    return View;
+}(InteractiveDateComponent_1.default));
+exports.default = View;
+View.prototype.usesMinMaxTime = false;
+View.prototype.dateProfileGeneratorClass = DateProfileGenerator_1.default;
+View.watch('displayingDates', ['isInDom', 'dateProfile'], function (deps) {
+    this.requestDateRender(deps.dateProfile);
+}, function () {
+    this.requestDateUnrender();
+});
+View.watch('displayingBusinessHours', ['displayingDates', 'businessHourGenerator'], function (deps) {
+    this.requestBusinessHoursRender(deps.businessHourGenerator);
+}, function () {
+    this.requestBusinessHoursUnrender();
+});
+View.watch('initialEvents', ['dateProfile'], function (deps) {
+    return this.fetchInitialEvents(deps.dateProfile);
+});
+View.watch('bindingEvents', ['initialEvents'], function (deps) {
+    this.setEvents(deps.initialEvents);
+    this.bindEventChanges();
+}, function () {
+    this.unbindEventChanges();
+    this.unsetEvents();
+});
+View.watch('displayingEvents', ['displayingDates', 'hasEvents'], function () {
+    this.requestEventsRender(this.get('currentEvents'));
+}, function () {
+    this.requestEventsUnrender();
+});
+View.watch('title', ['dateProfile'], function (deps) {
+    return (this.title = this.computeTitle(deps.dateProfile)); // assign to View for legacy reasons
+});
+View.watch('legacyDateProps', ['dateProfile'], function (deps) {
+    var calendar = this.calendar;
+    var date
