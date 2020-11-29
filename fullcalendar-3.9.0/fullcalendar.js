@@ -4423,4 +4423,58 @@ var EventRenderer = /** @class */ (function () {
     };
     EventRenderer.prototype._getTimeText = function (start, end, isAllDay, formatStr, displayEnd) {
         if (formatStr == null) {
-            formatStr = this.eventTimeFormat
+            formatStr = this.eventTimeFormat;
+        }
+        if (displayEnd == null) {
+            displayEnd = this.displayEventEnd;
+        }
+        if (this.displayEventTime && !isAllDay) {
+            if (displayEnd && end) {
+                return this.view.formatRange({ start: start, end: end }, false, // allDay
+                formatStr);
+            }
+            else {
+                return start.format(formatStr);
+            }
+        }
+        return '';
+    };
+    EventRenderer.prototype.computeEventTimeFormat = function () {
+        return this.opt('smallTimeFormat');
+    };
+    EventRenderer.prototype.computeDisplayEventTime = function () {
+        return true;
+    };
+    EventRenderer.prototype.computeDisplayEventEnd = function () {
+        return true;
+    };
+    EventRenderer.prototype.getBgClasses = function (eventDef) {
+        var classNames = this.getClasses(eventDef);
+        classNames.push('fc-bgevent');
+        return classNames;
+    };
+    EventRenderer.prototype.getClasses = function (eventDef) {
+        var objs = this.getStylingObjs(eventDef);
+        var i;
+        var classNames = [];
+        for (i = 0; i < objs.length; i++) {
+            classNames.push.apply(// append
+            classNames, objs[i].eventClassName || objs[i].className || []);
+        }
+        return classNames;
+    };
+    // Utility for generating event skin-related CSS properties
+    EventRenderer.prototype.getSkinCss = function (eventDef) {
+        return {
+            'background-color': this.getBgColor(eventDef),
+            'border-color': this.getBorderColor(eventDef),
+            color: this.getTextColor(eventDef)
+        };
+    };
+    // Queries for caller-specified color, then falls back to default
+    EventRenderer.prototype.getBgColor = function (eventDef) {
+        var objs = this.getStylingObjs(eventDef);
+        var i;
+        var val;
+        for (i = 0; i < objs.length && !val; i++) {
+            val = objs[i].eve
