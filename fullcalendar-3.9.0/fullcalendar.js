@@ -4299,4 +4299,50 @@ var EventRenderer = /** @class */ (function () {
     };
     EventRenderer.prototype.unrenderBgRanges = function () {
         this.unrenderBgSegs();
-  
+        this.bgSegs = null;
+    };
+    EventRenderer.prototype.getSegs = function () {
+        return (this.bgSegs || []).concat(this.fgSegs || []);
+    };
+    // Renders foreground event segments onto the grid
+    EventRenderer.prototype.renderFgSegs = function (segs) {
+        // subclasses must implement
+        // segs already has rendered els, and has been filtered.
+        return false; // signal failure if not implemented
+    };
+    // Unrenders all currently rendered foreground segments
+    EventRenderer.prototype.unrenderFgSegs = function (segs) {
+        // subclasses must implement
+    };
+    EventRenderer.prototype.renderBgSegs = function (segs) {
+        var _this = this;
+        if (this.fillRenderer) {
+            this.fillRenderer.renderSegs('bgEvent', segs, {
+                getClasses: function (seg) {
+                    return _this.getBgClasses(seg.footprint.eventDef);
+                },
+                getCss: function (seg) {
+                    return {
+                        'background-color': _this.getBgColor(seg.footprint.eventDef)
+                    };
+                },
+                filterEl: function (seg, el) {
+                    return _this.filterEventRenderEl(seg.footprint, el);
+                }
+            });
+        }
+        else {
+            return false; // signal failure if no fillRenderer
+        }
+    };
+    EventRenderer.prototype.unrenderBgSegs = function () {
+        if (this.fillRenderer) {
+            this.fillRenderer.unrender('bgEvent');
+        }
+    };
+    // Renders and assigns an `el` property for each foreground event segment.
+    // Only returns segments that successfully rendered.
+    EventRenderer.prototype.renderFgSegEls = function (segs, disableResizing) {
+        var _this = this;
+        if (disableResizing === void 0) { disableResizing = false; }
+        var hasEven
