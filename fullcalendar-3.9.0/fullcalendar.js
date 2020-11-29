@@ -4345,4 +4345,43 @@ var EventRenderer = /** @class */ (function () {
     EventRenderer.prototype.renderFgSegEls = function (segs, disableResizing) {
         var _this = this;
         if (disableResizing === void 0) { disableResizing = false; }
-        var hasEven
+        var hasEventRenderHandlers = this.view.hasPublicHandlers('eventRender');
+        var html = '';
+        var renderedSegs = [];
+        var i;
+        if (segs.length) {
+            // build a large concatenation of event segment HTML
+            for (i = 0; i < segs.length; i++) {
+                this.beforeFgSegHtml(segs[i]);
+                html += this.fgSegHtml(segs[i], disableResizing);
+            }
+            // Grab individual elements from the combined HTML string. Use each as the default rendering.
+            // Then, compute the 'el' for each segment. An el might be null if the eventRender callback returned false.
+            $(html).each(function (i, node) {
+                var seg = segs[i];
+                var el = $(node);
+                if (hasEventRenderHandlers) {
+                    el = _this.filterEventRenderEl(seg.footprint, el);
+                }
+                if (el) {
+                    el.data('fc-seg', seg); // used by handlers
+                    seg.el = el;
+                    renderedSegs.push(seg);
+                }
+            });
+        }
+        return renderedSegs;
+    };
+    EventRenderer.prototype.beforeFgSegHtml = function (seg) {
+    };
+    // Generates the HTML for the default rendering of a foreground event segment. Used by renderFgSegEls()
+    EventRenderer.prototype.fgSegHtml = function (seg, disableResizing) {
+        // subclasses should implement
+    };
+    // Generic utility for generating the HTML classNames for an event segment's element
+    EventRenderer.prototype.getSegClasses = function (seg, isDraggable, isResizable) {
+        var classes = [
+            'fc-event',
+            seg.isStart ? 'fc-start' : 'fc-not-start',
+            seg.isEnd ? 'fc-end' : 'fc-not-end'
+        ].concat(this.getClasses(seg.footprint.eventDef)
