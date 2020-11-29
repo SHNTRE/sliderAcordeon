@@ -4384,4 +4384,43 @@ var EventRenderer = /** @class */ (function () {
             'fc-event',
             seg.isStart ? 'fc-start' : 'fc-not-start',
             seg.isEnd ? 'fc-end' : 'fc-not-end'
-        ].concat(this.getClasses(seg.footprint.eventDef)
+        ].concat(this.getClasses(seg.footprint.eventDef));
+        if (isDraggable) {
+            classes.push('fc-draggable');
+        }
+        if (isResizable) {
+            classes.push('fc-resizable');
+        }
+        // event is currently selected? attach a className.
+        if (this.view.isEventDefSelected(seg.footprint.eventDef)) {
+            classes.push('fc-selected');
+        }
+        return classes;
+    };
+    // Given an event and the default element used for rendering, returns the element that should actually be used.
+    // Basically runs events and elements through the eventRender hook.
+    EventRenderer.prototype.filterEventRenderEl = function (eventFootprint, el) {
+        var legacy = eventFootprint.getEventLegacy();
+        var custom = this.view.publiclyTrigger('eventRender', {
+            context: legacy,
+            args: [legacy, el, this.view]
+        });
+        if (custom === false) {
+            el = null;
+        }
+        else if (custom && custom !== true) {
+            el = $(custom);
+        }
+        return el;
+    };
+    // Compute the text that should be displayed on an event's element.
+    // `range` can be the Event object itself, or something range-like, with at least a `start`.
+    // If event times are disabled, or the event has no time, will return a blank string.
+    // If not specified, formatStr will default to the eventTimeFormat setting,
+    // and displayEnd will default to the displayEventEnd setting.
+    EventRenderer.prototype.getTimeText = function (eventFootprint, formatStr, displayEnd) {
+        return this._getTimeText(eventFootprint.eventInstance.dateProfile.start, eventFootprint.eventInstance.dateProfile.end, eventFootprint.componentFootprint.isAllDay, formatStr, displayEnd);
+    };
+    EventRenderer.prototype._getTimeText = function (start, end, isAllDay, formatStr, displayEnd) {
+        if (formatStr == null) {
+            formatStr = this.eventTimeFormat
