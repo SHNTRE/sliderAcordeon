@@ -4477,4 +4477,53 @@ var EventRenderer = /** @class */ (function () {
         var i;
         var val;
         for (i = 0; i < objs.length && !val; i++) {
-            val = objs[i].eve
+            val = objs[i].eventBackgroundColor || objs[i].eventColor ||
+                objs[i].backgroundColor || objs[i].color;
+        }
+        if (!val) {
+            val = this.opt('eventBackgroundColor') || this.opt('eventColor');
+        }
+        return val;
+    };
+    // Queries for caller-specified color, then falls back to default
+    EventRenderer.prototype.getBorderColor = function (eventDef) {
+        var objs = this.getStylingObjs(eventDef);
+        var i;
+        var val;
+        for (i = 0; i < objs.length && !val; i++) {
+            val = objs[i].eventBorderColor || objs[i].eventColor ||
+                objs[i].borderColor || objs[i].color;
+        }
+        if (!val) {
+            val = this.opt('eventBorderColor') || this.opt('eventColor');
+        }
+        return val;
+    };
+    // Queries for caller-specified color, then falls back to default
+    EventRenderer.prototype.getTextColor = function (eventDef) {
+        var objs = this.getStylingObjs(eventDef);
+        var i;
+        var val;
+        for (i = 0; i < objs.length && !val; i++) {
+            val = objs[i].eventTextColor ||
+                objs[i].textColor;
+        }
+        if (!val) {
+            val = this.opt('eventTextColor');
+        }
+        return val;
+    };
+    EventRenderer.prototype.getStylingObjs = function (eventDef) {
+        var objs = this.getFallbackStylingObjs(eventDef);
+        objs.unshift(eventDef);
+        return objs;
+    };
+    EventRenderer.prototype.getFallbackStylingObjs = function (eventDef) {
+        return [eventDef.source];
+    };
+    EventRenderer.prototype.sortEventSegs = function (segs) {
+        segs.sort(util_1.proxy(this, 'compareEventSegs'));
+    };
+    // A cmp function for determining which segments should take visual priority
+    EventRenderer.prototype.compareEventSegs = function (seg1, seg2) {
+        var f1 = seg1.footprin
