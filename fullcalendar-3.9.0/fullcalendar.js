@@ -4526,4 +4526,53 @@ var EventRenderer = /** @class */ (function () {
     };
     // A cmp function for determining which segments should take visual priority
     EventRenderer.prototype.compareEventSegs = function (seg1, seg2) {
-        var f1 = seg1.footprin
+        var f1 = seg1.footprint;
+        var f2 = seg2.footprint;
+        var cf1 = f1.componentFootprint;
+        var cf2 = f2.componentFootprint;
+        var r1 = cf1.unzonedRange;
+        var r2 = cf2.unzonedRange;
+        return r1.startMs - r2.startMs || // earlier events go first
+            (r2.endMs - r2.startMs) - (r1.endMs - r1.startMs) || // tie? longer events go first
+            cf2.isAllDay - cf1.isAllDay || // tie? put all-day events first (booleans cast to 0/1)
+            util_1.compareByFieldSpecs(f1.eventDef, f2.eventDef, this.view.eventOrderSpecs, f1.eventDef.miscProps, f2.eventDef.miscProps);
+    };
+    return EventRenderer;
+}());
+exports.default = EventRenderer;
+
+
+/***/ }),
+/* 43 */,
+/* 44 */,
+/* 45 */,
+/* 46 */,
+/* 47 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var moment_ext_1 = __webpack_require__(10);
+// Plugin
+// -------------------------------------------------------------------------------------------------
+moment_ext_1.newMomentProto.format = function () {
+    if (this._fullCalendar && arguments[0]) {
+        return formatDate(this, arguments[0]); // our extended formatting
+    }
+    if (this._ambigTime) {
+        return moment_ext_1.oldMomentFormat(englishMoment(this), 'YYYY-MM-DD');
+    }
+    if (this._ambigZone) {
+        return moment_ext_1.oldMomentFormat(englishMoment(this), 'YYYY-MM-DD[T]HH:mm:ss');
+    }
+    if (this._fullCalendar) {
+        // moment.format() doesn't ensure english, but we want to.
+        return moment_ext_1.oldMomentFormat(englishMoment(this));
+    }
+    return moment_ext_1.oldMomentProto.format.apply(this, arguments);
+};
+moment_ext_1.newMomentProto.toISOString = function () {
+    if (this._ambigTime) {
+        return moment_ext_1.oldMomentFormat(englishMoment(this), 'YYYY-MM-DD');
+    }
+    if (this._ambigZone) {
+        return moment_e
