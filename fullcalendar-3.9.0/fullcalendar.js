@@ -4575,4 +4575,50 @@ moment_ext_1.newMomentProto.toISOString = function () {
         return moment_ext_1.oldMomentFormat(englishMoment(this), 'YYYY-MM-DD');
     }
     if (this._ambigZone) {
-        return moment_e
+        return moment_ext_1.oldMomentFormat(englishMoment(this), 'YYYY-MM-DD[T]HH:mm:ss');
+    }
+    if (this._fullCalendar) {
+        // depending on browser, moment might not output english. ensure english.
+        // https://github.com/moment/moment/blob/2.18.1/src/lib/moment/format.js#L22
+        return moment_ext_1.oldMomentProto.toISOString.apply(englishMoment(this), arguments);
+    }
+    return moment_ext_1.oldMomentProto.toISOString.apply(this, arguments);
+};
+function englishMoment(mom) {
+    if (mom.locale() !== 'en') {
+        return mom.clone().locale('en');
+    }
+    return mom;
+}
+// Config
+// ---------------------------------------------------------------------------------------------------------------------
+/*
+Inserted between chunks in the fake ("intermediate") formatting string.
+Important that it passes as whitespace (\s) because moment often identifies non-standalone months
+via a regexp with an \s.
+*/
+var PART_SEPARATOR = '\u000b'; // vertical tab
+/*
+Inserted as the first character of a literal-text chunk to indicate that the literal text is not actually literal text,
+but rather, a "special" token that has custom rendering (see specialTokens map).
+*/
+var SPECIAL_TOKEN_MARKER = '\u001f'; // information separator 1
+/*
+Inserted at the beginning and end of a span of text that must have non-zero numeric characters.
+Handling of these markers is done in a post-processing step at the very end of text rendering.
+*/
+var MAYBE_MARKER = '\u001e'; // information separator 2
+var MAYBE_REGEXP = new RegExp(MAYBE_MARKER + '([^' + MAYBE_MARKER + ']*)' + MAYBE_MARKER, 'g'); // must be global
+/*
+Addition formatting tokens we want recognized
+*/
+var specialTokens = {
+    t: function (date) {
+        return moment_ext_1.oldMomentFormat(date, 'a').charAt(0);
+    },
+    T: function (date) {
+        return moment_ext_1.oldMomentFormat(date, 'A').charAt(0);
+    }
+};
+/*
+The first characte
