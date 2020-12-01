@@ -4621,4 +4621,43 @@ var specialTokens = {
     }
 };
 /*
-The first characte
+The first characters of formatting tokens for units that are 1 day or larger.
+`value` is for ranking relative size (lower means bigger).
+`unit` is a normalized unit, used for comparing moments.
+*/
+var largeTokenMap = {
+    Y: { value: 1, unit: 'year' },
+    M: { value: 2, unit: 'month' },
+    W: { value: 3, unit: 'week' },
+    w: { value: 3, unit: 'week' },
+    D: { value: 4, unit: 'day' },
+    d: { value: 4, unit: 'day' } // day of week
+};
+// Single Date Formatting
+// ---------------------------------------------------------------------------------------------------------------------
+/*
+Formats `date` with a Moment formatting string, but allow our non-zero areas and special token
+*/
+function formatDate(date, formatStr) {
+    return renderFakeFormatString(getParsedFormatString(formatStr).fakeFormatString, date);
+}
+exports.formatDate = formatDate;
+// Date Range Formatting
+// -------------------------------------------------------------------------------------------------
+// TODO: make it work with timezone offset
+/*
+Using a formatting string meant for a single date, generate a range string, like
+"Sep 2 - 9 2013", that intelligently inserts a separator where the dates differ.
+If the dates are the same as far as the format string is concerned, just return a single
+rendering of one date, without any separator.
+*/
+function formatRange(date1, date2, formatStr, separator, isRTL) {
+    var localeData;
+    date1 = moment_ext_1.default.parseZone(date1);
+    date2 = moment_ext_1.default.parseZone(date2);
+    localeData = date1.localeData();
+    // Expand localized format strings, like "LL" -> "MMMM D YYYY".
+    // BTW, this is not important for `formatDate` because it is impossible to put custom tokens
+    // or non-zero areas in Moment's localized format strings.
+    formatStr = localeData.longDateFormat(formatStr) || formatStr;
+ 
