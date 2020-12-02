@@ -4696,4 +4696,53 @@ function renderParsedFormat(parsedFormat, date1, date2, separator, isRTL) {
         rightStr = renderedParts1[rightI] + rightStr;
     }
     // The area in the middle is different for both of the dates.
-    // Collect them distinctly 
+    // Collect them distinctly so we can jam them together later.
+    for (middleI = leftI; middleI <= rightI; middleI++) {
+        middleStr1 += renderedParts1[middleI];
+        middleStr2 += renderedParts2[middleI];
+    }
+    if (middleStr1 || middleStr2) {
+        if (isRTL) {
+            middleStr = middleStr2 + separator + middleStr1;
+        }
+        else {
+            middleStr = middleStr1 + separator + middleStr2;
+        }
+    }
+    return processMaybeMarkers(leftStr + middleStr + rightStr);
+}
+// Format String Parsing
+// ---------------------------------------------------------------------------------------------------------------------
+var parsedFormatStrCache = {};
+/*
+Returns a parsed format string, leveraging a cache.
+*/
+function getParsedFormatString(formatStr) {
+    return parsedFormatStrCache[formatStr] ||
+        (parsedFormatStrCache[formatStr] = parseFormatString(formatStr));
+}
+/*
+Parses a format string into the following:
+- fakeFormatString: a momentJS formatting string, littered with special control characters that get post-processed.
+- sameUnits: for every part in fakeFormatString, if the part is a token, the value will be a unit string (like "day"),
+  that indicates how similar a range's start & end must be in order to share the same formatted text.
+  If not a token, then the value is null.
+  Always a flat array (not nested liked "chunks").
+*/
+function parseFormatString(formatStr) {
+    var chunks = chunkFormatString(formatStr);
+    return {
+        fakeFormatString: buildFakeFormatString(chunks),
+        sameUnits: buildSameUnits(chunks)
+    };
+}
+/*
+Break the formatting string into an array of chunks.
+A 'maybe' chunk will have nested chunks.
+*/
+function chunkFormatString(formatStr) {
+    var chunks = [];
+    var match;
+    // TODO: more descrimination
+    // \4 is a backreference to the first character of a multi-character set.
+    var chunke
