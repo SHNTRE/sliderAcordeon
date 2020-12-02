@@ -4745,4 +4745,59 @@ function chunkFormatString(formatStr) {
     var match;
     // TODO: more descrimination
     // \4 is a backreference to the first character of a multi-character set.
-    var chunke
+    var chunker = /\[([^\]]*)\]|\(([^\)]*)\)|(LTS|LT|(\w)\4*o?)|([^\w\[\(]+)/g;
+    while ((match = chunker.exec(formatStr))) {
+        if (match[1]) {
+            chunks.push.apply(chunks, // append
+            splitStringLiteral(match[1]));
+        }
+        else if (match[2]) {
+            chunks.push({ maybe: chunkFormatString(match[2]) });
+        }
+        else if (match[3]) {
+            chunks.push({ token: match[3] });
+        }
+        else if (match[5]) {
+            chunks.push.apply(chunks, // append
+            splitStringLiteral(match[5]));
+        }
+    }
+    return chunks;
+}
+/*
+Potentially splits a literal-text string into multiple parts. For special cases.
+*/
+function splitStringLiteral(s) {
+    if (s === '. ') {
+        return ['.', ' ']; // for locales with periods bound to the end of each year/month/date
+    }
+    else {
+        return [s];
+    }
+}
+/*
+Given chunks parsed from a real format string, generate a fake (aka "intermediate") format string with special control
+characters that will eventually be given to moment for formatting, and then post-processed.
+*/
+function buildFakeFormatString(chunks) {
+    var parts = [];
+    var i;
+    var chunk;
+    for (i = 0; i < chunks.length; i++) {
+        chunk = chunks[i];
+        if (typeof chunk === 'string') {
+            parts.push('[' + chunk + ']');
+        }
+        else if (chunk.token) {
+            if (chunk.token in specialTokens) {
+                parts.push(SPECIAL_TOKEN_MARKER + // useful during post-processing
+                    '[' + chunk.token + ']' // preserve as literal text
+                );
+            }
+            else {
+                parts.push(chunk.token); // unprotected text implies a format string
+            }
+        }
+        else if (chunk.maybe) {
+            parts.push(MAYBE_MARKER + // useful during post-processing
+               
