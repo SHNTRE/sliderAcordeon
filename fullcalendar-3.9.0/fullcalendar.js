@@ -4800,4 +4800,54 @@ function buildFakeFormatString(chunks) {
         }
         else if (chunk.maybe) {
             parts.push(MAYBE_MARKER + // useful during post-processing
-               
+                buildFakeFormatString(chunk.maybe) +
+                MAYBE_MARKER);
+        }
+    }
+    return parts.join(PART_SEPARATOR);
+}
+/*
+Given parsed chunks from a real formatting string, generates an array of unit strings (like "day") that indicate
+in which regard two dates must be similar in order to share range formatting text.
+The `chunks` can be nested (because of "maybe" chunks), however, the returned array will be flat.
+*/
+function buildSameUnits(chunks) {
+    var units = [];
+    var i;
+    var chunk;
+    var tokenInfo;
+    for (i = 0; i < chunks.length; i++) {
+        chunk = chunks[i];
+        if (chunk.token) {
+            tokenInfo = largeTokenMap[chunk.token.charAt(0)];
+            units.push(tokenInfo ? tokenInfo.unit : 'second'); // default to a very strict same-second
+        }
+        else if (chunk.maybe) {
+            units.push.apply(units, // append
+            buildSameUnits(chunk.maybe));
+        }
+        else {
+            units.push(null);
+        }
+    }
+    return units;
+}
+// Rendering to text
+// ---------------------------------------------------------------------------------------------------------------------
+/*
+Formats a date with a fake format string, post-processes the control characters, then returns.
+*/
+function renderFakeFormatString(fakeFormatString, date) {
+    return processMaybeMarkers(renderFakeFormatStringParts(fakeFormatString, date).join(''));
+}
+/*
+Formats a date into parts that will have been post-processed, EXCEPT for the "maybe" markers.
+*/
+function renderFakeFormatStringParts(fakeFormatString, date) {
+    var parts = [];
+    var fakeRender = moment_ext_1.oldMomentFormat(date, fakeFormatString);
+    var fakeParts = fakeRender.split(PART_SEPARATOR);
+    var i;
+    var fakePart;
+    for (i = 0; i < fakeParts.length; i++) {
+        fakePart = fakePa
