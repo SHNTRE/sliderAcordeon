@@ -4850,4 +4850,69 @@ function renderFakeFormatStringParts(fakeFormatString, date) {
     var i;
     var fakePart;
     for (i = 0; i < fakeParts.length; i++) {
-        fakePart = fakePa
+        fakePart = fakeParts[i];
+        if (fakePart.charAt(0) === SPECIAL_TOKEN_MARKER) {
+            parts.push(
+            // the literal string IS the token's name.
+            // call special token's registered function.
+            specialTokens[fakePart.substring(1)](date));
+        }
+        else {
+            parts.push(fakePart);
+        }
+    }
+    return parts;
+}
+/*
+Accepts an almost-finally-formatted string and processes the "maybe" control characters, returning a new string.
+*/
+function processMaybeMarkers(s) {
+    return s.replace(MAYBE_REGEXP, function (m0, m1) {
+        if (m1.match(/[1-9]/)) {
+            return m1;
+        }
+        else {
+            return '';
+        }
+    });
+}
+// Misc Utils
+// -------------------------------------------------------------------------------------------------
+/*
+Returns a unit string, either 'year', 'month', 'day', or null for the most granular formatting token in the string.
+*/
+function queryMostGranularFormatUnit(formatStr) {
+    var chunks = chunkFormatString(formatStr);
+    var i;
+    var chunk;
+    var candidate;
+    var best;
+    for (i = 0; i < chunks.length; i++) {
+        chunk = chunks[i];
+        if (chunk.token) {
+            candidate = largeTokenMap[chunk.token.charAt(0)];
+            if (candidate) {
+                if (!best || candidate.value > best.value) {
+                    best = candidate;
+                }
+            }
+        }
+    }
+    if (best) {
+        return best.unit;
+    }
+    return null;
+}
+exports.queryMostGranularFormatUnit = queryMostGranularFormatUnit;
+
+
+/***/ }),
+/* 48 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var Class_1 = __webpack_require__(33);
+var EmitterMixin_1 = __webpack_require__(11);
+var ListenerMixin_1 = __webpack_require__(7);
+var Model = /** @class */ (funct
