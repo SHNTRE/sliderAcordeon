@@ -5026,4 +5026,57 @@ var Model = /** @class */ (function (_super) {
                     this._props[name] = val;
                 }
                 this.trigger('change:' + name, val);
-                this.trigger('change', name, va
+                this.trigger('change', name, val);
+            }
+            this.trigger('batchChange', changedProps);
+        }
+    };
+    Model.prototype.watch = function (name, depList, startFunc, stopFunc) {
+        var _this = this;
+        this.unwatch(name);
+        this._watchers[name] = this._watchDeps(depList, function (deps) {
+            var res = startFunc.call(_this, deps);
+            if (res && res.then) {
+                _this.unset(name); // put in an unset state while resolving
+                res.then(function (val) {
+                    _this.set(name, val);
+                });
+            }
+            else {
+                _this.set(name, res);
+            }
+        }, function (deps) {
+            _this.unset(name);
+            if (stopFunc) {
+                stopFunc.call(_this, deps);
+            }
+        });
+    };
+    Model.prototype.unwatch = function (name) {
+        var watcher = this._watchers[name];
+        if (watcher) {
+            delete this._watchers[name];
+            watcher.teardown();
+        }
+    };
+    Model.prototype._watchDeps = function (depList, startFunc, stopFunc) {
+        var _this = this;
+        var queuedChangeCnt = 0;
+        var depCnt = depList.length;
+        var satisfyCnt = 0;
+        var values = {}; // what's passed as the `deps` arguments
+        var bindTuples = []; // array of [ eventName, handlerFunc ] arrays
+        var isCallingStop = false;
+        var onBeforeDepChange = function (depName, val, isOptional) {
+            queuedChangeCnt++;
+            if (queuedChangeCnt === 1) {
+                if (satisfyCnt === depCnt) {
+                    isCallingStop = true;
+                    stopFunc(values);
+                    isCallingStop = false;
+                }
+            }
+        };
+        var onDepChange = function (depName, val, isOptional) {
+            if (val === undefined) {
+                // requir
