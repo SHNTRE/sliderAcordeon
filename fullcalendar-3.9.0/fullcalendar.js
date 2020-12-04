@@ -4971,4 +4971,59 @@ var Model = /** @class */ (function (_super) {
         var oldProps = this._props;
         var changeset = {}; // will have undefined's to signal unsets
         var name;
-        for
+        for (name in oldProps) {
+            changeset[name] = undefined;
+        }
+        for (name in newProps) {
+            changeset[name] = newProps[name];
+        }
+        this.setProps(changeset);
+    };
+    Model.prototype.unset = function (name) {
+        var newProps = {};
+        var names;
+        var i;
+        if (typeof name === 'string') {
+            names = [name];
+        }
+        else {
+            names = name;
+        }
+        for (i = 0; i < names.length; i++) {
+            newProps[names[i]] = undefined;
+        }
+        this.setProps(newProps);
+    };
+    Model.prototype.setProps = function (newProps) {
+        var changedProps = {};
+        var changedCnt = 0;
+        var name;
+        var val;
+        for (name in newProps) {
+            val = newProps[name];
+            // a change in value?
+            // if an object, don't check equality, because might have been mutated internally.
+            // TODO: eventually enforce immutability.
+            if (typeof val === 'object' ||
+                val !== this._props[name]) {
+                changedProps[name] = val;
+                changedCnt++;
+            }
+        }
+        if (changedCnt) {
+            this.trigger('before:batchChange', changedProps);
+            for (name in changedProps) {
+                val = changedProps[name];
+                this.trigger('before:change', name, val);
+                this.trigger('before:change:' + name, val);
+            }
+            for (name in changedProps) {
+                val = changedProps[name];
+                if (val === undefined) {
+                    delete this._props[name];
+                }
+                else {
+                    this._props[name] = val;
+                }
+                this.trigger('change:' + name, val);
+                this.trigger('change', name, va
