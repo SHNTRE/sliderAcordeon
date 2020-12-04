@@ -4915,4 +4915,60 @@ var tslib_1 = __webpack_require__(2);
 var Class_1 = __webpack_require__(33);
 var EmitterMixin_1 = __webpack_require__(11);
 var ListenerMixin_1 = __webpack_require__(7);
-var Model = /** @class */ (funct
+var Model = /** @class */ (function (_super) {
+    tslib_1.__extends(Model, _super);
+    function Model() {
+        var _this = _super.call(this) || this;
+        _this._watchers = {};
+        _this._props = {};
+        _this.applyGlobalWatchers();
+        _this.constructed();
+        return _this;
+    }
+    Model.watch = function (name) {
+        var args = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            args[_i - 1] = arguments[_i];
+        }
+        // subclasses should make a masked-copy of the superclass's map
+        // TODO: write test
+        if (!this.prototype.hasOwnProperty('_globalWatchArgs')) {
+            this.prototype._globalWatchArgs = Object.create(this.prototype._globalWatchArgs);
+        }
+        this.prototype._globalWatchArgs[name] = args;
+    };
+    Model.prototype.constructed = function () {
+        // useful for monkeypatching. TODO: BaseClass?
+    };
+    Model.prototype.applyGlobalWatchers = function () {
+        var map = this._globalWatchArgs;
+        var name;
+        for (name in map) {
+            this.watch.apply(this, [name].concat(map[name]));
+        }
+    };
+    Model.prototype.has = function (name) {
+        return name in this._props;
+    };
+    Model.prototype.get = function (name) {
+        if (name === undefined) {
+            return this._props;
+        }
+        return this._props[name];
+    };
+    Model.prototype.set = function (name, val) {
+        var newProps;
+        if (typeof name === 'string') {
+            newProps = {};
+            newProps[name] = val === undefined ? null : val;
+        }
+        else {
+            newProps = name;
+        }
+        this.setProps(newProps);
+    };
+    Model.prototype.reset = function (newProps) {
+        var oldProps = this._props;
+        var changeset = {}; // will have undefined's to signal unsets
+        var name;
+        for
