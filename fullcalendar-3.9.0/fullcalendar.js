@@ -5079,4 +5079,51 @@ var Model = /** @class */ (function (_super) {
         };
         var onDepChange = function (depName, val, isOptional) {
             if (val === undefined) {
-                // requir
+                // required dependency that was previously set?
+                if (!isOptional && values[depName] !== undefined) {
+                    satisfyCnt--;
+                }
+                delete values[depName];
+            }
+            else {
+                // required dependency that was previously unset?
+                if (!isOptional && values[depName] === undefined) {
+                    satisfyCnt++;
+                }
+                values[depName] = val;
+            }
+            queuedChangeCnt--;
+            if (!queuedChangeCnt) {
+                // now finally satisfied or satisfied all along?
+                if (satisfyCnt === depCnt) {
+                    // if the stopFunc initiated another value change, ignore it.
+                    // it will be processed by another change event anyway.
+                    if (!isCallingStop) {
+                        startFunc(values);
+                    }
+                }
+            }
+        };
+        // intercept for .on() that remembers handlers
+        var bind = function (eventName, handler) {
+            _this.on(eventName, handler);
+            bindTuples.push([eventName, handler]);
+        };
+        // listen to dependency changes
+        depList.forEach(function (depName) {
+            var isOptional = false;
+            if (depName.charAt(0) === '?') {
+                depName = depName.substring(1);
+                isOptional = true;
+            }
+            bind('before:change:' + depName, function (val) {
+                onBeforeDepChange(depName, val, isOptional);
+            });
+            bind('change:' + depName, function (val) {
+                onDepChange(depName, val, isOptional);
+            });
+        });
+        // process current dependency values
+        depList.forEach(function (depName) {
+            var isOptional = false;
+            if (depName.charAt(0) ==
