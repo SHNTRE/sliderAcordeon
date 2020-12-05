@@ -5126,4 +5126,65 @@ var Model = /** @class */ (function (_super) {
         // process current dependency values
         depList.forEach(function (depName) {
             var isOptional = false;
-            if (depName.charAt(0) ==
+            if (depName.charAt(0) === '?') {
+                depName = depName.substring(1);
+                isOptional = true;
+            }
+            if (_this.has(depName)) {
+                values[depName] = _this.get(depName);
+                satisfyCnt++;
+            }
+            else if (isOptional) {
+                satisfyCnt++;
+            }
+        });
+        // initially satisfied
+        if (satisfyCnt === depCnt) {
+            startFunc(values);
+        }
+        return {
+            teardown: function () {
+                // remove all handlers
+                for (var i = 0; i < bindTuples.length; i++) {
+                    _this.off(bindTuples[i][0], bindTuples[i][1]);
+                }
+                bindTuples = null;
+                // was satisfied, so call stopFunc
+                if (satisfyCnt === depCnt) {
+                    stopFunc();
+                }
+            },
+            flash: function () {
+                if (satisfyCnt === depCnt) {
+                    stopFunc();
+                    startFunc(values);
+                }
+            }
+        };
+    };
+    Model.prototype.flash = function (name) {
+        var watcher = this._watchers[name];
+        if (watcher) {
+            watcher.flash();
+        }
+    };
+    return Model;
+}(Class_1.default));
+exports.default = Model;
+Model.prototype._globalWatchArgs = {}; // mutation protection in Model.watch
+EmitterMixin_1.default.mixInto(Model);
+ListenerMixin_1.default.mixInto(Model);
+
+
+/***/ }),
+/* 49 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var moment = __webpack_require__(0);
+var util_1 = __webpack_require__(4);
+var SingleEventDef_1 = __webpack_require__(13);
+var RecurringEventDef_1 = __webpack_require__(210);
+exports.default = {
+    parse: function (eventInput, source) {
+        if 
