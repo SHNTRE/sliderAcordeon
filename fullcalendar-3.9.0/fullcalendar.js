@@ -5459,4 +5459,53 @@ options:
 - isVertical
 */
 var CoordCache = /** @class */ (function () {
-    functio
+    function CoordCache(options) {
+        this.isHorizontal = false; // whether to query for left/right/width
+        this.isVertical = false; // whether to query for top/bottom/height
+        this.els = $(options.els);
+        this.isHorizontal = options.isHorizontal;
+        this.isVertical = options.isVertical;
+        this.forcedOffsetParentEl = options.offsetParent ? $(options.offsetParent) : null;
+    }
+    // Queries the els for coordinates and stores them.
+    // Call this method before using and of the get* methods below.
+    CoordCache.prototype.build = function () {
+        var offsetParentEl = this.forcedOffsetParentEl;
+        if (!offsetParentEl && this.els.length > 0) {
+            offsetParentEl = this.els.eq(0).offsetParent();
+        }
+        this.origin = offsetParentEl ?
+            offsetParentEl.offset() :
+            null;
+        this.boundingRect = this.queryBoundingRect();
+        if (this.isHorizontal) {
+            this.buildElHorizontals();
+        }
+        if (this.isVertical) {
+            this.buildElVerticals();
+        }
+    };
+    // Destroys all internal data about coordinates, freeing memory
+    CoordCache.prototype.clear = function () {
+        this.origin = null;
+        this.boundingRect = null;
+        this.lefts = null;
+        this.rights = null;
+        this.tops = null;
+        this.bottoms = null;
+    };
+    // When called, if coord caches aren't built, builds them
+    CoordCache.prototype.ensureBuilt = function () {
+        if (!this.origin) {
+            this.build();
+        }
+    };
+    // Populates the left/right internal coordinate arrays
+    CoordCache.prototype.buildElHorizontals = function () {
+        var lefts = [];
+        var rights = [];
+        this.els.each(function (i, node) {
+            var el = $(node);
+            var left = el.offset().left;
+            var width = el.outerWidth();
+            lefts.push
