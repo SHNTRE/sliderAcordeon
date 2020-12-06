@@ -5345,4 +5345,60 @@ var StandardTheme_1 = __webpack_require__(213);
 var JqueryUiTheme_1 = __webpack_require__(214);
 var themeClassHash = {};
 function defineThemeSystem(themeName, themeClass) {
-    themeClassHash[the
+    themeClassHash[themeName] = themeClass;
+}
+exports.defineThemeSystem = defineThemeSystem;
+function getThemeSystemClass(themeSetting) {
+    if (!themeSetting) {
+        return StandardTheme_1.default;
+    }
+    else if (themeSetting === true) {
+        return JqueryUiTheme_1.default;
+    }
+    else {
+        return themeClassHash[themeSetting];
+    }
+}
+exports.getThemeSystemClass = getThemeSystemClass;
+
+
+/***/ }),
+/* 52 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var $ = __webpack_require__(3);
+var util_1 = __webpack_require__(4);
+var Promise_1 = __webpack_require__(20);
+var EventSource_1 = __webpack_require__(6);
+var SingleEventDef_1 = __webpack_require__(13);
+var ArrayEventSource = /** @class */ (function (_super) {
+    tslib_1.__extends(ArrayEventSource, _super);
+    function ArrayEventSource(calendar) {
+        var _this = _super.call(this, calendar) || this;
+        _this.eventDefs = []; // for if setRawEventDefs is never called
+        return _this;
+    }
+    ArrayEventSource.parse = function (rawInput, calendar) {
+        var rawProps;
+        // normalize raw input
+        if ($.isArray(rawInput.events)) {
+            rawProps = rawInput;
+        }
+        else if ($.isArray(rawInput)) {
+            rawProps = { events: rawInput };
+        }
+        if (rawProps) {
+            return EventSource_1.default.parse.call(this, rawProps, calendar);
+        }
+        return false;
+    };
+    ArrayEventSource.prototype.setRawEventDefs = function (rawEventDefs) {
+        this.rawEventDefs = rawEventDefs;
+        this.eventDefs = this.parseEventDefs(rawEventDefs);
+    };
+    ArrayEventSource.prototype.fetch = function (start, end, timezone) {
+        var eventDefs = this.eventDefs;
+        var i;
+        if (thi
