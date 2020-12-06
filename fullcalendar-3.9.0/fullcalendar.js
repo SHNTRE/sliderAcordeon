@@ -5401,4 +5401,62 @@ var ArrayEventSource = /** @class */ (function (_super) {
     ArrayEventSource.prototype.fetch = function (start, end, timezone) {
         var eventDefs = this.eventDefs;
         var i;
-        if (thi
+        if (this.currentTimezone != null &&
+            this.currentTimezone !== timezone) {
+            for (i = 0; i < eventDefs.length; i++) {
+                if (eventDefs[i] instanceof SingleEventDef_1.default) {
+                    eventDefs[i].rezone();
+                }
+            }
+        }
+        this.currentTimezone = timezone;
+        return Promise_1.default.resolve(eventDefs);
+    };
+    ArrayEventSource.prototype.addEventDef = function (eventDef) {
+        this.eventDefs.push(eventDef);
+    };
+    /*
+    eventDefId already normalized to a string
+    */
+    ArrayEventSource.prototype.removeEventDefsById = function (eventDefId) {
+        return util_1.removeMatching(this.eventDefs, function (eventDef) {
+            return eventDef.id === eventDefId;
+        });
+    };
+    ArrayEventSource.prototype.removeAllEventDefs = function () {
+        this.eventDefs = [];
+    };
+    ArrayEventSource.prototype.getPrimitive = function () {
+        return this.rawEventDefs;
+    };
+    ArrayEventSource.prototype.applyManualStandardProps = function (rawProps) {
+        var superSuccess = _super.prototype.applyManualStandardProps.call(this, rawProps);
+        this.setRawEventDefs(rawProps.events);
+        return superSuccess;
+    };
+    return ArrayEventSource;
+}(EventSource_1.default));
+exports.default = ArrayEventSource;
+ArrayEventSource.defineStandardProps({
+    events: false // don't automatically transfer
+});
+
+
+/***/ }),
+/* 53 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var $ = __webpack_require__(3);
+var util_1 = __webpack_require__(4);
+/*
+A cache for the left/right/top/bottom/width/height values for one or more elements.
+Works with both offset (from topleft document) and position (from offsetParent).
+
+options:
+- els
+- isHorizontal
+- isVertical
+*/
+var CoordCache = /** @class */ (function () {
+    functio
