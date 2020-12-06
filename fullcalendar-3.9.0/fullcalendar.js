@@ -5508,4 +5508,53 @@ var CoordCache = /** @class */ (function () {
             var el = $(node);
             var left = el.offset().left;
             var width = el.outerWidth();
-            lefts.push
+            lefts.push(left);
+            rights.push(left + width);
+        });
+        this.lefts = lefts;
+        this.rights = rights;
+    };
+    // Populates the top/bottom internal coordinate arrays
+    CoordCache.prototype.buildElVerticals = function () {
+        var tops = [];
+        var bottoms = [];
+        this.els.each(function (i, node) {
+            var el = $(node);
+            var top = el.offset().top;
+            var height = el.outerHeight();
+            tops.push(top);
+            bottoms.push(top + height);
+        });
+        this.tops = tops;
+        this.bottoms = bottoms;
+    };
+    // Given a left offset (from document left), returns the index of the el that it horizontally intersects.
+    // If no intersection is made, returns undefined.
+    CoordCache.prototype.getHorizontalIndex = function (leftOffset) {
+        this.ensureBuilt();
+        var lefts = this.lefts;
+        var rights = this.rights;
+        var len = lefts.length;
+        var i;
+        for (i = 0; i < len; i++) {
+            if (leftOffset >= lefts[i] && leftOffset < rights[i]) {
+                return i;
+            }
+        }
+    };
+    // Given a top offset (from document top), returns the index of the el that it vertically intersects.
+    // If no intersection is made, returns undefined.
+    CoordCache.prototype.getVerticalIndex = function (topOffset) {
+        this.ensureBuilt();
+        var tops = this.tops;
+        var bottoms = this.bottoms;
+        var len = tops.length;
+        var i;
+        for (i = 0; i < len; i++) {
+            if (topOffset >= tops[i] && topOffset < bottoms[i]) {
+                return i;
+            }
+        }
+    };
+    // Gets the left offset (from document left) of the element at the given index
+    CoordCache.prototype.getLeftOffset = f
