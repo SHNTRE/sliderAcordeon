@@ -5557,4 +5557,41 @@ var CoordCache = /** @class */ (function () {
         }
     };
     // Gets the left offset (from document left) of the element at the given index
-    CoordCache.prototype.getLeftOffset = f
+    CoordCache.prototype.getLeftOffset = function (leftIndex) {
+        this.ensureBuilt();
+        return this.lefts[leftIndex];
+    };
+    // Gets the left position (from offsetParent left) of the element at the given index
+    CoordCache.prototype.getLeftPosition = function (leftIndex) {
+        this.ensureBuilt();
+        return this.lefts[leftIndex] - this.origin.left;
+    };
+    // Gets the right offset (from document left) of the element at the given index.
+    // This value is NOT relative to the document's right edge, like the CSS concept of "right" would be.
+    CoordCache.prototype.getRightOffset = function (leftIndex) {
+        this.ensureBuilt();
+        return this.rights[leftIndex];
+    };
+    // Gets the right position (from offsetParent left) of the element at the given index.
+    // This value is NOT relative to the offsetParent's right edge, like the CSS concept of "right" would be.
+    CoordCache.prototype.getRightPosition = function (leftIndex) {
+        this.ensureBuilt();
+        return this.rights[leftIndex] - this.origin.left;
+    };
+    // Gets the width of the element at the given index
+    CoordCache.prototype.getWidth = function (leftIndex) {
+        this.ensureBuilt();
+        return this.rights[leftIndex] - this.lefts[leftIndex];
+    };
+    // Gets the top offset (from document top) of the element at the given index
+    CoordCache.prototype.getTopOffset = function (topIndex) {
+        this.ensureBuilt();
+        return this.tops[topIndex];
+    };
+    // Gets the top position (from offsetParent top) of the element at the given position
+    CoordCache.prototype.getTopPosition = function (topIndex) {
+        this.ensureBuilt();
+        return this.tops[topIndex] - this.origin.top;
+    };
+    // Gets the bottom offset (from the document top) of the element at the given index.
+    // This value is NOT relative to the offsetParent's botto
