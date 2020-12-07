@@ -5632,4 +5632,49 @@ var CoordCache = /** @class */ (function () {
         return !this.boundingRect || (leftOffset >= this.boundingRect.left && leftOffset < this.boundingRect.right);
     };
     CoordCache.prototype.isTopInBounds = function (topOffset) {
-        return !this.boundin
+        return !this.boundingRect || (topOffset >= this.boundingRect.top && topOffset < this.boundingRect.bottom);
+    };
+    return CoordCache;
+}());
+exports.default = CoordCache;
+
+
+/***/ }),
+/* 54 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var $ = __webpack_require__(3);
+var util_1 = __webpack_require__(4);
+var ListenerMixin_1 = __webpack_require__(7);
+var GlobalEmitter_1 = __webpack_require__(21);
+/* Tracks a drag's mouse movement, firing various handlers
+----------------------------------------------------------------------------------------------------------------------*/
+// TODO: use Emitter
+var DragListener = /** @class */ (function () {
+    function DragListener(options) {
+        this.isInteracting = false;
+        this.isDistanceSurpassed = false;
+        this.isDelayEnded = false;
+        this.isDragging = false;
+        this.isTouch = false;
+        this.isGeneric = false; // initiated by 'dragstart' (jqui)
+        this.shouldCancelTouchScroll = true;
+        this.scrollAlwaysKills = false;
+        this.isAutoScroll = false;
+        // defaults
+        this.scrollSensitivity = 30; // pixels from edge for scrolling to start
+        this.scrollSpeed = 200; // pixels per second, at maximum speed
+        this.scrollIntervalMs = 50; // millisecond wait between scroll increment
+        this.options = options || {};
+    }
+    // Interaction (high-level)
+    // -----------------------------------------------------------------------------------------------------------------
+    DragListener.prototype.startInteraction = function (ev, extraOptions) {
+        if (extraOptions === void 0) { extraOptions = {}; }
+        if (ev.type === 'mousedown') {
+            if (GlobalEmitter_1.default.get().shouldIgnoreMouse()) {
+                return;
+            }
+            else if (!util_1.isPrimaryMouseButton(ev)) {
+       
