@@ -5594,4 +5594,42 @@ var CoordCache = /** @class */ (function () {
         return this.tops[topIndex] - this.origin.top;
     };
     // Gets the bottom offset (from the document top) of the element at the given index.
-    // This value is NOT relative to the offsetParent's botto
+    // This value is NOT relative to the offsetParent's bottom edge, like the CSS concept of "bottom" would be.
+    CoordCache.prototype.getBottomOffset = function (topIndex) {
+        this.ensureBuilt();
+        return this.bottoms[topIndex];
+    };
+    // Gets the bottom position (from the offsetParent top) of the element at the given index.
+    // This value is NOT relative to the offsetParent's bottom edge, like the CSS concept of "bottom" would be.
+    CoordCache.prototype.getBottomPosition = function (topIndex) {
+        this.ensureBuilt();
+        return this.bottoms[topIndex] - this.origin.top;
+    };
+    // Gets the height of the element at the given index
+    CoordCache.prototype.getHeight = function (topIndex) {
+        this.ensureBuilt();
+        return this.bottoms[topIndex] - this.tops[topIndex];
+    };
+    // Bounding Rect
+    // TODO: decouple this from CoordCache
+    // Compute and return what the elements' bounding rectangle is, from the user's perspective.
+    // Right now, only returns a rectangle if constrained by an overflow:scroll element.
+    // Returns null if there are no elements
+    CoordCache.prototype.queryBoundingRect = function () {
+        var scrollParentEl;
+        if (this.els.length > 0) {
+            scrollParentEl = util_1.getScrollParent(this.els.eq(0));
+            if (!scrollParentEl.is(document)) {
+                return util_1.getClientRect(scrollParentEl);
+            }
+        }
+        return null;
+    };
+    CoordCache.prototype.isPointInBounds = function (leftOffset, topOffset) {
+        return this.isLeftInBounds(leftOffset) && this.isTopInBounds(topOffset);
+    };
+    CoordCache.prototype.isLeftInBounds = function (leftOffset) {
+        return !this.boundingRect || (leftOffset >= this.boundingRect.left && leftOffset < this.boundingRect.right);
+    };
+    CoordCache.prototype.isTopInBounds = function (topOffset) {
+        return !this.boundin
