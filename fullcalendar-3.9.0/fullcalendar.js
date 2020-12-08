@@ -5677,4 +5677,50 @@ var DragListener = /** @class */ (function () {
                 return;
             }
             else if (!util_1.isPrimaryMouseButton(ev)) {
-       
+                return;
+            }
+            else {
+                ev.preventDefault(); // prevents native selection in most browsers
+            }
+        }
+        if (!this.isInteracting) {
+            // process options
+            this.delay = util_1.firstDefined(extraOptions.delay, this.options.delay, 0);
+            this.minDistance = util_1.firstDefined(extraOptions.distance, this.options.distance, 0);
+            this.subjectEl = this.options.subjectEl;
+            util_1.preventSelection($('body'));
+            this.isInteracting = true;
+            this.isTouch = util_1.getEvIsTouch(ev);
+            this.isGeneric = ev.type === 'dragstart';
+            this.isDelayEnded = false;
+            this.isDistanceSurpassed = false;
+            this.originX = util_1.getEvX(ev);
+            this.originY = util_1.getEvY(ev);
+            this.scrollEl = util_1.getScrollParent($(ev.target));
+            this.bindHandlers();
+            this.initAutoScroll();
+            this.handleInteractionStart(ev);
+            this.startDelay(ev);
+            if (!this.minDistance) {
+                this.handleDistanceSurpassed(ev);
+            }
+        }
+    };
+    DragListener.prototype.handleInteractionStart = function (ev) {
+        this.trigger('interactionStart', ev);
+    };
+    DragListener.prototype.endInteraction = function (ev, isCancelled) {
+        if (this.isInteracting) {
+            this.endDrag(ev);
+            if (this.delayTimeoutId) {
+                clearTimeout(this.delayTimeoutId);
+                this.delayTimeoutId = null;
+            }
+            this.destroyAutoScroll();
+            this.unbindHandlers();
+            this.isInteracting = false;
+            this.handleInteractionEnd(ev, isCancelled);
+            util_1.allowSelection($('body'));
+        }
+    };
+    DragListener.prototype.handleInteractionEnd = function (ev, isCancelled)
