@@ -5765,4 +5765,51 @@ var DragListener = /** @class */ (function () {
     // extraOptions ignored if drag already started
     DragListener.prototype.startDrag = function (ev, extraOptions) {
         this.startInteraction(ev, extraOptions); // ensure interaction began
-        i
+        if (!this.isDragging) {
+            this.isDragging = true;
+            this.handleDragStart(ev);
+        }
+    };
+    DragListener.prototype.handleDragStart = function (ev) {
+        this.trigger('dragStart', ev);
+    };
+    DragListener.prototype.handleMove = function (ev) {
+        var dx = util_1.getEvX(ev) - this.originX;
+        var dy = util_1.getEvY(ev) - this.originY;
+        var minDistance = this.minDistance;
+        var distanceSq; // current distance from the origin, squared
+        if (!this.isDistanceSurpassed) {
+            distanceSq = dx * dx + dy * dy;
+            if (distanceSq >= minDistance * minDistance) {
+                this.handleDistanceSurpassed(ev);
+            }
+        }
+        if (this.isDragging) {
+            this.handleDrag(dx, dy, ev);
+        }
+    };
+    // Called while the mouse is being moved and when we know a legitimate drag is taking place
+    DragListener.prototype.handleDrag = function (dx, dy, ev) {
+        this.trigger('drag', dx, dy, ev);
+        this.updateAutoScroll(ev); // will possibly cause scrolling
+    };
+    DragListener.prototype.endDrag = function (ev) {
+        if (this.isDragging) {
+            this.isDragging = false;
+            this.handleDragEnd(ev);
+        }
+    };
+    DragListener.prototype.handleDragEnd = function (ev) {
+        this.trigger('dragEnd', ev);
+    };
+    // Delay
+    // -----------------------------------------------------------------------------------------------------------------
+    DragListener.prototype.startDelay = function (initialEv) {
+        var _this = this;
+        if (this.delay) {
+            this.delayTimeoutId = setTimeout(function () {
+                _this.handleDelayEnd(initialEv);
+            }, this.delay);
+        }
+        else {
+            this.handleDelayEn
