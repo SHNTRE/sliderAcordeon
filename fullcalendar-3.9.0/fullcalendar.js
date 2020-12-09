@@ -5812,4 +5812,45 @@ var DragListener = /** @class */ (function () {
             }, this.delay);
         }
         else {
-            this.handleDelayEn
+            this.handleDelayEnd(initialEv);
+        }
+    };
+    DragListener.prototype.handleDelayEnd = function (initialEv) {
+        this.isDelayEnded = true;
+        if (this.isDistanceSurpassed) {
+            this.startDrag(initialEv);
+        }
+    };
+    // Distance
+    // -----------------------------------------------------------------------------------------------------------------
+    DragListener.prototype.handleDistanceSurpassed = function (ev) {
+        this.isDistanceSurpassed = true;
+        if (this.isDelayEnded) {
+            this.startDrag(ev);
+        }
+    };
+    // Mouse / Touch
+    // -----------------------------------------------------------------------------------------------------------------
+    DragListener.prototype.handleTouchMove = function (ev) {
+        // prevent inertia and touchmove-scrolling while dragging
+        if (this.isDragging && this.shouldCancelTouchScroll) {
+            ev.preventDefault();
+        }
+        this.handleMove(ev);
+    };
+    DragListener.prototype.handleMouseMove = function (ev) {
+        this.handleMove(ev);
+    };
+    // Scrolling (unrelated to auto-scroll)
+    // -----------------------------------------------------------------------------------------------------------------
+    DragListener.prototype.handleTouchScroll = function (ev) {
+        // if the drag is being initiated by touch, but a scroll happens before
+        // the drag-initiating delay is over, cancel the drag
+        if (!this.isDragging || this.scrollAlwaysKills) {
+            this.endInteraction(ev, true); // isCancelled=true
+        }
+    };
+    // Utils
+    // -----------------------------------------------------------------------------------------------------------------
+    // Triggers a callback. Calls a function in the option hash of the same name.
+    // Arguments beyond the first `name` are fo
