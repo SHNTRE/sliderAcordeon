@@ -5723,4 +5723,46 @@ var DragListener = /** @class */ (function () {
             util_1.allowSelection($('body'));
         }
     };
-    DragListener.prototype.handleInteractionEnd = function (ev, isCancelled)
+    DragListener.prototype.handleInteractionEnd = function (ev, isCancelled) {
+        this.trigger('interactionEnd', ev, isCancelled || false);
+    };
+    // Binding To DOM
+    // -----------------------------------------------------------------------------------------------------------------
+    DragListener.prototype.bindHandlers = function () {
+        // some browsers (Safari in iOS 10) don't allow preventDefault on touch events that are bound after touchstart,
+        // so listen to the GlobalEmitter singleton, which is always bound, instead of the document directly.
+        var globalEmitter = GlobalEmitter_1.default.get();
+        if (this.isGeneric) {
+            this.listenTo($(document), {
+                drag: this.handleMove,
+                dragstop: this.endInteraction
+            });
+        }
+        else if (this.isTouch) {
+            this.listenTo(globalEmitter, {
+                touchmove: this.handleTouchMove,
+                touchend: this.endInteraction,
+                scroll: this.handleTouchScroll
+            });
+        }
+        else {
+            this.listenTo(globalEmitter, {
+                mousemove: this.handleMouseMove,
+                mouseup: this.endInteraction
+            });
+        }
+        this.listenTo(globalEmitter, {
+            selectstart: util_1.preventDefault,
+            contextmenu: util_1.preventDefault // long taps would open menu on Chrome dev tools
+        });
+    };
+    DragListener.prototype.unbindHandlers = function () {
+        this.stopListeningTo(GlobalEmitter_1.default.get());
+        this.stopListeningTo($(document)); // for isGeneric
+    };
+    // Drag (high-level)
+    // -----------------------------------------------------------------------------------------------------------------
+    // extraOptions ignored if drag already started
+    DragListener.prototype.startDrag = function (ev, extraOptions) {
+        this.startInteraction(ev, extraOptions); // ensure interaction began
+        i
