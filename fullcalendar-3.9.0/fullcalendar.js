@@ -5931,4 +5931,45 @@ var DragListener = /** @class */ (function () {
     };
     // Sets the speed-of-scrolling for the scrollEl
     DragListener.prototype.setScrollVel = function (topVel, leftVel) {
-        this.
+        this.scrollTopVel = topVel;
+        this.scrollLeftVel = leftVel;
+        this.constrainScrollVel(); // massages into realistic values
+        // if there is non-zero velocity, and an animation loop hasn't already started, then START
+        if ((this.scrollTopVel || this.scrollLeftVel) && !this.scrollIntervalId) {
+            this.scrollIntervalId = setInterval(util_1.proxy(this, 'scrollIntervalFunc'), // scope to `this`
+            this.scrollIntervalMs);
+        }
+    };
+    // Forces scrollTopVel and scrollLeftVel to be zero if scrolling has already gone all the way
+    DragListener.prototype.constrainScrollVel = function () {
+        var el = this.scrollEl;
+        if (this.scrollTopVel < 0) {
+            if (el.scrollTop() <= 0) {
+                this.scrollTopVel = 0;
+            }
+        }
+        else if (this.scrollTopVel > 0) {
+            if (el.scrollTop() + el[0].clientHeight >= el[0].scrollHeight) {
+                this.scrollTopVel = 0;
+            }
+        }
+        if (this.scrollLeftVel < 0) {
+            if (el.scrollLeft() <= 0) {
+                this.scrollLeftVel = 0;
+            }
+        }
+        else if (this.scrollLeftVel > 0) {
+            if (el.scrollLeft() + el[0].clientWidth >= el[0].scrollWidth) {
+                this.scrollLeftVel = 0;
+            }
+        }
+    };
+    // This function gets called during every iteration of the scrolling animation loop
+    DragListener.prototype.scrollIntervalFunc = function () {
+        var el = this.scrollEl;
+        var frac = this.scrollIntervalMs / 1000; // considering animation frequency, what the vel should be mult'd by
+        // change the value of scrollEl's scroll
+        if (this.scrollTopVel) {
+            el.scrollTop(el.scrollTop() + this.scrollTopVel * frac);
+        }
+        if (this.scr
