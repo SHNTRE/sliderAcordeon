@@ -5853,4 +5853,46 @@ var DragListener = /** @class */ (function () {
     // Utils
     // -----------------------------------------------------------------------------------------------------------------
     // Triggers a callback. Calls a function in the option hash of the same name.
-    // Arguments beyond the first `name` are fo
+    // Arguments beyond the first `name` are forwarded on.
+    DragListener.prototype.trigger = function (name) {
+        var args = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            args[_i - 1] = arguments[_i];
+        }
+        if (this.options[name]) {
+            this.options[name].apply(this, args);
+        }
+        // makes _methods callable by event name. TODO: kill this
+        if (this['_' + name]) {
+            this['_' + name].apply(this, args);
+        }
+    };
+    // Auto-scroll
+    // -----------------------------------------------------------------------------------------------------------------
+    DragListener.prototype.initAutoScroll = function () {
+        var scrollEl = this.scrollEl;
+        this.isAutoScroll =
+            this.options.scroll &&
+                scrollEl &&
+                !scrollEl.is(window) &&
+                !scrollEl.is(document);
+        if (this.isAutoScroll) {
+            // debounce makes sure rapid calls don't happen
+            this.listenTo(scrollEl, 'scroll', util_1.debounce(this.handleDebouncedScroll, 100));
+        }
+    };
+    DragListener.prototype.destroyAutoScroll = function () {
+        this.endAutoScroll(); // kill any animation loop
+        // remove the scroll handler if there is a scrollEl
+        if (this.isAutoScroll) {
+            this.stopListeningTo(this.scrollEl, 'scroll'); // will probably get removed by unbindHandlers too :(
+        }
+    };
+    // Computes and stores the bounding rectangle of scrollEl
+    DragListener.prototype.computeScrollBounds = function () {
+        if (this.isAutoScroll) {
+            this.scrollBounds = util_1.getOuterRect(this.scrollEl);
+            // TODO: use getClientRect in future. but prevents auto scrolling when on top of scrollbars
+        }
+    };
+    // Called when the dragging is in progr
