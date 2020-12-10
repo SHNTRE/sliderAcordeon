@@ -5895,4 +5895,40 @@ var DragListener = /** @class */ (function () {
             // TODO: use getClientRect in future. but prevents auto scrolling when on top of scrollbars
         }
     };
-    // Called when the dragging is in progr
+    // Called when the dragging is in progress and scrolling should be updated
+    DragListener.prototype.updateAutoScroll = function (ev) {
+        var sensitivity = this.scrollSensitivity;
+        var bounds = this.scrollBounds;
+        var topCloseness;
+        var bottomCloseness;
+        var leftCloseness;
+        var rightCloseness;
+        var topVel = 0;
+        var leftVel = 0;
+        if (bounds) {
+            // compute closeness to edges. valid range is from 0.0 - 1.0
+            topCloseness = (sensitivity - (util_1.getEvY(ev) - bounds.top)) / sensitivity;
+            bottomCloseness = (sensitivity - (bounds.bottom - util_1.getEvY(ev))) / sensitivity;
+            leftCloseness = (sensitivity - (util_1.getEvX(ev) - bounds.left)) / sensitivity;
+            rightCloseness = (sensitivity - (bounds.right - util_1.getEvX(ev))) / sensitivity;
+            // translate vertical closeness into velocity.
+            // mouse must be completely in bounds for velocity to happen.
+            if (topCloseness >= 0 && topCloseness <= 1) {
+                topVel = topCloseness * this.scrollSpeed * -1; // negative. for scrolling up
+            }
+            else if (bottomCloseness >= 0 && bottomCloseness <= 1) {
+                topVel = bottomCloseness * this.scrollSpeed;
+            }
+            // translate horizontal closeness into velocity
+            if (leftCloseness >= 0 && leftCloseness <= 1) {
+                leftVel = leftCloseness * this.scrollSpeed * -1; // negative. for scrolling left
+            }
+            else if (rightCloseness >= 0 && rightCloseness <= 1) {
+                leftVel = rightCloseness * this.scrollSpeed;
+            }
+        }
+        this.setScrollVel(topVel, leftVel);
+    };
+    // Sets the speed-of-scrolling for the scrollEl
+    DragListener.prototype.setScrollVel = function (topVel, leftVel) {
+        this.
