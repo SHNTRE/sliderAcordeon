@@ -5972,4 +5972,51 @@ var DragListener = /** @class */ (function () {
         if (this.scrollTopVel) {
             el.scrollTop(el.scrollTop() + this.scrollTopVel * frac);
         }
-        if (this.scr
+        if (this.scrollLeftVel) {
+            el.scrollLeft(el.scrollLeft() + this.scrollLeftVel * frac);
+        }
+        this.constrainScrollVel(); // since the scroll values changed, recompute the velocities
+        // if scrolled all the way, which causes the vels to be zero, stop the animation loop
+        if (!this.scrollTopVel && !this.scrollLeftVel) {
+            this.endAutoScroll();
+        }
+    };
+    // Kills any existing scrolling animation loop
+    DragListener.prototype.endAutoScroll = function () {
+        if (this.scrollIntervalId) {
+            clearInterval(this.scrollIntervalId);
+            this.scrollIntervalId = null;
+            this.handleScrollEnd();
+        }
+    };
+    // Get called when the scrollEl is scrolled (NOTE: this is delayed via debounce)
+    DragListener.prototype.handleDebouncedScroll = function () {
+        // recompute all coordinates, but *only* if this is *not* part of our scrolling animation
+        if (!this.scrollIntervalId) {
+            this.handleScrollEnd();
+        }
+    };
+    DragListener.prototype.handleScrollEnd = function () {
+        // Called when scrolling has stopped, whether through auto scroll, or the user scrolling
+    };
+    return DragListener;
+}());
+exports.default = DragListener;
+ListenerMixin_1.default.mixInto(DragListener);
+
+
+/***/ }),
+/* 55 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var util_1 = __webpack_require__(4);
+var Mixin_1 = __webpack_require__(14);
+/*
+A set of rendering and date-related methods for a visual component comprised of one or more rows of day columns.
+Prerequisite: the object being mixed into needs to be a *Grid*
+*/
+var DayTableMixin = /** @class */ (function (_super) {
+    tslib_1.__extends(DayTableMixin, _super);
+    function DayTa
