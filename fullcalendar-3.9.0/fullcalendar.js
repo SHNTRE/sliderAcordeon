@@ -6068,4 +6068,41 @@ var DayTableMixin = /** @class */ (function (_super) {
     };
     // Computes and assigned the colCnt property and updates any options that may be computed from it
     DayTableMixin.prototype.updateDayTableCols = function () {
-      
+        this.colCnt = this.computeColCnt();
+        this.colHeadFormat =
+            this.opt('columnHeaderFormat') ||
+                this.opt('columnFormat') || // deprecated
+                this.computeColHeadFormat();
+    };
+    // Determines how many columns there should be in the table
+    DayTableMixin.prototype.computeColCnt = function () {
+        return this.daysPerRow;
+    };
+    // Computes the ambiguously-timed moment for the given cell
+    DayTableMixin.prototype.getCellDate = function (row, col) {
+        return this.dayDates[this.getCellDayIndex(row, col)].clone();
+    };
+    // Computes the ambiguously-timed date range for the given cell
+    DayTableMixin.prototype.getCellRange = function (row, col) {
+        var start = this.getCellDate(row, col);
+        var end = start.clone().add(1, 'days');
+        return { start: start, end: end };
+    };
+    // Returns the number of day cells, chronologically, from the first of the grid (0-based)
+    DayTableMixin.prototype.getCellDayIndex = function (row, col) {
+        return row * this.daysPerRow + this.getColDayIndex(col);
+    };
+    // Returns the numner of day cells, chronologically, from the first cell in *any given row*
+    DayTableMixin.prototype.getColDayIndex = function (col) {
+        if (this.isRTL) {
+            return this.colCnt - 1 - col;
+        }
+        else {
+            return col;
+        }
+    };
+    // Given a date, returns its chronolocial cell-index from the first cell of the grid.
+    // If the date lies between cells (because of hiddenDays), returns a floating-point value between offsets.
+    // If before the first offset, returns a negative number.
+    // If after the last offset, returns an offset past the last cell offset.
+    // Only works for *start* dates of cells. Will not work for exclusive end dates for cells
