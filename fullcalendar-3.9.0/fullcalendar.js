@@ -6019,4 +6019,53 @@ Prerequisite: the object being mixed into needs to be a *Grid*
 */
 var DayTableMixin = /** @class */ (function (_super) {
     tslib_1.__extends(DayTableMixin, _super);
-    function DayTa
+    function DayTableMixin() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    // Populates internal variables used for date calculation and rendering
+    DayTableMixin.prototype.updateDayTable = function () {
+        var t = this;
+        var view = t.view;
+        var calendar = view.calendar;
+        var date = calendar.msToUtcMoment(t.dateProfile.renderUnzonedRange.startMs, true);
+        var end = calendar.msToUtcMoment(t.dateProfile.renderUnzonedRange.endMs, true);
+        var dayIndex = -1;
+        var dayIndices = [];
+        var dayDates = [];
+        var daysPerRow;
+        var firstDay;
+        var rowCnt;
+        while (date.isBefore(end)) {
+            if (view.isHiddenDay(date)) {
+                dayIndices.push(dayIndex + 0.5); // mark that it's between indices
+            }
+            else {
+                dayIndex++;
+                dayIndices.push(dayIndex);
+                dayDates.push(date.clone());
+            }
+            date.add(1, 'days');
+        }
+        if (this.breakOnWeeks) {
+            // count columns until the day-of-week repeats
+            firstDay = dayDates[0].day();
+            for (daysPerRow = 1; daysPerRow < dayDates.length; daysPerRow++) {
+                if (dayDates[daysPerRow].day() === firstDay) {
+                    break;
+                }
+            }
+            rowCnt = Math.ceil(dayDates.length / daysPerRow);
+        }
+        else {
+            rowCnt = 1;
+            daysPerRow = dayDates.length;
+        }
+        this.dayDates = dayDates;
+        this.dayIndices = dayIndices;
+        this.daysPerRow = daysPerRow;
+        this.rowCnt = rowCnt;
+        this.updateDayTableCols();
+    };
+    // Computes and assigned the colCnt property and updates any options that may be computed from it
+    DayTableMixin.prototype.updateDayTableCols = function () {
+      
