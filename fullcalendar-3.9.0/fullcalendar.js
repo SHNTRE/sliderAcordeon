@@ -6105,4 +6105,45 @@ var DayTableMixin = /** @class */ (function (_super) {
     // If the date lies between cells (because of hiddenDays), returns a floating-point value between offsets.
     // If before the first offset, returns a negative number.
     // If after the last offset, returns an offset past the last cell offset.
-    // Only works for *start* dates of cells. Will not work for exclusive end dates for cells
+    // Only works for *start* dates of cells. Will not work for exclusive end dates for cells.
+    DayTableMixin.prototype.getDateDayIndex = function (date) {
+        var dayIndices = this.dayIndices;
+        var dayOffset = date.diff(this.dayDates[0], 'days');
+        if (dayOffset < 0) {
+            return dayIndices[0] - 1;
+        }
+        else if (dayOffset >= dayIndices.length) {
+            return dayIndices[dayIndices.length - 1] + 1;
+        }
+        else {
+            return dayIndices[dayOffset];
+        }
+    };
+    /* Options
+    ------------------------------------------------------------------------------------------------------------------*/
+    // Computes a default column header formatting string if `colFormat` is not explicitly defined
+    DayTableMixin.prototype.computeColHeadFormat = function () {
+        // if more than one week row, or if there are a lot of columns with not much space,
+        // put just the day numbers will be in each cell
+        if (this.rowCnt > 1 || this.colCnt > 10) {
+            return 'ddd'; // "Sat"
+        }
+        else if (this.colCnt > 1) {
+            return this.opt('dayOfMonthFormat'); // "Sat 12/10"
+        }
+        else {
+            return 'dddd'; // "Saturday"
+        }
+    };
+    /* Slicing
+    ------------------------------------------------------------------------------------------------------------------*/
+    // Slices up a date range into a segment for every week-row it intersects with
+    DayTableMixin.prototype.sliceRangeByRow = function (unzonedRange) {
+        var daysPerRow = this.daysPerRow;
+        var normalRange = this.view.computeDayRange(unzonedRange); // make whole-day range, considering nextDayThreshold
+        var rangeFirst = this.getDateDayIndex(normalRange.start); // inclusive first index
+        var rangeLast = this.getDateDayIndex(normalRange.end.clone().subtract(1, 'days')); // inclusive last index
+        var segs = [];
+        var row;
+        var rowFirst;
+        var r
