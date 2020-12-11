@@ -6146,4 +6146,41 @@ var DayTableMixin = /** @class */ (function (_super) {
         var segs = [];
         var row;
         var rowFirst;
-        var r
+        var rowLast; // inclusive day-index range for current row
+        var segFirst;
+        var segLast; // inclusive day-index range for segment
+        for (row = 0; row < this.rowCnt; row++) {
+            rowFirst = row * daysPerRow;
+            rowLast = rowFirst + daysPerRow - 1;
+            // intersect segment's offset range with the row's
+            segFirst = Math.max(rangeFirst, rowFirst);
+            segLast = Math.min(rangeLast, rowLast);
+            // deal with in-between indices
+            segFirst = Math.ceil(segFirst); // in-between starts round to next cell
+            segLast = Math.floor(segLast); // in-between ends round to prev cell
+            if (segFirst <= segLast) {
+                segs.push({
+                    row: row,
+                    // normalize to start of row
+                    firstRowDayIndex: segFirst - rowFirst,
+                    lastRowDayIndex: segLast - rowFirst,
+                    // must be matching integers to be the segment's start/end
+                    isStart: segFirst === rangeFirst,
+                    isEnd: segLast === rangeLast
+                });
+            }
+        }
+        return segs;
+    };
+    // Slices up a date range into a segment for every day-cell it intersects with.
+    // TODO: make more DRY with sliceRangeByRow somehow.
+    DayTableMixin.prototype.sliceRangeByDay = function (unzonedRange) {
+        var daysPerRow = this.daysPerRow;
+        var normalRange = this.view.computeDayRange(unzonedRange); // make whole-day range, considering nextDayThreshold
+        var rangeFirst = this.getDateDayIndex(normalRange.start); // inclusive first index
+        var rangeLast = this.getDateDayIndex(normalRange.end.clone().subtract(1, 'days')); // inclusive last index
+        var segs = [];
+        var row;
+        var rowFirst;
+        var rowLast; // inclusive day-index range for current row
+        var 
