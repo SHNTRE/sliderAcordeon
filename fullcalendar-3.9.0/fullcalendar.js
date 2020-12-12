@@ -6183,4 +6183,46 @@ var DayTableMixin = /** @class */ (function (_super) {
         var row;
         var rowFirst;
         var rowLast; // inclusive day-index range for current row
-        var 
+        var i;
+        var segFirst;
+        var segLast; // inclusive day-index range for segment
+        for (row = 0; row < this.rowCnt; row++) {
+            rowFirst = row * daysPerRow;
+            rowLast = rowFirst + daysPerRow - 1;
+            for (i = rowFirst; i <= rowLast; i++) {
+                // intersect segment's offset range with the row's
+                segFirst = Math.max(rangeFirst, i);
+                segLast = Math.min(rangeLast, i);
+                // deal with in-between indices
+                segFirst = Math.ceil(segFirst); // in-between starts round to next cell
+                segLast = Math.floor(segLast); // in-between ends round to prev cell
+                if (segFirst <= segLast) {
+                    segs.push({
+                        row: row,
+                        // normalize to start of row
+                        firstRowDayIndex: segFirst - rowFirst,
+                        lastRowDayIndex: segLast - rowFirst,
+                        // must be matching integers to be the segment's start/end
+                        isStart: segFirst === rangeFirst,
+                        isEnd: segLast === rangeLast
+                    });
+                }
+            }
+        }
+        return segs;
+    };
+    /* Header Rendering
+    ------------------------------------------------------------------------------------------------------------------*/
+    DayTableMixin.prototype.renderHeadHtml = function () {
+        var theme = this.view.calendar.theme;
+        return '' +
+            '<div class="fc-row ' + theme.getClass('headerRow') + '">' +
+            '<table class="' + theme.getClass('tableGrid') + '">' +
+            '<thead>' +
+            this.renderHeadTrHtml() +
+            '</thead>' +
+            '</table>' +
+            '</div>';
+    };
+    DayTableMixin.prototype.renderHeadIntroHtml = function () {
+        return this.
