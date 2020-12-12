@@ -6225,4 +6225,48 @@ var DayTableMixin = /** @class */ (function (_super) {
             '</div>';
     };
     DayTableMixin.prototype.renderHeadIntroHtml = function () {
-        return this.
+        return this.renderIntroHtml(); // fall back to generic
+    };
+    DayTableMixin.prototype.renderHeadTrHtml = function () {
+        return '' +
+            '<tr>' +
+            (this.isRTL ? '' : this.renderHeadIntroHtml()) +
+            this.renderHeadDateCellsHtml() +
+            (this.isRTL ? this.renderHeadIntroHtml() : '') +
+            '</tr>';
+    };
+    DayTableMixin.prototype.renderHeadDateCellsHtml = function () {
+        var htmls = [];
+        var col;
+        var date;
+        for (col = 0; col < this.colCnt; col++) {
+            date = this.getCellDate(0, col);
+            htmls.push(this.renderHeadDateCellHtml(date));
+        }
+        return htmls.join('');
+    };
+    // TODO: when internalApiVersion, accept an object for HTML attributes
+    // (colspan should be no different)
+    DayTableMixin.prototype.renderHeadDateCellHtml = function (date, colspan, otherAttrs) {
+        var t = this;
+        var view = t.view;
+        var isDateValid = t.dateProfile.activeUnzonedRange.containsDate(date); // TODO: called too frequently. cache somehow.
+        var classNames = [
+            'fc-day-header',
+            view.calendar.theme.getClass('widgetHeader')
+        ];
+        var innerHtml;
+        if (typeof t.opt('columnHeaderHtml') === 'function') {
+            innerHtml = t.opt('columnHeaderHtml')(date);
+        }
+        else if (typeof t.opt('columnHeaderText') === 'function') {
+            innerHtml = util_1.htmlEscape(t.opt('columnHeaderText')(date));
+        }
+        else {
+            innerHtml = util_1.htmlEscape(date.format(t.colHeadFormat));
+        }
+        // if only one row of days, the classNames on the header can represent the specific days beneath
+        if (t.rowCnt === 1) {
+            classNames = classNames.concat(
+            // includes the day-of-week class
+            // noThemeHighlight=true (don't highlight the head
