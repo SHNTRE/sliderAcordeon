@@ -6414,4 +6414,47 @@ exports.default = BusinessHourRenderer;
 
 /***/ }),
 /* 57 */
-/***/ (function(module, exports,
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var $ = __webpack_require__(3);
+var util_1 = __webpack_require__(4);
+var FillRenderer = /** @class */ (function () {
+    function FillRenderer(component) {
+        this.fillSegTag = 'div';
+        this.component = component;
+        this.elsByFill = {};
+    }
+    FillRenderer.prototype.renderFootprint = function (type, componentFootprint, props) {
+        this.renderSegs(type, this.component.componentFootprintToSegs(componentFootprint), props);
+    };
+    FillRenderer.prototype.renderSegs = function (type, segs, props) {
+        var els;
+        segs = this.buildSegEls(type, segs, props); // assignes `.el` to each seg. returns successfully rendered segs
+        els = this.attachSegEls(type, segs);
+        if (els) {
+            this.reportEls(type, els);
+        }
+        return segs;
+    };
+    // Unrenders a specific type of fill that is currently rendered on the grid
+    FillRenderer.prototype.unrender = function (type) {
+        var el = this.elsByFill[type];
+        if (el) {
+            el.remove();
+            delete this.elsByFill[type];
+        }
+    };
+    // Renders and assigns an `el` property for each fill segment. Generic enough to work with different types.
+    // Only returns segments that successfully rendered.
+    FillRenderer.prototype.buildSegEls = function (type, segs, props) {
+        var _this = this;
+        var html = '';
+        var renderedSegs = [];
+        var i;
+        if (segs.length) {
+            // build a large concatenation of segment HTML
+            for (i = 0; i < segs.length; i++) {
+                html += this.buildSegHtml(type, segs[i], props);
+            }
+            // Grab individual elements from the combined HTML string. Use each as the default render
