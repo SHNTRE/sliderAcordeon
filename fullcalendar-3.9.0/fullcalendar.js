@@ -6315,4 +6315,53 @@ var DayTableMixin = /** @class */ (function (_super) {
             date = this.getCellDate(row, col);
             htmls.push(this.renderBgCellHtml(date));
         }
-        retur
+        return htmls.join('');
+    };
+    DayTableMixin.prototype.renderBgCellHtml = function (date, otherAttrs) {
+        var t = this;
+        var view = t.view;
+        var isDateValid = t.dateProfile.activeUnzonedRange.containsDate(date); // TODO: called too frequently. cache somehow.
+        var classes = t.getDayClasses(date);
+        classes.unshift('fc-day', view.calendar.theme.getClass('widgetContent'));
+        return '<td class="' + classes.join(' ') + '"' +
+            (isDateValid ?
+                ' data-date="' + date.format('YYYY-MM-DD') + '"' : // if date has a time, won't format it
+                '') +
+            (otherAttrs ?
+                ' ' + otherAttrs :
+                '') +
+            '></td>';
+    };
+    /* Generic
+    ------------------------------------------------------------------------------------------------------------------*/
+    DayTableMixin.prototype.renderIntroHtml = function () {
+        // Generates the default HTML intro for any row. User classes should override
+    };
+    // TODO: a generic method for dealing with <tr>, RTL, intro
+    // when increment internalApiVersion
+    // wrapTr (scheduler)
+    /* Utils
+    ------------------------------------------------------------------------------------------------------------------*/
+    // Applies the generic "intro" and "outro" HTML to the given cells.
+    // Intro means the leftmost cell when the calendar is LTR and the rightmost cell when RTL. Vice-versa for outro.
+    DayTableMixin.prototype.bookendCells = function (trEl) {
+        var introHtml = this.renderIntroHtml();
+        if (introHtml) {
+            if (this.isRTL) {
+                trEl.append(introHtml);
+            }
+            else {
+                trEl.prepend(introHtml);
+            }
+        }
+    };
+    return DayTableMixin;
+}(Mixin_1.default));
+exports.default = DayTableMixin;
+
+
+/***/ }),
+/* 56 */
+/***/ (function(module, exports) {
+
+Object.definePro
