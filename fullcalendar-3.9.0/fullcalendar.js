@@ -6269,4 +6269,50 @@ var DayTableMixin = /** @class */ (function (_super) {
         if (t.rowCnt === 1) {
             classNames = classNames.concat(
             // includes the day-of-week class
-            // noThemeHighlight=true (don't highlight the head
+            // noThemeHighlight=true (don't highlight the header)
+            t.getDayClasses(date, true));
+        }
+        else {
+            classNames.push('fc-' + util_1.dayIDs[date.day()]); // only add the day-of-week class
+        }
+        return '' +
+            '<th class="' + classNames.join(' ') + '"' +
+            ((isDateValid && t.rowCnt) === 1 ?
+                ' data-date="' + date.format('YYYY-MM-DD') + '"' :
+                '') +
+            (colspan > 1 ?
+                ' colspan="' + colspan + '"' :
+                '') +
+            (otherAttrs ?
+                ' ' + otherAttrs :
+                '') +
+            '>' +
+            (isDateValid ?
+                // don't make a link if the heading could represent multiple days, or if there's only one day (forceOff)
+                view.buildGotoAnchorHtml({ date: date, forceOff: t.rowCnt > 1 || t.colCnt === 1 }, innerHtml) :
+                // if not valid, display text, but no link
+                innerHtml) +
+            '</th>';
+    };
+    /* Background Rendering
+    ------------------------------------------------------------------------------------------------------------------*/
+    DayTableMixin.prototype.renderBgTrHtml = function (row) {
+        return '' +
+            '<tr>' +
+            (this.isRTL ? '' : this.renderBgIntroHtml(row)) +
+            this.renderBgCellsHtml(row) +
+            (this.isRTL ? this.renderBgIntroHtml(row) : '') +
+            '</tr>';
+    };
+    DayTableMixin.prototype.renderBgIntroHtml = function (row) {
+        return this.renderIntroHtml(); // fall back to generic
+    };
+    DayTableMixin.prototype.renderBgCellsHtml = function (row) {
+        var htmls = [];
+        var col;
+        var date;
+        for (col = 0; col < this.colCnt; col++) {
+            date = this.getCellDate(row, col);
+            htmls.push(this.renderBgCellHtml(date));
+        }
+        retur
