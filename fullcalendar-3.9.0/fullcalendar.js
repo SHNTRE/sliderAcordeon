@@ -6364,4 +6364,54 @@ exports.default = DayTableMixin;
 /* 56 */
 /***/ (function(module, exports) {
 
-Object.definePro
+Object.defineProperty(exports, "__esModule", { value: true });
+var BusinessHourRenderer = /** @class */ (function () {
+    /*
+    component implements:
+      - eventRangesToEventFootprints
+      - eventFootprintsToSegs
+    */
+    function BusinessHourRenderer(component, fillRenderer) {
+        this.component = component;
+        this.fillRenderer = fillRenderer;
+    }
+    BusinessHourRenderer.prototype.render = function (businessHourGenerator) {
+        var component = this.component;
+        var unzonedRange = component._getDateProfile().activeUnzonedRange;
+        var eventInstanceGroup = businessHourGenerator.buildEventInstanceGroup(component.hasAllDayBusinessHours, unzonedRange);
+        var eventFootprints = eventInstanceGroup ?
+            component.eventRangesToEventFootprints(eventInstanceGroup.sliceRenderRanges(unzonedRange)) :
+            [];
+        this.renderEventFootprints(eventFootprints);
+    };
+    BusinessHourRenderer.prototype.renderEventFootprints = function (eventFootprints) {
+        var segs = this.component.eventFootprintsToSegs(eventFootprints);
+        this.renderSegs(segs);
+        this.segs = segs;
+    };
+    BusinessHourRenderer.prototype.renderSegs = function (segs) {
+        if (this.fillRenderer) {
+            this.fillRenderer.renderSegs('businessHours', segs, {
+                getClasses: function (seg) {
+                    return ['fc-nonbusiness', 'fc-bgevent'];
+                }
+            });
+        }
+    };
+    BusinessHourRenderer.prototype.unrender = function () {
+        if (this.fillRenderer) {
+            this.fillRenderer.unrender('businessHours');
+        }
+        this.segs = null;
+    };
+    BusinessHourRenderer.prototype.getSegs = function () {
+        return this.segs || [];
+    };
+    return BusinessHourRenderer;
+}());
+exports.default = BusinessHourRenderer;
+
+
+/***/ }),
+/* 57 */
+/***/ (function(module, exports,
