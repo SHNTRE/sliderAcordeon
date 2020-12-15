@@ -6507,4 +6507,46 @@ exports.default = FillRenderer;
 
 /***/ }),
 /* 58 */
-/***/ (function(module,
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var SingleEventDef_1 = __webpack_require__(13);
+var EventFootprint_1 = __webpack_require__(36);
+var EventSource_1 = __webpack_require__(6);
+var HelperRenderer = /** @class */ (function () {
+    function HelperRenderer(component, eventRenderer) {
+        this.view = component._getView();
+        this.component = component;
+        this.eventRenderer = eventRenderer;
+    }
+    HelperRenderer.prototype.renderComponentFootprint = function (componentFootprint) {
+        this.renderEventFootprints([
+            this.fabricateEventFootprint(componentFootprint)
+        ]);
+    };
+    HelperRenderer.prototype.renderEventDraggingFootprints = function (eventFootprints, sourceSeg, isTouch) {
+        this.renderEventFootprints(eventFootprints, sourceSeg, 'fc-dragging', isTouch ? null : this.view.opt('dragOpacity'));
+    };
+    HelperRenderer.prototype.renderEventResizingFootprints = function (eventFootprints, sourceSeg, isTouch) {
+        this.renderEventFootprints(eventFootprints, sourceSeg, 'fc-resizing');
+    };
+    HelperRenderer.prototype.renderEventFootprints = function (eventFootprints, sourceSeg, extraClassNames, opacity) {
+        var segs = this.component.eventFootprintsToSegs(eventFootprints);
+        var classNames = 'fc-helper ' + (extraClassNames || '');
+        var i;
+        // assigns each seg's el and returns a subset of segs that were rendered
+        segs = this.eventRenderer.renderFgSegEls(segs);
+        for (i = 0; i < segs.length; i++) {
+            segs[i].el.addClass(classNames);
+        }
+        if (opacity != null) {
+            for (i = 0; i < segs.length; i++) {
+                segs[i].el.css('opacity', opacity);
+            }
+        }
+        this.helperEls = this.renderSegs(segs, sourceSeg);
+    };
+    /*
+    Must return all mock event elements
+    */
+    Helpe
