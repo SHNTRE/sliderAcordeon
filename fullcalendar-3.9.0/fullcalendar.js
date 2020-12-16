@@ -6549,4 +6549,52 @@ var HelperRenderer = /** @class */ (function () {
     /*
     Must return all mock event elements
     */
-    Helpe
+    HelperRenderer.prototype.renderSegs = function (segs, sourceSeg) {
+        // Subclasses must implement
+    };
+    HelperRenderer.prototype.unrender = function () {
+        if (this.helperEls) {
+            this.helperEls.remove();
+            this.helperEls = null;
+        }
+    };
+    HelperRenderer.prototype.fabricateEventFootprint = function (componentFootprint) {
+        var calendar = this.view.calendar;
+        var eventDateProfile = calendar.footprintToDateProfile(componentFootprint);
+        var dummyEvent = new SingleEventDef_1.default(new EventSource_1.default(calendar));
+        var dummyInstance;
+        dummyEvent.dateProfile = eventDateProfile;
+        dummyInstance = dummyEvent.buildInstance();
+        return new EventFootprint_1.default(componentFootprint, dummyEvent, dummyInstance);
+    };
+    return HelperRenderer;
+}());
+exports.default = HelperRenderer;
+
+
+/***/ }),
+/* 59 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var GlobalEmitter_1 = __webpack_require__(21);
+var Interaction_1 = __webpack_require__(15);
+var EventPointing = /** @class */ (function (_super) {
+    tslib_1.__extends(EventPointing, _super);
+    function EventPointing() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    /*
+    component must implement:
+      - publiclyTrigger
+    */
+    EventPointing.prototype.bindToEl = function (el) {
+        var component = this.component;
+        component.bindSegHandlerToEl(el, 'click', this.handleClick.bind(this));
+        component.bindSegHandlerToEl(el, 'mouseenter', this.handleMouseover.bind(this));
+        component.bindSegHandlerToEl(el, 'mouseleave', this.handleMouseout.bind(this));
+    };
+    EventPointing.prototype.handleClick = function (seg, ev) {
+        var res = this.component.publiclyTrigger('eventClick', {
+            c
