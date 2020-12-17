@@ -6689,3 +6689,34 @@ var CoordCache_1 = __webpack_require__(53);
 var Popover_1 = __webpack_require__(249);
 var UnzonedRange_1 = __webpack_require__(5);
 var ComponentFootprint_1 = __webpack_require__(12);
+var EventFootprint_1 = __webpack_require__(36);
+var BusinessHourRenderer_1 = __webpack_require__(56);
+var StandardInteractionsMixin_1 = __webpack_require__(60);
+var InteractiveDateComponent_1 = __webpack_require__(40);
+var DayTableMixin_1 = __webpack_require__(55);
+var DayGridEventRenderer_1 = __webpack_require__(250);
+var DayGridHelperRenderer_1 = __webpack_require__(251);
+var DayGridFillRenderer_1 = __webpack_require__(252);
+/* A component that renders a grid of whole-days that runs horizontally. There can be multiple rows, one per week.
+----------------------------------------------------------------------------------------------------------------------*/
+var DayGrid = /** @class */ (function (_super) {
+    tslib_1.__extends(DayGrid, _super);
+    function DayGrid(view) {
+        var _this = _super.call(this, view) || this;
+        _this.cellWeekNumbersVisible = false; // display week numbers in day cell?
+        _this.bottomCoordPadding = 0; // hack for extending the hit area for the last row of the coordinate grid
+        // isRigid determines whether the individual rows should ignore the contents and be a constant height.
+        // Relies on the view's colCnt and rowCnt. In the future, this component should probably be self-sufficient.
+        _this.isRigid = false;
+        _this.hasAllDayBusinessHours = true;
+        return _this;
+    }
+    // Slices up the given span (unzoned start/end with other misc data) into an array of segments
+    DayGrid.prototype.componentFootprintToSegs = function (componentFootprint) {
+        var segs = this.sliceRangeByRow(componentFootprint.unzonedRange);
+        var i;
+        var seg;
+        for (i = 0; i < segs.length; i++) {
+            seg = segs[i];
+            if (this.isRTL) {
+                seg.l
