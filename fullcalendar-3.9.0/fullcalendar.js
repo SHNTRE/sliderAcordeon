@@ -6719,4 +6719,50 @@ var DayGrid = /** @class */ (function (_super) {
         for (i = 0; i < segs.length; i++) {
             seg = segs[i];
             if (this.isRTL) {
-                seg.l
+                seg.leftCol = this.daysPerRow - 1 - seg.lastRowDayIndex;
+                seg.rightCol = this.daysPerRow - 1 - seg.firstRowDayIndex;
+            }
+            else {
+                seg.leftCol = seg.firstRowDayIndex;
+                seg.rightCol = seg.lastRowDayIndex;
+            }
+        }
+        return segs;
+    };
+    /* Date Rendering
+    ------------------------------------------------------------------------------------------------------------------*/
+    DayGrid.prototype.renderDates = function (dateProfile) {
+        this.dateProfile = dateProfile;
+        this.updateDayTable();
+        this.renderGrid();
+    };
+    DayGrid.prototype.unrenderDates = function () {
+        this.removeSegPopover();
+    };
+    // Renders the rows and columns into the component's `this.el`, which should already be assigned.
+    DayGrid.prototype.renderGrid = function () {
+        var view = this.view;
+        var rowCnt = this.rowCnt;
+        var colCnt = this.colCnt;
+        var html = '';
+        var row;
+        var col;
+        if (this.headContainerEl) {
+            this.headContainerEl.html(this.renderHeadHtml());
+        }
+        for (row = 0; row < rowCnt; row++) {
+            html += this.renderDayRowHtml(row, this.isRigid);
+        }
+        this.el.html(html);
+        this.rowEls = this.el.find('.fc-row');
+        this.cellEls = this.el.find('.fc-day, .fc-disabled-day');
+        this.rowCoordCache = new CoordCache_1.default({
+            els: this.rowEls,
+            isVertical: true
+        });
+        this.colCoordCache = new CoordCache_1.default({
+            els: this.cellEls.slice(0, this.colCnt),
+            isHorizontal: true
+        });
+        // trigger dayRender with each cell's element
+        for (row = 0; row < rowCnt; row++) {
