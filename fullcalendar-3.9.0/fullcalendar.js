@@ -6597,4 +6597,46 @@ var EventPointing = /** @class */ (function (_super) {
     };
     EventPointing.prototype.handleClick = function (seg, ev) {
         var res = this.component.publiclyTrigger('eventClick', {
-            c
+            context: seg.el[0],
+            args: [seg.footprint.getEventLegacy(), ev, this.view]
+        });
+        if (res === false) {
+            ev.preventDefault();
+        }
+    };
+    // Updates internal state and triggers handlers for when an event element is moused over
+    EventPointing.prototype.handleMouseover = function (seg, ev) {
+        if (!GlobalEmitter_1.default.get().shouldIgnoreMouse() &&
+            !this.mousedOverSeg) {
+            this.mousedOverSeg = seg;
+            // TODO: move to EventSelecting's responsibility
+            if (this.view.isEventDefResizable(seg.footprint.eventDef)) {
+                seg.el.addClass('fc-allow-mouse-resize');
+            }
+            this.component.publiclyTrigger('eventMouseover', {
+                context: seg.el[0],
+                args: [seg.footprint.getEventLegacy(), ev, this.view]
+            });
+        }
+    };
+    // Updates internal state and triggers handlers for when an event element is moused out.
+    // Can be given no arguments, in which case it will mouseout the segment that was previously moused over.
+    EventPointing.prototype.handleMouseout = function (seg, ev) {
+        if (this.mousedOverSeg) {
+            this.mousedOverSeg = null;
+            // TODO: move to EventSelecting's responsibility
+            if (this.view.isEventDefResizable(seg.footprint.eventDef)) {
+                seg.el.removeClass('fc-allow-mouse-resize');
+            }
+            this.component.publiclyTrigger('eventMouseout', {
+                context: seg.el[0],
+                args: [
+                    seg.footprint.getEventLegacy(),
+                    ev || {},
+                    this.view
+                ]
+            });
+        }
+    };
+    EventPointing.prototype.end = function () {
+        if (this.mousedOver
