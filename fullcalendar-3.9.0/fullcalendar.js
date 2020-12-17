@@ -6639,4 +6639,53 @@ var EventPointing = /** @class */ (function (_super) {
         }
     };
     EventPointing.prototype.end = function () {
-        if (this.mousedOver
+        if (this.mousedOverSeg) {
+            this.handleMouseout(this.mousedOverSeg);
+        }
+    };
+    return EventPointing;
+}(Interaction_1.default));
+exports.default = EventPointing;
+
+
+/***/ }),
+/* 60 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var Mixin_1 = __webpack_require__(14);
+var DateClicking_1 = __webpack_require__(245);
+var DateSelecting_1 = __webpack_require__(225);
+var EventPointing_1 = __webpack_require__(59);
+var EventDragging_1 = __webpack_require__(224);
+var EventResizing_1 = __webpack_require__(223);
+var ExternalDropping_1 = __webpack_require__(222);
+var StandardInteractionsMixin = /** @class */ (function (_super) {
+    tslib_1.__extends(StandardInteractionsMixin, _super);
+    function StandardInteractionsMixin() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    return StandardInteractionsMixin;
+}(Mixin_1.default));
+exports.default = StandardInteractionsMixin;
+StandardInteractionsMixin.prototype.dateClickingClass = DateClicking_1.default;
+StandardInteractionsMixin.prototype.dateSelectingClass = DateSelecting_1.default;
+StandardInteractionsMixin.prototype.eventPointingClass = EventPointing_1.default;
+StandardInteractionsMixin.prototype.eventDraggingClass = EventDragging_1.default;
+StandardInteractionsMixin.prototype.eventResizingClass = EventResizing_1.default;
+StandardInteractionsMixin.prototype.externalDroppingClass = ExternalDropping_1.default;
+
+
+/***/ }),
+/* 61 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var $ = __webpack_require__(3);
+var util_1 = __webpack_require__(4);
+var CoordCache_1 = __webpack_require__(53);
+var Popover_1 = __webpack_require__(249);
+var UnzonedRange_1 = __webpack_require__(5);
+var ComponentFootprint_1 = __webpack_require__(12);
