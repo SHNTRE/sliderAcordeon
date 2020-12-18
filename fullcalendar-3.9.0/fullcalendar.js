@@ -6766,3 +6766,50 @@ var DayGrid = /** @class */ (function (_super) {
         });
         // trigger dayRender with each cell's element
         for (row = 0; row < rowCnt; row++) {
+            for (col = 0; col < colCnt; col++) {
+                this.publiclyTrigger('dayRender', {
+                    context: view,
+                    args: [
+                        this.getCellDate(row, col),
+                        this.getCellEl(row, col),
+                        view
+                    ]
+                });
+            }
+        }
+    };
+    // Generates the HTML for a single row, which is a div that wraps a table.
+    // `row` is the row number.
+    DayGrid.prototype.renderDayRowHtml = function (row, isRigid) {
+        var theme = this.view.calendar.theme;
+        var classes = ['fc-row', 'fc-week', theme.getClass('dayRow')];
+        if (isRigid) {
+            classes.push('fc-rigid');
+        }
+        return '' +
+            '<div class="' + classes.join(' ') + '">' +
+            '<div class="fc-bg">' +
+            '<table class="' + theme.getClass('tableGrid') + '">' +
+            this.renderBgTrHtml(row) +
+            '</table>' +
+            '</div>' +
+            '<div class="fc-content-skeleton">' +
+            '<table>' +
+            (this.getIsNumbersVisible() ?
+                '<thead>' +
+                    this.renderNumberTrHtml(row) +
+                    '</thead>' :
+                '') +
+            '</table>' +
+            '</div>' +
+            '</div>';
+    };
+    DayGrid.prototype.getIsNumbersVisible = function () {
+        return this.getIsDayNumbersVisible() || this.cellWeekNumbersVisible;
+    };
+    DayGrid.prototype.getIsDayNumbersVisible = function () {
+        return this.rowCnt > 1;
+    };
+    /* Grid Number Rendering
+    ------------------------------------------------------------------------------------------------------------------*/
+    DayGrid.prototype.renderNumberTrHtml = function (row) 
