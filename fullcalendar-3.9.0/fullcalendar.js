@@ -6812,4 +6812,44 @@ var DayGrid = /** @class */ (function (_super) {
     };
     /* Grid Number Rendering
     ------------------------------------------------------------------------------------------------------------------*/
-    DayGrid.prototype.renderNumberTrHtml = function (row) 
+    DayGrid.prototype.renderNumberTrHtml = function (row) {
+        return '' +
+            '<tr>' +
+            (this.isRTL ? '' : this.renderNumberIntroHtml(row)) +
+            this.renderNumberCellsHtml(row) +
+            (this.isRTL ? this.renderNumberIntroHtml(row) : '') +
+            '</tr>';
+    };
+    DayGrid.prototype.renderNumberIntroHtml = function (row) {
+        return this.renderIntroHtml();
+    };
+    DayGrid.prototype.renderNumberCellsHtml = function (row) {
+        var htmls = [];
+        var col;
+        var date;
+        for (col = 0; col < this.colCnt; col++) {
+            date = this.getCellDate(row, col);
+            htmls.push(this.renderNumberCellHtml(date));
+        }
+        return htmls.join('');
+    };
+    // Generates the HTML for the <td>s of the "number" row in the DayGrid's content skeleton.
+    // The number row will only exist if either day numbers or week numbers are turned on.
+    DayGrid.prototype.renderNumberCellHtml = function (date) {
+        var view = this.view;
+        var html = '';
+        var isDateValid = this.dateProfile.activeUnzonedRange.containsDate(date); // TODO: called too frequently. cache somehow.
+        var isDayNumberVisible = this.getIsDayNumbersVisible() && isDateValid;
+        var classes;
+        var weekCalcFirstDoW;
+        if (!isDayNumberVisible && !this.cellWeekNumbersVisible) {
+            // no numbers in day cell (week number must be along the side)
+            return '<td/>'; //  will create an empty space above events :(
+        }
+        classes = this.getDayClasses(date);
+        classes.unshift('fc-day-top');
+        if (this.cellWeekNumbersVisible) {
+            // To determine the day of week number change under ISO, we cannot
+            // rely on moment.js methods such as firstDayOfWeek() or weekday(),
+            // because they rely on the locale's dow (possibly overridden by
+            // our firstDay option), which may not be Mo
