@@ -6852,4 +6852,46 @@ var DayGrid = /** @class */ (function (_super) {
             // To determine the day of week number change under ISO, we cannot
             // rely on moment.js methods such as firstDayOfWeek() or weekday(),
             // because they rely on the locale's dow (possibly overridden by
-            // our firstDay option), which may not be Mo
+            // our firstDay option), which may not be Monday. We cannot change
+            // dow, because that would affect the calendar start day as well.
+            if (date._locale._fullCalendar_weekCalc === 'ISO') {
+                weekCalcFirstDoW = 1; // Monday by ISO 8601 definition
+            }
+            else {
+                weekCalcFirstDoW = date._locale.firstDayOfWeek();
+            }
+        }
+        html += '<td class="' + classes.join(' ') + '"' +
+            (isDateValid ?
+                ' data-date="' + date.format() + '"' :
+                '') +
+            '>';
+        if (this.cellWeekNumbersVisible && (date.day() === weekCalcFirstDoW)) {
+            html += view.buildGotoAnchorHtml({ date: date, type: 'week' }, { 'class': 'fc-week-number' }, date.format('w') // inner HTML
+            );
+        }
+        if (isDayNumberVisible) {
+            html += view.buildGotoAnchorHtml(date, { 'class': 'fc-day-number' }, date.format('D') // inner HTML
+            );
+        }
+        html += '</td>';
+        return html;
+    };
+    /* Hit System
+    ------------------------------------------------------------------------------------------------------------------*/
+    DayGrid.prototype.prepareHits = function () {
+        this.colCoordCache.build();
+        this.rowCoordCache.build();
+        this.rowCoordCache.bottoms[this.rowCnt - 1] += this.bottomCoordPadding; // hack
+    };
+    DayGrid.prototype.releaseHits = function () {
+        this.colCoordCache.clear();
+        this.rowCoordCache.clear();
+    };
+    DayGrid.prototype.queryHit = function (leftOffset, topOffset) {
+        if (this.colCoordCache.isLeftInBounds(leftOffset) && this.rowCoordCache.isTopInBounds(topOffset)) {
+            var col = this.colCoordCache.getHorizontalIndex(leftOffset);
+            var row = this.rowCoordCache.getVerticalIndex(topOffset);
+            if (row != null && col != null) {
+                return this.getCellHit(row, col);
+     
