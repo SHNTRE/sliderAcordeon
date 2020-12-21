@@ -6894,4 +6894,45 @@ var DayGrid = /** @class */ (function (_super) {
             var row = this.rowCoordCache.getVerticalIndex(topOffset);
             if (row != null && col != null) {
                 return this.getCellHit(row, col);
-     
+            }
+        }
+    };
+    DayGrid.prototype.getHitFootprint = function (hit) {
+        var range = this.getCellRange(hit.row, hit.col);
+        return new ComponentFootprint_1.default(new UnzonedRange_1.default(range.start, range.end), true // all-day?
+        );
+    };
+    DayGrid.prototype.getHitEl = function (hit) {
+        return this.getCellEl(hit.row, hit.col);
+    };
+    /* Cell System
+    ------------------------------------------------------------------------------------------------------------------*/
+    // FYI: the first column is the leftmost column, regardless of date
+    DayGrid.prototype.getCellHit = function (row, col) {
+        return {
+            row: row,
+            col: col,
+            component: this,
+            left: this.colCoordCache.getLeftOffset(col),
+            right: this.colCoordCache.getRightOffset(col),
+            top: this.rowCoordCache.getTopOffset(row),
+            bottom: this.rowCoordCache.getBottomOffset(row)
+        };
+    };
+    DayGrid.prototype.getCellEl = function (row, col) {
+        return this.cellEls.eq(row * this.colCnt + col);
+    };
+    /* Event Rendering
+    ------------------------------------------------------------------------------------------------------------------*/
+    // Unrenders all events currently rendered on the grid
+    DayGrid.prototype.executeEventUnrender = function () {
+        this.removeSegPopover(); // removes the "more.." events popover
+        _super.prototype.executeEventUnrender.call(this);
+    };
+    // Retrieves all rendered segment objects currently rendered on the grid
+    DayGrid.prototype.getOwnEventSegs = function () {
+        // append the segments from the "more..." popover
+        return _super.prototype.getOwnEventSegs.call(this).concat(this.popoverSegs || []);
+    };
+    /* Event Drag Visualization
+    --------------------------------------------------------------
