@@ -6935,4 +6935,42 @@ var DayGrid = /** @class */ (function (_super) {
         return _super.prototype.getOwnEventSegs.call(this).concat(this.popoverSegs || []);
     };
     /* Event Drag Visualization
-    --------------------------------------------------------------
+    ------------------------------------------------------------------------------------------------------------------*/
+    // Renders a visual indication of an event or external element being dragged.
+    // `eventLocation` has zoned start and end (optional)
+    DayGrid.prototype.renderDrag = function (eventFootprints, seg, isTouch) {
+        var i;
+        for (i = 0; i < eventFootprints.length; i++) {
+            this.renderHighlight(eventFootprints[i].componentFootprint);
+        }
+        // render drags from OTHER components as helpers
+        if (eventFootprints.length && seg && seg.component !== this) {
+            this.helperRenderer.renderEventDraggingFootprints(eventFootprints, seg, isTouch);
+            return true; // signal helpers rendered
+        }
+    };
+    // Unrenders any visual indication of a hovering event
+    DayGrid.prototype.unrenderDrag = function () {
+        this.unrenderHighlight();
+        this.helperRenderer.unrender();
+    };
+    /* Event Resize Visualization
+    ------------------------------------------------------------------------------------------------------------------*/
+    // Renders a visual indication of an event being resized
+    DayGrid.prototype.renderEventResize = function (eventFootprints, seg, isTouch) {
+        var i;
+        for (i = 0; i < eventFootprints.length; i++) {
+            this.renderHighlight(eventFootprints[i].componentFootprint);
+        }
+        this.helperRenderer.renderEventResizingFootprints(eventFootprints, seg, isTouch);
+    };
+    // Unrenders a visual indication of an event being resized
+    DayGrid.prototype.unrenderEventResize = function () {
+        this.unrenderHighlight();
+        this.helperRenderer.unrender();
+    };
+    /* More+ Link Popover
+    ------------------------------------------------------------------------------------------------------------------*/
+    DayGrid.prototype.removeSegPopover = function () {
+        if (this.segPopover) {
+            this.s
