@@ -6973,4 +6973,45 @@ var DayGrid = /** @class */ (function (_super) {
     ------------------------------------------------------------------------------------------------------------------*/
     DayGrid.prototype.removeSegPopover = function () {
         if (this.segPopover) {
-            this.s
+            this.segPopover.hide(); // in handler, will call segPopover's removeElement
+        }
+    };
+    // Limits the number of "levels" (vertically stacking layers of events) for each row of the grid.
+    // `levelLimit` can be false (don't limit), a number, or true (should be computed).
+    DayGrid.prototype.limitRows = function (levelLimit) {
+        var rowStructs = this.eventRenderer.rowStructs || [];
+        var row; // row #
+        var rowLevelLimit;
+        for (row = 0; row < rowStructs.length; row++) {
+            this.unlimitRow(row);
+            if (!levelLimit) {
+                rowLevelLimit = false;
+            }
+            else if (typeof levelLimit === 'number') {
+                rowLevelLimit = levelLimit;
+            }
+            else {
+                rowLevelLimit = this.computeRowLevelLimit(row);
+            }
+            if (rowLevelLimit !== false) {
+                this.limitRow(row, rowLevelLimit);
+            }
+        }
+    };
+    // Computes the number of levels a row will accomodate without going outside its bounds.
+    // Assumes the row is "rigid" (maintains a constant height regardless of what is inside).
+    // `row` is the row number.
+    DayGrid.prototype.computeRowLevelLimit = function (row) {
+        var rowEl = this.rowEls.eq(row); // the containing "fake" row div
+        var rowHeight = rowEl.height(); // TODO: cache somehow?
+        var trEls = this.eventRenderer.rowStructs[row].tbodyEl.children();
+        var i;
+        var trEl;
+        var trHeight;
+        function iterInnerHeights(i, childNode) {
+            trHeight = Math.max(trHeight, $(childNode).outerHeight());
+        }
+        // Reveal one level <tr> at a time and stop when we find one out of bounds
+        for (i = 0; i < trEls.length; i++) {
+            trEl = trEls.eq(i).removeClass('fc-limited'); // reset to original state (reveal)
+            // with rowspans>1
