@@ -7014,4 +7014,37 @@ var DayGrid = /** @class */ (function (_super) {
         // Reveal one level <tr> at a time and stop when we find one out of bounds
         for (i = 0; i < trEls.length; i++) {
             trEl = trEls.eq(i).removeClass('fc-limited'); // reset to original state (reveal)
-            // with rowspans>1
+            // with rowspans>1 and IE8, trEl.outerHeight() would return the height of the largest cell,
+            // so instead, find the tallest inner content element.
+            trHeight = 0;
+            trEl.find('> td > :first-child').each(iterInnerHeights);
+            if (trEl.position().top + trHeight > rowHeight) {
+                return i;
+            }
+        }
+        return false; // should not limit at all
+    };
+    // Limits the given grid row to the maximum number of levels and injects "more" links if necessary.
+    // `row` is the row number.
+    // `levelLimit` is a number for the maximum (inclusive) number of levels allowed.
+    DayGrid.prototype.limitRow = function (row, levelLimit) {
+        var _this = this;
+        var rowStruct = this.eventRenderer.rowStructs[row];
+        var moreNodes = []; // array of "more" <a> links and <td> DOM nodes
+        var col = 0; // col #, left-to-right (not chronologically)
+        var levelSegs; // array of segment objects in the last allowable level, ordered left-to-right
+        var cellMatrix; // a matrix (by level, then column) of all <td> jQuery elements in the row
+        var limitedNodes; // array of temporarily hidden level <tr> and segment <td> DOM nodes
+        var i;
+        var seg;
+        var segsBelow; // array of segment objects below `seg` in the current `col`
+        var totalSegsBelow; // total number of segments below `seg` in any of the columns `seg` occupies
+        var colSegsBelow; // array of segment arrays, below seg, one for each column (offset from segs's first column)
+        var td;
+        var rowspan;
+        var segMoreNodes; // array of "more" <td> cells that will stand-in for the current seg's cell
+        var j;
+        var moreTd;
+        var moreWrap;
+        var moreLink;
+        // Iterates through empty level cells and places "more" links i
