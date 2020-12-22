@@ -7082,3 +7082,44 @@ var DayGrid = /** @class */ (function (_super) {
                 if (totalSegsBelow) {
                     td = cellMatrix[levelLimit - 1][seg.leftCol]; // the segment's parent cell
                     rowspan = td.attr('rowspan') || 1;
+                    segMoreNodes = [];
+                    // make a replacement <td> for each column the segment occupies. will be one for each colspan
+                    for (j = 0; j < colSegsBelow.length; j++) {
+                        moreTd = $('<td class="fc-more-cell"/>').attr('rowspan', rowspan);
+                        segsBelow = colSegsBelow[j];
+                        moreLink = this.renderMoreLink(row, seg.leftCol + j, [seg].concat(segsBelow) // count seg as hidden too
+                        );
+                        moreWrap = $('<div/>').append(moreLink);
+                        moreTd.append(moreWrap);
+                        segMoreNodes.push(moreTd[0]);
+                        moreNodes.push(moreTd[0]);
+                    }
+                    td.addClass('fc-limited').after($(segMoreNodes)); // hide original <td> and inject replacements
+                    limitedNodes.push(td[0]);
+                }
+            }
+            emptyCellsUntil(this.colCnt); // finish off the level
+            rowStruct.moreEls = $(moreNodes); // for easy undoing later
+            rowStruct.limitedEls = $(limitedNodes); // for easy undoing later
+        }
+    };
+    // Reveals all levels and removes all "more"-related elements for a grid's row.
+    // `row` is a row number.
+    DayGrid.prototype.unlimitRow = function (row) {
+        var rowStruct = this.eventRenderer.rowStructs[row];
+        if (rowStruct.moreEls) {
+            rowStruct.moreEls.remove();
+            rowStruct.moreEls = null;
+        }
+        if (rowStruct.limitedEls) {
+            rowStruct.limitedEls.removeClass('fc-limited');
+            rowStruct.limitedEls = null;
+        }
+    };
+    // Renders an <a> element that represents hidden event element for a cell.
+    // Responsible for attaching click handler as well.
+    DayGrid.prototype.renderMoreLink = function (row, col, hiddenSegs) {
+        var _this = this;
+        var view = this.view;
+        return $('<a class="fc-more"/>')
+            .text(this.getMoreLin
