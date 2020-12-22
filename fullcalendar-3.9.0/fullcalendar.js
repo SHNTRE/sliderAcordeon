@@ -7047,4 +7047,38 @@ var DayGrid = /** @class */ (function (_super) {
         var moreTd;
         var moreWrap;
         var moreLink;
-        // Iterates through empty level cells and places "more" links i
+        // Iterates through empty level cells and places "more" links inside if need be
+        var emptyCellsUntil = function (endCol) {
+            while (col < endCol) {
+                segsBelow = _this.getCellSegs(row, col, levelLimit);
+                if (segsBelow.length) {
+                    td = cellMatrix[levelLimit - 1][col];
+                    moreLink = _this.renderMoreLink(row, col, segsBelow);
+                    moreWrap = $('<div/>').append(moreLink);
+                    td.append(moreWrap);
+                    moreNodes.push(moreWrap[0]);
+                }
+                col++;
+            }
+        };
+        if (levelLimit && levelLimit < rowStruct.segLevels.length) {
+            levelSegs = rowStruct.segLevels[levelLimit - 1];
+            cellMatrix = rowStruct.cellMatrix;
+            limitedNodes = rowStruct.tbodyEl.children().slice(levelLimit) // get level <tr> elements past the limit
+                .addClass('fc-limited').get(); // hide elements and get a simple DOM-nodes array
+            // iterate though segments in the last allowable level
+            for (i = 0; i < levelSegs.length; i++) {
+                seg = levelSegs[i];
+                emptyCellsUntil(seg.leftCol); // process empty cells before the segment
+                // determine *all* segments below `seg` that occupy the same columns
+                colSegsBelow = [];
+                totalSegsBelow = 0;
+                while (col <= seg.rightCol) {
+                    segsBelow = this.getCellSegs(row, col, levelLimit);
+                    colSegsBelow.push(segsBelow);
+                    totalSegsBelow += segsBelow.length;
+                    col++;
+                }
+                if (totalSegsBelow) {
+                    td = cellMatrix[levelLimit - 1][seg.leftCol]; // the segment's parent cell
+                    rowspan = td.attr('rowspan') || 1;
