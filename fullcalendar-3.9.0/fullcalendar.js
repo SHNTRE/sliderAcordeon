@@ -7122,4 +7122,45 @@ var DayGrid = /** @class */ (function (_super) {
         var _this = this;
         var view = this.view;
         return $('<a class="fc-more"/>')
-            .text(this.getMoreLin
+            .text(this.getMoreLinkText(hiddenSegs.length))
+            .on('click', function (ev) {
+            var clickOption = _this.opt('eventLimitClick');
+            var date = _this.getCellDate(row, col);
+            var moreEl = $(ev.currentTarget);
+            var dayEl = _this.getCellEl(row, col);
+            var allSegs = _this.getCellSegs(row, col);
+            // rescope the segments to be within the cell's date
+            var reslicedAllSegs = _this.resliceDaySegs(allSegs, date);
+            var reslicedHiddenSegs = _this.resliceDaySegs(hiddenSegs, date);
+            if (typeof clickOption === 'function') {
+                // the returned value can be an atomic option
+                clickOption = _this.publiclyTrigger('eventLimitClick', {
+                    context: view,
+                    args: [
+                        {
+                            date: date.clone(),
+                            dayEl: dayEl,
+                            moreEl: moreEl,
+                            segs: reslicedAllSegs,
+                            hiddenSegs: reslicedHiddenSegs
+                        },
+                        ev,
+                        view
+                    ]
+                });
+            }
+            if (clickOption === 'popover') {
+                _this.showSegPopover(row, col, moreEl, reslicedAllSegs);
+            }
+            else if (typeof clickOption === 'string') {
+                view.calendar.zoomTo(date, clickOption);
+            }
+        });
+    };
+    // Reveals the popover that displays all events within a cell
+    DayGrid.prototype.showSegPopover = function (row, col, moreLink, segs) {
+        var _this = this;
+        var view = this.view;
+        var moreWrap = moreLink.parent(); // the <div> wrapper around the <a>
+        var topEl; // the element we want to match the top coordinate of
+    
