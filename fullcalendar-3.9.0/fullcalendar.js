@@ -7163,4 +7163,44 @@ var DayGrid = /** @class */ (function (_super) {
         var view = this.view;
         var moreWrap = moreLink.parent(); // the <div> wrapper around the <a>
         var topEl; // the element we want to match the top coordinate of
-    
+        var options;
+        if (this.rowCnt === 1) {
+            topEl = view.el; // will cause the popover to cover any sort of header
+        }
+        else {
+            topEl = this.rowEls.eq(row); // will align with top of row
+        }
+        options = {
+            className: 'fc-more-popover ' + view.calendar.theme.getClass('popover'),
+            content: this.renderSegPopoverContent(row, col, segs),
+            parentEl: view.el,
+            top: topEl.offset().top,
+            autoHide: true,
+            viewportConstrain: this.opt('popoverViewportConstrain'),
+            hide: function () {
+                // kill everything when the popover is hidden
+                // notify events to be removed
+                if (_this.popoverSegs) {
+                    _this.triggerBeforeEventSegsDestroyed(_this.popoverSegs);
+                }
+                _this.segPopover.removeElement();
+                _this.segPopover = null;
+                _this.popoverSegs = null;
+            }
+        };
+        // Determine horizontal coordinate.
+        // We use the moreWrap instead of the <td> to avoid border confusion.
+        if (this.isRTL) {
+            options.right = moreWrap.offset().left + moreWrap.outerWidth() + 1; // +1 to be over cell border
+        }
+        else {
+            options.left = moreWrap.offset().left - 1; // -1 to be over cell border
+        }
+        this.segPopover = new Popover_1.default(options);
+        this.segPopover.show();
+        // the popover doesn't live within the grid's container element, and thus won't get the event
+        // delegated-handlers for free. attach event-related handlers to the popover.
+        this.bindAllSegHandlersToEl(this.segPopover.el);
+        this.triggerAfterEventSegsRendered(segs);
+    };
+    // Builds the inner DOM contents of the segment 
