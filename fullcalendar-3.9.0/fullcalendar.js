@@ -7203,4 +7203,42 @@ var DayGrid = /** @class */ (function (_super) {
         this.bindAllSegHandlersToEl(this.segPopover.el);
         this.triggerAfterEventSegsRendered(segs);
     };
-    // Builds the inner DOM contents of the segment 
+    // Builds the inner DOM contents of the segment popover
+    DayGrid.prototype.renderSegPopoverContent = function (row, col, segs) {
+        var view = this.view;
+        var theme = view.calendar.theme;
+        var title = this.getCellDate(row, col).format(this.opt('dayPopoverFormat'));
+        var content = $('<div class="fc-header ' + theme.getClass('popoverHeader') + '">' +
+            '<span class="fc-close ' + theme.getIconClass('close') + '"></span>' +
+            '<span class="fc-title">' +
+            util_1.htmlEscape(title) +
+            '</span>' +
+            '<div class="fc-clear"/>' +
+            '</div>' +
+            '<div class="fc-body ' + theme.getClass('popoverContent') + '">' +
+            '<div class="fc-event-container"></div>' +
+            '</div>');
+        var segContainer = content.find('.fc-event-container');
+        var i;
+        // render each seg's `el` and only return the visible segs
+        segs = this.eventRenderer.renderFgSegEls(segs, true); // disableResizing=true
+        this.popoverSegs = segs;
+        for (i = 0; i < segs.length; i++) {
+            // because segments in the popover are not part of a grid coordinate system, provide a hint to any
+            // grids that want to do drag-n-drop about which cell it came from
+            this.hitsNeeded();
+            segs[i].hit = this.getCellHit(row, col);
+            this.hitsNotNeeded();
+            segContainer.append(segs[i].el);
+        }
+        return content;
+    };
+    // Given the events within an array of segment objects, reslice them to be in a single day
+    DayGrid.prototype.resliceDaySegs = function (segs, dayDate) {
+        var dayStart = dayDate.clone();
+        var dayEnd = dayStart.clone().add(1, 'days');
+        var dayRange = new UnzonedRange_1.default(dayStart, dayEnd);
+        var newSegs = [];
+        var i;
+        var seg;
+  
