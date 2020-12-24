@@ -7285,4 +7285,42 @@ var DayGrid = /** @class */ (function (_super) {
         return segs;
     };
     return DayGrid;
-}(Interactive
+}(InteractiveDateComponent_1.default));
+exports.default = DayGrid;
+DayGrid.prototype.eventRendererClass = DayGridEventRenderer_1.default;
+DayGrid.prototype.businessHourRendererClass = BusinessHourRenderer_1.default;
+DayGrid.prototype.helperRendererClass = DayGridHelperRenderer_1.default;
+DayGrid.prototype.fillRendererClass = DayGridFillRenderer_1.default;
+StandardInteractionsMixin_1.default.mixInto(DayGrid);
+DayTableMixin_1.default.mixInto(DayGrid);
+
+
+/***/ }),
+/* 62 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var $ = __webpack_require__(3);
+var util_1 = __webpack_require__(4);
+var Scroller_1 = __webpack_require__(39);
+var View_1 = __webpack_require__(41);
+var BasicViewDateProfileGenerator_1 = __webpack_require__(228);
+var DayGrid_1 = __webpack_require__(61);
+/* An abstract class for the "basic" views, as well as month view. Renders one or more rows of day cells.
+----------------------------------------------------------------------------------------------------------------------*/
+// It is a manager for a DayGrid subcomponent, which does most of the heavy lifting.
+// It is responsible for managing width/height.
+var BasicView = /** @class */ (function (_super) {
+    tslib_1.__extends(BasicView, _super);
+    function BasicView(calendar, viewSpec) {
+        var _this = _super.call(this, calendar, viewSpec) || this;
+        _this.dayGrid = _this.instantiateDayGrid();
+        _this.dayGrid.isRigid = _this.hasRigidRows();
+        if (_this.opt('weekNumbers')) {
+            if (_this.opt('weekNumbersWithinDays')) {
+                _this.dayGrid.cellWeekNumbersVisible = true;
+                _this.dayGrid.colWeekNumbersVisible = false;
+            }
+            else {
+                _this.dayGrid.cellWeekNumbersVisible =
