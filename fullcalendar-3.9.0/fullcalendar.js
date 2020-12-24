@@ -7241,4 +7241,48 @@ var DayGrid = /** @class */ (function (_super) {
         var newSegs = [];
         var i;
         var seg;
-  
+        var slicedRange;
+        for (i = 0; i < segs.length; i++) {
+            seg = segs[i];
+            slicedRange = seg.footprint.componentFootprint.unzonedRange.intersect(dayRange);
+            if (slicedRange) {
+                newSegs.push($.extend({}, seg, {
+                    footprint: new EventFootprint_1.default(new ComponentFootprint_1.default(slicedRange, seg.footprint.componentFootprint.isAllDay), seg.footprint.eventDef, seg.footprint.eventInstance),
+                    isStart: seg.isStart && slicedRange.isStart,
+                    isEnd: seg.isEnd && slicedRange.isEnd
+                }));
+            }
+        }
+        // force an order because eventsToSegs doesn't guarantee one
+        // TODO: research if still needed
+        this.eventRenderer.sortEventSegs(newSegs);
+        return newSegs;
+    };
+    // Generates the text that should be inside a "more" link, given the number of events it represents
+    DayGrid.prototype.getMoreLinkText = function (num) {
+        var opt = this.opt('eventLimitText');
+        if (typeof opt === 'function') {
+            return opt(num);
+        }
+        else {
+            return '+' + num + ' ' + opt;
+        }
+    };
+    // Returns segments within a given cell.
+    // If `startLevel` is specified, returns only events including and below that level. Otherwise returns all segs.
+    DayGrid.prototype.getCellSegs = function (row, col, startLevel) {
+        var segMatrix = this.eventRenderer.rowStructs[row].segMatrix;
+        var level = startLevel || 0;
+        var segs = [];
+        var seg;
+        while (level < segMatrix.length) {
+            seg = segMatrix[level][col];
+            if (seg) {
+                segs.push(seg);
+            }
+            level++;
+        }
+        return segs;
+    };
+    return DayGrid;
+}(Interactive
