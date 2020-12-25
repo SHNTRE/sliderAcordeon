@@ -7323,4 +7323,46 @@ var BasicView = /** @class */ (function (_super) {
                 _this.dayGrid.colWeekNumbersVisible = false;
             }
             else {
-                _this.dayGrid.cellWeekNumbersVisible =
+                _this.dayGrid.cellWeekNumbersVisible = false;
+                _this.dayGrid.colWeekNumbersVisible = true;
+            }
+        }
+        _this.addChild(_this.dayGrid);
+        _this.scroller = new Scroller_1.default({
+            overflowX: 'hidden',
+            overflowY: 'auto'
+        });
+        return _this;
+    }
+    // Generates the DayGrid object this view needs. Draws from this.dayGridClass
+    BasicView.prototype.instantiateDayGrid = function () {
+        // generate a subclass on the fly with BasicView-specific behavior
+        // TODO: cache this subclass
+        var subclass = makeDayGridSubclass(this.dayGridClass);
+        return new subclass(this);
+    };
+    BasicView.prototype.executeDateRender = function (dateProfile) {
+        this.dayGrid.breakOnWeeks = /year|month|week/.test(dateProfile.currentRangeUnit);
+        _super.prototype.executeDateRender.call(this, dateProfile);
+    };
+    BasicView.prototype.renderSkeleton = function () {
+        var dayGridContainerEl;
+        var dayGridEl;
+        this.el.addClass('fc-basic-view').html(this.renderSkeletonHtml());
+        this.scroller.render();
+        dayGridContainerEl = this.scroller.el.addClass('fc-day-grid-container');
+        dayGridEl = $('<div class="fc-day-grid" />').appendTo(dayGridContainerEl);
+        this.el.find('.fc-body > tr > td').append(dayGridContainerEl);
+        this.dayGrid.headContainerEl = this.el.find('.fc-head-container');
+        this.dayGrid.setElement(dayGridEl);
+    };
+    BasicView.prototype.unrenderSkeleton = function () {
+        this.dayGrid.removeElement();
+        this.scroller.destroy();
+    };
+    // Builds the HTML skeleton for the view.
+    // The day-grid component will render inside of a container defined by this HTML.
+    BasicView.prototype.renderSkeletonHtml = function () {
+        var theme = this.calendar.theme;
+        return '' +
+            '<table class="' + theme.getClass('tableGrid') 
