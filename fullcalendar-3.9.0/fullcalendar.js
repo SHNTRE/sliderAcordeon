@@ -7441,4 +7441,45 @@ var BasicView = /** @class */ (function (_super) {
                 this.scroller.setHeight(scrollerHeight);
             }
             // guarantees the same scrollbar widths
-          
+            this.scroller.lockOverflow(scrollbarWidths);
+        }
+    };
+    // given a desired total height of the view, returns what the height of the scroller should be
+    BasicView.prototype.computeScrollerHeight = function (totalHeight) {
+        return totalHeight -
+            util_1.subtractInnerElHeight(this.el, this.scroller.el); // everything that's NOT the scroller
+    };
+    // Sets the height of just the DayGrid component in this view
+    BasicView.prototype.setGridHeight = function (height, isAuto) {
+        if (isAuto) {
+            util_1.undistributeHeight(this.dayGrid.rowEls); // let the rows be their natural height with no expanding
+        }
+        else {
+            util_1.distributeHeight(this.dayGrid.rowEls, height, true); // true = compensate for height-hogging rows
+        }
+    };
+    /* Scroll
+    ------------------------------------------------------------------------------------------------------------------*/
+    BasicView.prototype.computeInitialDateScroll = function () {
+        return { top: 0 };
+    };
+    BasicView.prototype.queryDateScroll = function () {
+        return { top: this.scroller.getScrollTop() };
+    };
+    BasicView.prototype.applyDateScroll = function (scroll) {
+        if (scroll.top !== undefined) {
+            this.scroller.setScrollTop(scroll.top);
+        }
+    };
+    return BasicView;
+}(View_1.default));
+exports.default = BasicView;
+BasicView.prototype.dateProfileGeneratorClass = BasicViewDateProfileGenerator_1.default;
+BasicView.prototype.dayGridClass = DayGrid_1.default;
+// customize the rendering behavior of BasicView's dayGrid
+function makeDayGridSubclass(SuperClass) {
+    return /** @class */ (function (_super) {
+        tslib_1.__extends(SubClass, _super);
+        function SubClass() {
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this.colWeekNumbersVisible = f
