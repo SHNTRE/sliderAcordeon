@@ -7405,4 +7405,40 @@ var BasicView = /** @class */ (function (_super) {
         if (!this.dayGrid.rowEls) {
             if (!isAuto) {
                 scrollerHeight = this.computeScrollerHeight(totalHeight);
-                this.scroller.setHeight(scrollerHeight
+                this.scroller.setHeight(scrollerHeight);
+            }
+            return;
+        }
+        _super.prototype.updateSize.call(this, totalHeight, isAuto, isResize);
+        if (this.dayGrid.colWeekNumbersVisible) {
+            // Make sure all week number cells running down the side have the same width.
+            // Record the width for cells created later.
+            this.weekNumberWidth = util_1.matchCellWidths(this.el.find('.fc-week-number'));
+        }
+        // reset all heights to be natural
+        this.scroller.clear();
+        util_1.uncompensateScroll(headRowEl);
+        this.dayGrid.removeSegPopover(); // kill the "more" popover if displayed
+        // is the event limit a constant level number?
+        if (eventLimit && typeof eventLimit === 'number') {
+            this.dayGrid.limitRows(eventLimit); // limit the levels first so the height can redistribute after
+        }
+        // distribute the height to the rows
+        // (totalHeight is a "recommended" value if isAuto)
+        scrollerHeight = this.computeScrollerHeight(totalHeight);
+        this.setGridHeight(scrollerHeight, isAuto);
+        // is the event limit dynamically calculated?
+        if (eventLimit && typeof eventLimit !== 'number') {
+            this.dayGrid.limitRows(eventLimit); // limit the levels after the grid's row heights have been set
+        }
+        if (!isAuto) {
+            this.scroller.setHeight(scrollerHeight);
+            scrollbarWidths = this.scroller.getScrollbarWidths();
+            if (scrollbarWidths.left || scrollbarWidths.right) {
+                util_1.compensateScroll(headRowEl, scrollbarWidths);
+                // doing the scrollbar compensation might have created text overflow which created more height. redo
+                scrollerHeight = this.computeScrollerHeight(totalHeight);
+                this.scroller.setHeight(scrollerHeight);
+            }
+            // guarantees the same scrollbar widths
+          
