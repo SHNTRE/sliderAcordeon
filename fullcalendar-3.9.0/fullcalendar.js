@@ -7482,4 +7482,42 @@ function makeDayGridSubclass(SuperClass) {
         tslib_1.__extends(SubClass, _super);
         function SubClass() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.colWeekNumbersVisible = f
+            _this.colWeekNumbersVisible = false; // display week numbers along the side?
+            return _this;
+        }
+        // Generates the HTML that will go before the day-of week header cells
+        SubClass.prototype.renderHeadIntroHtml = function () {
+            var view = this.view;
+            if (this.colWeekNumbersVisible) {
+                return '' +
+                    '<th class="fc-week-number ' + view.calendar.theme.getClass('widgetHeader') + '" ' + view.weekNumberStyleAttr() + '>' +
+                    '<span>' + // needed for matchCellWidths
+                    util_1.htmlEscape(this.opt('weekNumberTitle')) +
+                    '</span>' +
+                    '</th>';
+            }
+            return '';
+        };
+        // Generates the HTML that will go before content-skeleton cells that display the day/week numbers
+        SubClass.prototype.renderNumberIntroHtml = function (row) {
+            var view = this.view;
+            var weekStart = this.getCellDate(row, 0);
+            if (this.colWeekNumbersVisible) {
+                return '' +
+                    '<td class="fc-week-number" ' + view.weekNumberStyleAttr() + '>' +
+                    view.buildGotoAnchorHtml(// aside from link, important for matchCellWidths
+                    { date: weekStart, type: 'week', forceOff: this.colCnt === 1 }, weekStart.format('w') // inner HTML
+                    ) +
+                    '</td>';
+            }
+            return '';
+        };
+        // Generates the HTML that goes before the day bg cells for each day-row
+        SubClass.prototype.renderBgIntroHtml = function () {
+            var view = this.view;
+            if (this.colWeekNumbersVisible) {
+                return '<td class="fc-week-number ' + view.calendar.theme.getClass('widgetContent') + '" ' +
+                    view.weekNumberStyleAttr() + '></td>';
+            }
+            return '';
+      
