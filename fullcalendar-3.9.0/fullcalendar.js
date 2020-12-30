@@ -7648,4 +7648,71 @@ function makeDayGridSubclass(SuperClass) {
 /* 169 */,
 /* 170 */,
 /* 171 */,
-/* 172 
+/* 172 */,
+/* 173 */,
+/* 174 */,
+/* 175 */,
+/* 176 */,
+/* 177 */,
+/* 178 */,
+/* 179 */,
+/* 180 */,
+/* 181 */,
+/* 182 */,
+/* 183 */,
+/* 184 */,
+/* 185 */,
+/* 186 */,
+/* 187 */,
+/* 188 */,
+/* 189 */,
+/* 190 */,
+/* 191 */,
+/* 192 */,
+/* 193 */,
+/* 194 */,
+/* 195 */,
+/* 196 */,
+/* 197 */,
+/* 198 */,
+/* 199 */,
+/* 200 */,
+/* 201 */,
+/* 202 */,
+/* 203 */,
+/* 204 */,
+/* 205 */,
+/* 206 */,
+/* 207 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var UnzonedRange_1 = __webpack_require__(5);
+var ComponentFootprint_1 = __webpack_require__(12);
+var EventDefParser_1 = __webpack_require__(49);
+var EventSource_1 = __webpack_require__(6);
+var util_1 = __webpack_require__(35);
+var Constraints = /** @class */ (function () {
+    function Constraints(eventManager, _calendar) {
+        this.eventManager = eventManager;
+        this._calendar = _calendar;
+    }
+    Constraints.prototype.opt = function (name) {
+        return this._calendar.opt(name);
+    };
+    /*
+    determines if eventInstanceGroup is allowed,
+    in relation to other EVENTS and business hours.
+    */
+    Constraints.prototype.isEventInstanceGroupAllowed = function (eventInstanceGroup) {
+        var eventDef = eventInstanceGroup.getEventDef();
+        var eventFootprints = this.eventRangesToEventFootprints(eventInstanceGroup.getAllEventRanges());
+        var i;
+        var peerEventInstances = this.getPeerEventInstances(eventDef);
+        var peerEventRanges = peerEventInstances.map(util_1.eventInstanceToEventRange);
+        var peerEventFootprints = this.eventRangesToEventFootprints(peerEventRanges);
+        var constraintVal = eventDef.getConstraint();
+        var overlapVal = eventDef.getOverlap();
+        var eventAllowFunc = this.opt('eventAllow');
+        for (i = 0; i < eventFootprints.length; i++) {
+            if (!this.isFootprintAllowed(eventFootprints[i].componentFo
