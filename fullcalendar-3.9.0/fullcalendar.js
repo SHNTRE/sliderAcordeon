@@ -7799,3 +7799,42 @@ var Constraints = /** @class */ (function () {
             else {
                 return this.eventInstancesToFootprints(eventInstances);
             }
+        }
+        else if (constraintVal != null) {
+            eventInstances = this.eventManager.getEventInstancesWithId(constraintVal);
+            return this.eventInstancesToFootprints(eventInstances);
+        }
+    };
+    // returns ComponentFootprint[]
+    // uses current view's range
+    Constraints.prototype.buildCurrentBusinessFootprints = function (isAllDay) {
+        var view = this._calendar.view;
+        var businessHourGenerator = view.get('businessHourGenerator');
+        var unzonedRange = view.dateProfile.activeUnzonedRange;
+        var eventInstanceGroup = businessHourGenerator.buildEventInstanceGroup(isAllDay, unzonedRange);
+        if (eventInstanceGroup) {
+            return this.eventInstancesToFootprints(eventInstanceGroup.eventInstances);
+        }
+        else {
+            return [];
+        }
+    };
+    // conversion util
+    Constraints.prototype.eventInstancesToFootprints = function (eventInstances) {
+        var eventRanges = eventInstances.map(util_1.eventInstanceToEventRange);
+        var eventFootprints = this.eventRangesToEventFootprints(eventRanges);
+        return eventFootprints.map(util_1.eventFootprintToComponentFootprint);
+    };
+    // Overlap
+    // ------------------------------------------------------------------------------------------------
+    Constraints.prototype.collectOverlapEventFootprints = function (peerEventFootprints, targetFootprint) {
+        var overlapEventFootprints = [];
+        var i;
+        for (i = 0; i < peerEventFootprints.length; i++) {
+            if (this.footprintsIntersect(targetFootprint, peerEventFootprints[i].componentFootprint)) {
+                overlapEventFootprints.push(peerEventFootprints[i]);
+            }
+        }
+        return overlapEventFootprints;
+    };
+    // Conversion: eventDefs -> eventInstances -> eventRanges -> eventFoo
