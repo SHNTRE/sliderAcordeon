@@ -7715,4 +7715,41 @@ var Constraints = /** @class */ (function () {
         var overlapVal = eventDef.getOverlap();
         var eventAllowFunc = this.opt('eventAllow');
         for (i = 0; i < eventFootprints.length; i++) {
-            if (!this.isFootprintAllowed(eventFootprints[i].componentFo
+            if (!this.isFootprintAllowed(eventFootprints[i].componentFootprint, peerEventFootprints, constraintVal, overlapVal, eventFootprints[i].eventInstance)) {
+                return false;
+            }
+        }
+        if (eventAllowFunc) {
+            for (i = 0; i < eventFootprints.length; i++) {
+                if (eventAllowFunc(eventFootprints[i].componentFootprint.toLegacy(this._calendar), eventFootprints[i].getEventLegacy()) === false) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    };
+    Constraints.prototype.getPeerEventInstances = function (eventDef) {
+        return this.eventManager.getEventInstancesWithoutId(eventDef.id);
+    };
+    Constraints.prototype.isSelectionFootprintAllowed = function (componentFootprint) {
+        var peerEventInstances = this.eventManager.getEventInstances();
+        var peerEventRanges = peerEventInstances.map(util_1.eventInstanceToEventRange);
+        var peerEventFootprints = this.eventRangesToEventFootprints(peerEventRanges);
+        var selectAllowFunc;
+        if (this.isFootprintAllowed(componentFootprint, peerEventFootprints, this.opt('selectConstraint'), this.opt('selectOverlap'))) {
+            selectAllowFunc = this.opt('selectAllow');
+            if (selectAllowFunc) {
+                return selectAllowFunc(componentFootprint.toLegacy(this._calendar)) !== false;
+            }
+            else {
+                return true;
+            }
+        }
+        return false;
+    };
+    Constraints.prototype.isFootprintAllowed = function (componentFootprint, peerEventFootprints, constraintVal, overlapVal, subjectEventInstance // optional
+    ) {
+        var constraintFootprints; // ComponentFootprint[]
+        var overlapEventFootprints; // EventFootprint[]
+        if (constraintVal != null) {
+            constraintFootprints = this.constraintValToFootprints(con
