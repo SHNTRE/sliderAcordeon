@@ -7752,4 +7752,50 @@ var Constraints = /** @class */ (function () {
         var constraintFootprints; // ComponentFootprint[]
         var overlapEventFootprints; // EventFootprint[]
         if (constraintVal != null) {
-            constraintFootprints = this.constraintValToFootprints(con
+            constraintFootprints = this.constraintValToFootprints(constraintVal, componentFootprint.isAllDay);
+            if (!this.isFootprintWithinConstraints(componentFootprint, constraintFootprints)) {
+                return false;
+            }
+        }
+        overlapEventFootprints = this.collectOverlapEventFootprints(peerEventFootprints, componentFootprint);
+        if (overlapVal === false) {
+            if (overlapEventFootprints.length) {
+                return false;
+            }
+        }
+        else if (typeof overlapVal === 'function') {
+            if (!isOverlapsAllowedByFunc(overlapEventFootprints, overlapVal, subjectEventInstance)) {
+                return false;
+            }
+        }
+        if (subjectEventInstance) {
+            if (!isOverlapEventInstancesAllowed(overlapEventFootprints, subjectEventInstance)) {
+                return false;
+            }
+        }
+        return true;
+    };
+    // Constraint
+    // ------------------------------------------------------------------------------------------------
+    Constraints.prototype.isFootprintWithinConstraints = function (componentFootprint, constraintFootprints) {
+        var i;
+        for (i = 0; i < constraintFootprints.length; i++) {
+            if (this.footprintContainsFootprint(constraintFootprints[i], componentFootprint)) {
+                return true;
+            }
+        }
+        return false;
+    };
+    Constraints.prototype.constraintValToFootprints = function (constraintVal, isAllDay) {
+        var eventInstances;
+        if (constraintVal === 'businessHours') {
+            return this.buildCurrentBusinessFootprints(isAllDay);
+        }
+        else if (typeof constraintVal === 'object') {
+            eventInstances = this.parseEventDefToInstances(constraintVal); // handles recurring events
+            if (!eventInstances) {
+                return this.parseFootprints(constraintVal);
+            }
+            else {
+                return this.eventInstancesToFootprints(eventInstances);
+            }
