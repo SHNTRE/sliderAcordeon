@@ -7923,4 +7923,54 @@ function isOverlapEventInstancesAllowed(overlapEventFootprints, subjectEventInst
         // don't need to pass in calendar, because don't want to consider global eventOverlap property,
         // because we already considered that earlier in the process.
         overlapVal = overlapEventDef.getOverlap();
-        if (overl
+        if (overlapVal === false) {
+            return false;
+        }
+        else if (typeof overlapVal === 'function') {
+            if (!overlapVal(overlapEventInstance.toLegacy(), subjectLegacyInstance)) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+
+/***/ }),
+/* 208 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/*
+USAGE:
+  import { default as ParsableModelMixin, ParsableModelInterface } from './ParsableModelMixin'
+in class:
+  applyProps: ParsableModelInterface['applyProps']
+  applyManualStandardProps: ParsableModelInterface['applyManualStandardProps']
+  applyMiscProps: ParsableModelInterface['applyMiscProps']
+  isStandardProp: ParsableModelInterface['isStandardProp']
+  static defineStandardProps = ParsableModelMixin.defineStandardProps
+  static copyVerbatimStandardProps = ParsableModelMixin.copyVerbatimStandardProps
+after class:
+  ParsableModelMixin.mixInto(TheClass)
+*/
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var util_1 = __webpack_require__(4);
+var Mixin_1 = __webpack_require__(14);
+var ParsableModelMixin = /** @class */ (function (_super) {
+    tslib_1.__extends(ParsableModelMixin, _super);
+    function ParsableModelMixin() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    ParsableModelMixin.defineStandardProps = function (propDefs) {
+        var proto = this.prototype;
+        if (!proto.hasOwnProperty('standardPropMap')) {
+            proto.standardPropMap = Object.create(proto.standardPropMap);
+        }
+        util_1.copyOwnProps(propDefs, proto.standardPropMap);
+    };
+    ParsableModelMixin.copyVerbatimStandardProps = function (src, dest) {
+        var map = this.prototype.standardPropMap;
+        var propName;
+        for (propName in map) {
+            if (src
