@@ -7837,4 +7837,47 @@ var Constraints = /** @class */ (function () {
         }
         return overlapEventFootprints;
     };
-    // Conversion: eventDefs -> eventInstances -> eventRanges -> eventFoo
+    // Conversion: eventDefs -> eventInstances -> eventRanges -> eventFootprints -> componentFootprints
+    // ------------------------------------------------------------------------------------------------
+    // NOTE: this might seem like repetitive code with the Grid class, however, this code is related to
+    // constraints whereas the Grid code is related to rendering. Each approach might want to convert
+    // eventRanges -> eventFootprints in a different way. Regardless, there are opportunities to make
+    // this more DRY.
+    /*
+    Returns false on invalid input.
+    */
+    Constraints.prototype.parseEventDefToInstances = function (eventInput) {
+        var eventManager = this.eventManager;
+        var eventDef = EventDefParser_1.default.parse(eventInput, new EventSource_1.default(this._calendar));
+        if (!eventDef) {
+            return false;
+        }
+        return eventDef.buildInstances(eventManager.currentPeriod.unzonedRange);
+    };
+    Constraints.prototype.eventRangesToEventFootprints = function (eventRanges) {
+        var i;
+        var eventFootprints = [];
+        for (i = 0; i < eventRanges.length; i++) {
+            eventFootprints.push.apply(// footprints
+            eventFootprints, this.eventRangeToEventFootprints(eventRanges[i]));
+        }
+        return eventFootprints;
+    };
+    Constraints.prototype.eventRangeToEventFootprints = function (eventRange) {
+        return [util_1.eventRangeToEventFootprint(eventRange)];
+    };
+    /*
+    Parses footprints directly.
+    Very similar to EventDateProfile::parse :(
+    */
+    Constraints.prototype.parseFootprints = function (rawInput) {
+        var start;
+        var end;
+        if (rawInput.start) {
+            start = this._calendar.moment(rawInput.start);
+            if (!start.isValid()) {
+                start = null;
+            }
+        }
+        if (rawInput.end) {
+            end = this._calendar.moment
