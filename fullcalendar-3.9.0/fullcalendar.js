@@ -7880,4 +7880,47 @@ var Constraints = /** @class */ (function () {
             }
         }
         if (rawInput.end) {
-            end = this._calendar.moment
+            end = this._calendar.moment(rawInput.end);
+            if (!end.isValid()) {
+                end = null;
+            }
+        }
+        return [
+            new ComponentFootprint_1.default(new UnzonedRange_1.default(start, end), (start && !start.hasTime()) || (end && !end.hasTime()) // isAllDay
+            )
+        ];
+    };
+    // Footprint Utils
+    // ----------------------------------------------------------------------------------------
+    Constraints.prototype.footprintContainsFootprint = function (outerFootprint, innerFootprint) {
+        return outerFootprint.unzonedRange.containsRange(innerFootprint.unzonedRange);
+    };
+    Constraints.prototype.footprintsIntersect = function (footprint0, footprint1) {
+        return footprint0.unzonedRange.intersectsWith(footprint1.unzonedRange);
+    };
+    return Constraints;
+}());
+exports.default = Constraints;
+// optional subjectEventInstance
+function isOverlapsAllowedByFunc(overlapEventFootprints, overlapFunc, subjectEventInstance) {
+    var i;
+    for (i = 0; i < overlapEventFootprints.length; i++) {
+        if (!overlapFunc(overlapEventFootprints[i].eventInstance.toLegacy(), subjectEventInstance ? subjectEventInstance.toLegacy() : null)) {
+            return false;
+        }
+    }
+    return true;
+}
+function isOverlapEventInstancesAllowed(overlapEventFootprints, subjectEventInstance) {
+    var subjectLegacyInstance = subjectEventInstance.toLegacy();
+    var i;
+    var overlapEventInstance;
+    var overlapEventDef;
+    var overlapVal;
+    for (i = 0; i < overlapEventFootprints.length; i++) {
+        overlapEventInstance = overlapEventFootprints[i].eventInstance;
+        overlapEventDef = overlapEventInstance.def;
+        // don't need to pass in calendar, because don't want to consider global eventOverlap property,
+        // because we already considered that earlier in the process.
+        overlapVal = overlapEventDef.getOverlap();
+        if (overl
