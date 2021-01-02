@@ -7973,4 +7973,56 @@ var ParsableModelMixin = /** @class */ (function (_super) {
         var map = this.prototype.standardPropMap;
         var propName;
         for (propName in map) {
-            if (src
+            if (src[propName] != null && // in the src object?
+                map[propName] === true // false means "copy verbatim"
+            ) {
+                dest[propName] = src[propName];
+            }
+        }
+    };
+    /*
+    Returns true/false for success.
+    Meant to be only called ONCE, at object creation.
+    */
+    ParsableModelMixin.prototype.applyProps = function (rawProps) {
+        var standardPropMap = this.standardPropMap;
+        var manualProps = {};
+        var miscProps = {};
+        var propName;
+        for (propName in rawProps) {
+            if (standardPropMap[propName] === true) {
+                this[propName] = rawProps[propName];
+            }
+            else if (standardPropMap[propName] === false) {
+                manualProps[propName] = rawProps[propName];
+            }
+            else {
+                miscProps[propName] = rawProps[propName];
+            }
+        }
+        this.applyMiscProps(miscProps);
+        return this.applyManualStandardProps(manualProps);
+    };
+    /*
+    If subclasses override, they must call this supermethod and return the boolean response.
+    Meant to be only called ONCE, at object creation.
+    */
+    ParsableModelMixin.prototype.applyManualStandardProps = function (rawProps) {
+        return true;
+    };
+    /*
+    Can be called even after initial object creation.
+    */
+    ParsableModelMixin.prototype.applyMiscProps = function (rawProps) {
+        // subclasses can implement
+    };
+    /*
+    TODO: why is this a method when defineStandardProps is static
+    */
+    ParsableModelMixin.prototype.isStandardProp = function (propName) {
+        return propName in this.standardPropMap;
+    };
+    return ParsableModelMixin;
+}(Mixin_1.default));
+exports.default = ParsableModelMixin;
+ParsableModelMixin.prototype.standar
