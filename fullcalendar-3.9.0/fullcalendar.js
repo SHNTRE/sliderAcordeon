@@ -8079,4 +8079,53 @@ var RecurringEventDef = /** @class */ (function (_super) {
         var instances = [];
         while (unzonedDate.isBefore(unzonedEnd)) {
             // if everyday, or this particular day-of-week
-            if (!this.dowHash
+            if (!this.dowHash || this.dowHash[unzonedDate.day()]) {
+                zonedDayStart = calendar.applyTimezone(unzonedDate);
+                instanceStart = zonedDayStart.clone();
+                instanceEnd = null;
+                if (this.startTime) {
+                    instanceStart.time(this.startTime);
+                }
+                else {
+                    instanceStart.stripTime();
+                }
+                if (this.endTime) {
+                    instanceEnd = zonedDayStart.clone().time(this.endTime);
+                }
+                instances.push(new EventInstance_1.default(this, // definition
+                new EventDateProfile_1.default(instanceStart, instanceEnd, calendar)));
+            }
+            unzonedDate.add(1, 'days');
+        }
+        return instances;
+    };
+    RecurringEventDef.prototype.setDow = function (dowNumbers) {
+        if (!this.dowHash) {
+            this.dowHash = {};
+        }
+        for (var i = 0; i < dowNumbers.length; i++) {
+            this.dowHash[dowNumbers[i]] = true;
+        }
+    };
+    RecurringEventDef.prototype.clone = function () {
+        var def = _super.prototype.clone.call(this);
+        if (def.startTime) {
+            def.startTime = moment.duration(this.startTime);
+        }
+        if (def.endTime) {
+            def.endTime = moment.duration(this.endTime);
+        }
+        if (this.dowHash) {
+            def.dowHash = $.extend({}, this.dowHash);
+        }
+        return def;
+    };
+    return RecurringEventDef;
+}(EventDef_1.default));
+exports.default = RecurringEventDef;
+/*
+HACK to work with TypeScript mixins
+NOTE: if super-method fails, should still attempt to apply
+*/
+RecurringEventDef.prototype.applyProps = function (rawProps) {
+    var superSuccess = EventDef_1.def
