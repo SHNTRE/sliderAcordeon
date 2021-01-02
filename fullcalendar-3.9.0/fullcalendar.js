@@ -8128,4 +8128,65 @@ HACK to work with TypeScript mixins
 NOTE: if super-method fails, should still attempt to apply
 */
 RecurringEventDef.prototype.applyProps = function (rawProps) {
-    var superSuccess = EventDef_1.def
+    var superSuccess = EventDef_1.default.prototype.applyProps.call(this, rawProps);
+    if (rawProps.start) {
+        this.startTime = moment.duration(rawProps.start);
+    }
+    if (rawProps.end) {
+        this.endTime = moment.duration(rawProps.end);
+    }
+    if (rawProps.dow) {
+        this.setDow(rawProps.dow);
+    }
+    return superSuccess;
+};
+// Parsing
+// ---------------------------------------------------------------------------------------------------------------------
+RecurringEventDef.defineStandardProps({
+    start: false,
+    end: false,
+    dow: false
+});
+
+
+/***/ }),
+/* 211 */
+/***/ (function(module, exports) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var EventRange = /** @class */ (function () {
+    function EventRange(unzonedRange, eventDef, eventInstance) {
+        this.unzonedRange = unzonedRange;
+        this.eventDef = eventDef;
+        if (eventInstance) {
+            this.eventInstance = eventInstance;
+        }
+    }
+    return EventRange;
+}());
+exports.default = EventRange;
+
+
+/***/ }),
+/* 212 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var $ = __webpack_require__(3);
+var util_1 = __webpack_require__(35);
+var EventInstanceGroup_1 = __webpack_require__(18);
+var RecurringEventDef_1 = __webpack_require__(210);
+var EventSource_1 = __webpack_require__(6);
+var BUSINESS_HOUR_EVENT_DEFAULTS = {
+    start: '09:00',
+    end: '17:00',
+    dow: [1, 2, 3, 4, 5],
+    rendering: 'inverse-background'
+    // classNames are defined in businessHoursSegClasses
+};
+var BusinessHourGenerator = /** @class */ (function () {
+    function BusinessHourGenerator(rawComplexDef, calendar) {
+        this.rawComplexDef = rawComplexDef;
+        this.calendar = calendar;
+    }
+    BusinessHourGenerator.prototype.build
