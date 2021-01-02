@@ -8025,4 +8025,58 @@ var ParsableModelMixin = /** @class */ (function (_super) {
     return ParsableModelMixin;
 }(Mixin_1.default));
 exports.default = ParsableModelMixin;
-ParsableModelMixin.prototype.standar
+ParsableModelMixin.prototype.standardPropMap = {}; // will be cloned by defineStandardProps
+
+
+/***/ }),
+/* 209 */
+/***/ (function(module, exports) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var EventInstance = /** @class */ (function () {
+    function EventInstance(def, dateProfile) {
+        this.def = def;
+        this.dateProfile = dateProfile;
+    }
+    EventInstance.prototype.toLegacy = function () {
+        var dateProfile = this.dateProfile;
+        var obj = this.def.toLegacy();
+        obj.start = dateProfile.start.clone();
+        obj.end = dateProfile.end ? dateProfile.end.clone() : null;
+        return obj;
+    };
+    return EventInstance;
+}());
+exports.default = EventInstance;
+
+
+/***/ }),
+/* 210 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var $ = __webpack_require__(3);
+var moment = __webpack_require__(0);
+var EventDef_1 = __webpack_require__(34);
+var EventInstance_1 = __webpack_require__(209);
+var EventDateProfile_1 = __webpack_require__(17);
+var RecurringEventDef = /** @class */ (function (_super) {
+    tslib_1.__extends(RecurringEventDef, _super);
+    function RecurringEventDef() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    RecurringEventDef.prototype.isAllDay = function () {
+        return !this.startTime && !this.endTime;
+    };
+    RecurringEventDef.prototype.buildInstances = function (unzonedRange) {
+        var calendar = this.source.calendar;
+        var unzonedDate = unzonedRange.getStart();
+        var unzonedEnd = unzonedRange.getEnd();
+        var zonedDayStart;
+        var instanceStart;
+        var instanceEnd;
+        var instances = [];
+        while (unzonedDate.isBefore(unzonedEnd)) {
+            // if everyday, or this particular day-of-week
+            if (!this.dowHash
