@@ -8189,4 +8189,53 @@ var BusinessHourGenerator = /** @class */ (function () {
         this.rawComplexDef = rawComplexDef;
         this.calendar = calendar;
     }
-    BusinessHourGenerator.prototype.build
+    BusinessHourGenerator.prototype.buildEventInstanceGroup = function (isAllDay, unzonedRange) {
+        var eventDefs = this.buildEventDefs(isAllDay);
+        var eventInstanceGroup;
+        if (eventDefs.length) {
+            eventInstanceGroup = new EventInstanceGroup_1.default(util_1.eventDefsToEventInstances(eventDefs, unzonedRange));
+            // so that inverse-background rendering can happen even when no eventRanges in view
+            eventInstanceGroup.explicitEventDef = eventDefs[0];
+            return eventInstanceGroup;
+        }
+    };
+    BusinessHourGenerator.prototype.buildEventDefs = function (isAllDay) {
+        var rawComplexDef = this.rawComplexDef;
+        var rawDefs = [];
+        var requireDow = false;
+        var i;
+        var defs = [];
+        if (rawComplexDef === true) {
+            rawDefs = [{}]; // will get BUSINESS_HOUR_EVENT_DEFAULTS verbatim
+        }
+        else if ($.isPlainObject(rawComplexDef)) {
+            rawDefs = [rawComplexDef];
+        }
+        else if ($.isArray(rawComplexDef)) {
+            rawDefs = rawComplexDef;
+            requireDow = true; // every sub-definition NEEDS a day-of-week
+        }
+        for (i = 0; i < rawDefs.length; i++) {
+            if (!requireDow || rawDefs[i].dow) {
+                defs.push(this.buildEventDef(isAllDay, rawDefs[i]));
+            }
+        }
+        return defs;
+    };
+    BusinessHourGenerator.prototype.buildEventDef = function (isAllDay, rawDef) {
+        var fullRawDef = $.extend({}, BUSINESS_HOUR_EVENT_DEFAULTS, rawDef);
+        if (isAllDay) {
+            fullRawDef.start = null;
+            fullRawDef.end = null;
+        }
+        return RecurringEventDef_1.default.parse(fullRawDef, new EventSource_1.default(this.calendar) // dummy source
+        );
+    };
+    return BusinessHourGenerator;
+}());
+exports.default = BusinessHourGenerator;
+
+
+/***/ }),
+/* 213 */
+/***/ (function(mo
