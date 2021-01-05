@@ -8346,4 +8346,56 @@ var Promise_1 = __webpack_require__(20);
 var EventSource_1 = __webpack_require__(6);
 var FuncEventSource = /** @class */ (function (_super) {
     tslib_1.__extends(FuncEventSource, _super);
-    f
+    function FuncEventSource() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    FuncEventSource.parse = function (rawInput, calendar) {
+        var rawProps;
+        // normalize raw input
+        if ($.isFunction(rawInput.events)) {
+            rawProps = rawInput;
+        }
+        else if ($.isFunction(rawInput)) {
+            rawProps = { events: rawInput };
+        }
+        if (rawProps) {
+            return EventSource_1.default.parse.call(this, rawProps, calendar);
+        }
+        return false;
+    };
+    FuncEventSource.prototype.fetch = function (start, end, timezone) {
+        var _this = this;
+        this.calendar.pushLoading();
+        return Promise_1.default.construct(function (onResolve) {
+            _this.func.call(_this.calendar, start.clone(), end.clone(), timezone, function (rawEventDefs) {
+                _this.calendar.popLoading();
+                onResolve(_this.parseEventDefs(rawEventDefs));
+            });
+        });
+    };
+    FuncEventSource.prototype.getPrimitive = function () {
+        return this.func;
+    };
+    FuncEventSource.prototype.applyManualStandardProps = function (rawProps) {
+        var superSuccess = _super.prototype.applyManualStandardProps.call(this, rawProps);
+        this.func = rawProps.events;
+        return superSuccess;
+    };
+    return FuncEventSource;
+}(EventSource_1.default));
+exports.default = FuncEventSource;
+FuncEventSource.defineStandardProps({
+    events: false // don't automatically transfer
+});
+
+
+/***/ }),
+/* 216 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var $ = __webpack_require__(3);
+var util_1 = __webpack_require__(4);
+var Promise_1 = __webpack_require__(20);
+var EventSource_1 = __web
