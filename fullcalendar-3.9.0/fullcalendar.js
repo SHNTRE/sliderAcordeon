@@ -8293,4 +8293,57 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var tslib_1 = __webpack_require__(2);
 var Theme_1 = __webpack_require__(19);
 var JqueryUiTheme = /** @class */ (function (_super) {
-    tslib_1.__exte
+    tslib_1.__extends(JqueryUiTheme, _super);
+    function JqueryUiTheme() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    return JqueryUiTheme;
+}(Theme_1.default));
+exports.default = JqueryUiTheme;
+JqueryUiTheme.prototype.classes = {
+    widget: 'ui-widget',
+    widgetHeader: 'ui-widget-header',
+    widgetContent: 'ui-widget-content',
+    buttonGroup: 'fc-button-group',
+    button: 'ui-button',
+    cornerLeft: 'ui-corner-left',
+    cornerRight: 'ui-corner-right',
+    stateDefault: 'ui-state-default',
+    stateActive: 'ui-state-active',
+    stateDisabled: 'ui-state-disabled',
+    stateHover: 'ui-state-hover',
+    stateDown: 'ui-state-down',
+    today: 'ui-state-highlight',
+    popoverHeader: 'ui-widget-header',
+    popoverContent: 'ui-widget-content',
+    // day grid
+    headerRow: 'ui-widget-header',
+    dayRow: 'ui-widget-content',
+    // list view
+    listView: 'ui-widget-content'
+};
+JqueryUiTheme.prototype.baseIconClass = 'ui-icon';
+JqueryUiTheme.prototype.iconClasses = {
+    close: 'ui-icon-closethick',
+    prev: 'ui-icon-circle-triangle-w',
+    next: 'ui-icon-circle-triangle-e',
+    prevYear: 'ui-icon-seek-prev',
+    nextYear: 'ui-icon-seek-next'
+};
+JqueryUiTheme.prototype.iconOverrideOption = 'themeButtonIcons';
+JqueryUiTheme.prototype.iconOverrideCustomButtonOption = 'themeIcon';
+JqueryUiTheme.prototype.iconOverridePrefix = 'ui-icon-';
+
+
+/***/ }),
+/* 215 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var $ = __webpack_require__(3);
+var Promise_1 = __webpack_require__(20);
+var EventSource_1 = __webpack_require__(6);
+var FuncEventSource = /** @class */ (function (_super) {
+    tslib_1.__extends(FuncEventSource, _super);
+    f
