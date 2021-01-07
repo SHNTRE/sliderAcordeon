@@ -8438,4 +8438,54 @@ var JsonFeedEventSource = /** @class */ (function (_super) {
                     _this.calendar.popLoading();
                     if (rawEventDefs) {
                         callbackRes = util_1.applyAll(onSuccess, _this, [rawEventDefs, status, xhr]); // redirect `this`
-                        if ($.isArray(callbackRes))
+                        if ($.isArray(callbackRes)) {
+                            rawEventDefs = callbackRes;
+                        }
+                        onResolve(_this.parseEventDefs(rawEventDefs));
+                    }
+                    else {
+                        onReject();
+                    }
+                },
+                error: function (xhr, statusText, errorThrown) {
+                    _this.calendar.popLoading();
+                    util_1.applyAll(onError, _this, [xhr, statusText, errorThrown]); // redirect `this`
+                    onReject();
+                }
+            }));
+        });
+    };
+    JsonFeedEventSource.prototype.buildRequestParams = function (start, end, timezone) {
+        var calendar = this.calendar;
+        var ajaxSettings = this.ajaxSettings;
+        var startParam;
+        var endParam;
+        var timezoneParam;
+        var customRequestParams;
+        var params = {};
+        startParam = this.startParam;
+        if (startParam == null) {
+            startParam = calendar.opt('startParam');
+        }
+        endParam = this.endParam;
+        if (endParam == null) {
+            endParam = calendar.opt('endParam');
+        }
+        timezoneParam = this.timezoneParam;
+        if (timezoneParam == null) {
+            timezoneParam = calendar.opt('timezoneParam');
+        }
+        // retrieve any outbound GET/POST $.ajax data from the options
+        if ($.isFunction(ajaxSettings.data)) {
+            // supplied as a function that returns a key/value object
+            customRequestParams = ajaxSettings.data();
+        }
+        else {
+            // probably supplied as a straight key/value object
+            customRequestParams = ajaxSettings.data || {};
+        }
+        $.extend(params, customRequestParams);
+        params[startParam] = start.format();
+        params[endParam] = end.format();
+        if (timezone && timezone !== 'local') {
+           
