@@ -8398,4 +8398,44 @@ var tslib_1 = __webpack_require__(2);
 var $ = __webpack_require__(3);
 var util_1 = __webpack_require__(4);
 var Promise_1 = __webpack_require__(20);
-var EventSource_1 = __web
+var EventSource_1 = __webpack_require__(6);
+var JsonFeedEventSource = /** @class */ (function (_super) {
+    tslib_1.__extends(JsonFeedEventSource, _super);
+    function JsonFeedEventSource() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    JsonFeedEventSource.parse = function (rawInput, calendar) {
+        var rawProps;
+        // normalize raw input
+        if (typeof rawInput.url === 'string') {
+            rawProps = rawInput;
+        }
+        else if (typeof rawInput === 'string') {
+            rawProps = { url: rawInput };
+        }
+        if (rawProps) {
+            return EventSource_1.default.parse.call(this, rawProps, calendar);
+        }
+        return false;
+    };
+    JsonFeedEventSource.prototype.fetch = function (start, end, timezone) {
+        var _this = this;
+        var ajaxSettings = this.ajaxSettings;
+        var onSuccess = ajaxSettings.success;
+        var onError = ajaxSettings.error;
+        var requestParams = this.buildRequestParams(start, end, timezone);
+        // todo: eventually handle the promise's then,
+        // don't intercept success/error
+        // tho will be a breaking API change
+        this.calendar.pushLoading();
+        return Promise_1.default.construct(function (onResolve, onReject) {
+            $.ajax($.extend({}, // destination
+            JsonFeedEventSource.AJAX_DEFAULTS, ajaxSettings, {
+                url: _this.url,
+                data: requestParams,
+                success: function (rawEventDefs, status, xhr) {
+                    var callbackRes;
+                    _this.calendar.popLoading();
+                    if (rawEventDefs) {
+                        callbackRes = util_1.applyAll(onSuccess, _this, [rawEventDefs, status, xhr]); // redirect `this`
+                        if ($.isArray(callbackRes))
