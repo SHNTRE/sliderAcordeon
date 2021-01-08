@@ -8488,4 +8488,70 @@ var JsonFeedEventSource = /** @class */ (function (_super) {
         params[startParam] = start.format();
         params[endParam] = end.format();
         if (timezone && timezone !== 'local') {
-           
+            params[timezoneParam] = timezone;
+        }
+        return params;
+    };
+    JsonFeedEventSource.prototype.getPrimitive = function () {
+        return this.url;
+    };
+    JsonFeedEventSource.prototype.applyMiscProps = function (rawProps) {
+        this.ajaxSettings = rawProps;
+    };
+    JsonFeedEventSource.AJAX_DEFAULTS = {
+        dataType: 'json',
+        cache: false
+    };
+    return JsonFeedEventSource;
+}(EventSource_1.default));
+exports.default = JsonFeedEventSource;
+JsonFeedEventSource.defineStandardProps({
+    // automatically transfer (true)...
+    url: true,
+    startParam: true,
+    endParam: true,
+    timezoneParam: true
+});
+
+
+/***/ }),
+/* 217 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var EmitterMixin_1 = __webpack_require__(11);
+var TaskQueue = /** @class */ (function () {
+    function TaskQueue() {
+        this.q = [];
+        this.isPaused = false;
+        this.isRunning = false;
+    }
+    TaskQueue.prototype.queue = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        this.q.push.apply(this.q, args); // append
+        this.tryStart();
+    };
+    TaskQueue.prototype.pause = function () {
+        this.isPaused = true;
+    };
+    TaskQueue.prototype.resume = function () {
+        this.isPaused = false;
+        this.tryStart();
+    };
+    TaskQueue.prototype.getIsIdle = function () {
+        return !this.isRunning && !this.isPaused;
+    };
+    TaskQueue.prototype.tryStart = function () {
+        if (!this.isRunning && this.canRunNext()) {
+            this.isRunning = true;
+            this.trigger('start');
+            this.runRemaining();
+        }
+    };
+    TaskQueue.prototype.canRunNext = function () {
+        return !this.isPaused && this.q.length;
+    };
+    TaskQueue.prototype.runRemaining = function (
