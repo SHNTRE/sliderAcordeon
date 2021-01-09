@@ -8554,4 +8554,59 @@ var TaskQueue = /** @class */ (function () {
     TaskQueue.prototype.canRunNext = function () {
         return !this.isPaused && this.q.length;
     };
-    TaskQueue.prototype.runRemaining = function (
+    TaskQueue.prototype.runRemaining = function () {
+        var _this = this;
+        var task;
+        var res;
+        do {
+            task = this.q.shift(); // always freshly reference q. might have been reassigned.
+            res = this.runTask(task);
+            if (res && res.then) {
+                res.then(function () {
+                    if (_this.canRunNext()) {
+                        _this.runRemaining();
+                    }
+                });
+                return; // prevent marking as stopped
+            }
+        } while (this.canRunNext());
+        this.trigger('stop'); // not really a 'stop' ... more of a 'drained'
+        this.isRunning = false;
+        // if 'stop' handler added more tasks.... TODO: write test for this
+        this.tryStart();
+    };
+    TaskQueue.prototype.runTask = function (task) {
+        return task(); // task *is* the function, but subclasses can change the format of a task
+    };
+    return TaskQueue;
+}());
+exports.default = TaskQueue;
+EmitterMixin_1.default.mixInto(TaskQueue);
+
+
+/***/ }),
+/* 218 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var TaskQueue_1 = __webpack_require__(217);
+var RenderQueue = /** @class */ (function (_super) {
+    tslib_1.__extends(RenderQueue, _super);
+    function RenderQueue(waitsByNamespace) {
+        var _this = _super.call(this) || this;
+        _this.waitsByNamespace = waitsByNamespace || {};
+        return _this;
+    }
+    RenderQueue.prototype.queue = function (taskFunc, namespace, type) {
+        var task = {
+            func: taskFunc,
+            namespace: namespace,
+            type: type
+        };
+        var waitMs;
+        if (namespace) {
+            waitMs = this.waitsByNamespace[namespace];
+        }
+        if (this.waitNamespace) {
+            if (namespace === this.waitNamespace &&
