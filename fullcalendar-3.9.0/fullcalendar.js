@@ -8667,4 +8667,57 @@ var RenderQueue = /** @class */ (function (_super) {
         }
         return true;
     };
-    RenderQueue.prototype.runTask
+    RenderQueue.prototype.runTask = function (task) {
+        task.func();
+    };
+    RenderQueue.prototype.compoundTask = function (newTask) {
+        var q = this.q;
+        var shouldAppend = true;
+        var i;
+        var task;
+        if (newTask.namespace && newTask.type === 'destroy') {
+            // remove all init/add/remove ops with same namespace, regardless of order
+            for (i = q.length - 1; i >= 0; i--) {
+                task = q[i];
+                switch (task.type) {
+                    case 'init':
+                        shouldAppend = false;
+                    // the latest destroy is cancelled out by not doing the init
+                    /* falls through */
+                    case 'add':
+                    /* falls through */
+                    case 'remove':
+                        q.splice(i, 1); // remove task
+                }
+            }
+        }
+        if (shouldAppend) {
+            q.push(newTask);
+        }
+        return shouldAppend;
+    };
+    return RenderQueue;
+}(TaskQueue_1.default));
+exports.default = RenderQueue;
+
+
+/***/ }),
+/* 219 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var $ = __webpack_require__(3);
+var moment = __webpack_require__(0);
+var util_1 = __webpack_require__(4);
+var moment_ext_1 = __webpack_require__(10);
+var date_formatting_1 = __webpack_require__(47);
+var Component_1 = __webpack_require__(237);
+var util_2 = __webpack_require__(35);
+var DateComponent = /** @class */ (function (_super) {
+    tslib_1.__extends(DateComponent, _super);
+    function DateComponent(_view, _options) {
+        var _this = _super.call(this) || this;
+        _this.isRTL = false; // frequently accessed options
+        _this.hitsNeededDepth = 0; // necessary because multiple callers might need the same hits
+        _this.hasAllDayBusinessHours = false; // TODO: uni
