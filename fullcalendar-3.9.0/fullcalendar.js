@@ -8609,4 +8609,62 @@ var RenderQueue = /** @class */ (function (_super) {
             waitMs = this.waitsByNamespace[namespace];
         }
         if (this.waitNamespace) {
-            if (namespace === this.waitNamespace &&
+            if (namespace === this.waitNamespace && waitMs != null) {
+                this.delayWait(waitMs);
+            }
+            else {
+                this.clearWait();
+                this.tryStart();
+            }
+        }
+        if (this.compoundTask(task)) {
+            if (!this.waitNamespace && waitMs != null) {
+                this.startWait(namespace, waitMs);
+            }
+            else {
+                this.tryStart();
+            }
+        }
+    };
+    RenderQueue.prototype.startWait = function (namespace, waitMs) {
+        this.waitNamespace = namespace;
+        this.spawnWait(waitMs);
+    };
+    RenderQueue.prototype.delayWait = function (waitMs) {
+        clearTimeout(this.waitId);
+        this.spawnWait(waitMs);
+    };
+    RenderQueue.prototype.spawnWait = function (waitMs) {
+        var _this = this;
+        this.waitId = setTimeout(function () {
+            _this.waitNamespace = null;
+            _this.tryStart();
+        }, waitMs);
+    };
+    RenderQueue.prototype.clearWait = function () {
+        if (this.waitNamespace) {
+            clearTimeout(this.waitId);
+            this.waitId = null;
+            this.waitNamespace = null;
+        }
+    };
+    RenderQueue.prototype.canRunNext = function () {
+        if (!_super.prototype.canRunNext.call(this)) {
+            return false;
+        }
+        // waiting for a certain namespace to stop receiving tasks?
+        if (this.waitNamespace) {
+            var q = this.q;
+            // if there was a different namespace task in the meantime,
+            // that forces all previously-waiting tasks to suddenly execute.
+            // TODO: find a way to do this in constant time.
+            for (var i = 0; i < q.length; i++) {
+                if (q[i].namespace !== this.waitNamespace) {
+                    return true; // allow execution
+                }
+            }
+            return false;
+        }
+        return true;
+    };
+    RenderQueue.prototype.runTask
