@@ -8767,4 +8767,47 @@ var DateComponent = /** @class */ (function (_super) {
         this.callChildren('updateSize', arguments);
     };
     // Options
-    // --------------------
+    // -----------------------------------------------------------------------------------------------------------------
+    DateComponent.prototype.opt = function (name) {
+        return this._getView().opt(name); // default implementation
+    };
+    DateComponent.prototype.publiclyTrigger = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var calendar = this._getCalendar();
+        return calendar.publiclyTrigger.apply(calendar, args);
+    };
+    DateComponent.prototype.hasPublicHandlers = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var calendar = this._getCalendar();
+        return calendar.hasPublicHandlers.apply(calendar, args);
+    };
+    // Date
+    // -----------------------------------------------------------------------------------------------------------------
+    DateComponent.prototype.executeDateRender = function (dateProfile) {
+        this.dateProfile = dateProfile; // for rendering
+        this.renderDates(dateProfile);
+        this.isDatesRendered = true;
+        this.callChildren('executeDateRender', arguments);
+    };
+    DateComponent.prototype.executeDateUnrender = function () {
+        this.callChildren('executeDateUnrender', arguments);
+        this.dateProfile = null;
+        this.unrenderDates();
+        this.isDatesRendered = false;
+    };
+    // date-cell content only
+    DateComponent.prototype.renderDates = function (dateProfile) {
+        // subclasses should implement
+    };
+    // date-cell content only
+    DateComponent.prototype.unrenderDates = function () {
+        // subclasses should override
+    };
+    // Now-Indicator
+    // ----------------------------
