@@ -8720,4 +8720,51 @@ var DateComponent = /** @class */ (function (_super) {
         var _this = _super.call(this) || this;
         _this.isRTL = false; // frequently accessed options
         _this.hitsNeededDepth = 0; // necessary because multiple callers might need the same hits
-        _this.hasAllDayBusinessHours = false; // TODO: uni
+        _this.hasAllDayBusinessHours = false; // TODO: unify with largeUnit and isTimeScale?
+        _this.isDatesRendered = false;
+        // hack to set options prior to the this.opt calls
+        if (_view) {
+            _this['view'] = _view;
+        }
+        if (_options) {
+            _this['options'] = _options;
+        }
+        _this.uid = String(DateComponent.guid++);
+        _this.childrenByUid = {};
+        _this.nextDayThreshold = moment.duration(_this.opt('nextDayThreshold'));
+        _this.isRTL = _this.opt('isRTL');
+        if (_this.fillRendererClass) {
+            _this.fillRenderer = new _this.fillRendererClass(_this);
+        }
+        if (_this.eventRendererClass) {
+            _this.eventRenderer = new _this.eventRendererClass(_this, _this.fillRenderer);
+        }
+        if (_this.helperRendererClass && _this.eventRenderer) {
+            _this.helperRenderer = new _this.helperRendererClass(_this, _this.eventRenderer);
+        }
+        if (_this.businessHourRendererClass && _this.fillRenderer) {
+            _this.businessHourRenderer = new _this.businessHourRendererClass(_this, _this.fillRenderer);
+        }
+        return _this;
+    }
+    DateComponent.prototype.addChild = function (child) {
+        if (!this.childrenByUid[child.uid]) {
+            this.childrenByUid[child.uid] = child;
+            return true;
+        }
+        return false;
+    };
+    DateComponent.prototype.removeChild = function (child) {
+        if (this.childrenByUid[child.uid]) {
+            delete this.childrenByUid[child.uid];
+            return true;
+        }
+        return false;
+    };
+    // TODO: only do if isInDom?
+    // TODO: make part of Component, along with children/batch-render system?
+    DateComponent.prototype.updateSize = function (totalHeight, isAuto, isResize) {
+        this.callChildren('updateSize', arguments);
+    };
+    // Options
+    // --------------------
