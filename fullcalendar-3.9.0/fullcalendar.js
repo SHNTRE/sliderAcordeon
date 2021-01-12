@@ -8810,4 +8810,40 @@ var DateComponent = /** @class */ (function (_super) {
         // subclasses should override
     };
     // Now-Indicator
-    // ----------------------------
+    // -----------------------------------------------------------------------------------------------------------------
+    // Returns a string unit, like 'second' or 'minute' that defined how often the current time indicator
+    // should be refreshed. If something falsy is returned, no time indicator is rendered at all.
+    DateComponent.prototype.getNowIndicatorUnit = function () {
+        // subclasses should implement
+    };
+    // Renders a current time indicator at the given datetime
+    DateComponent.prototype.renderNowIndicator = function (date) {
+        this.callChildren('renderNowIndicator', arguments);
+    };
+    // Undoes the rendering actions from renderNowIndicator
+    DateComponent.prototype.unrenderNowIndicator = function () {
+        this.callChildren('unrenderNowIndicator', arguments);
+    };
+    // Business Hours
+    // ---------------------------------------------------------------------------------------------------------------
+    DateComponent.prototype.renderBusinessHours = function (businessHourGenerator) {
+        if (this.businessHourRenderer) {
+            this.businessHourRenderer.render(businessHourGenerator);
+        }
+        this.callChildren('renderBusinessHours', arguments);
+    };
+    // Unrenders previously-rendered business-hours
+    DateComponent.prototype.unrenderBusinessHours = function () {
+        this.callChildren('unrenderBusinessHours', arguments);
+        if (this.businessHourRenderer) {
+            this.businessHourRenderer.unrender();
+        }
+    };
+    // Event Displaying
+    // -----------------------------------------------------------------------------------------------------------------
+    DateComponent.prototype.executeEventRender = function (eventsPayload) {
+        if (this.eventRenderer) {
+            this.eventRenderer.rangeUpdated(); // poorly named now
+            this.eventRenderer.render(eventsPayload);
+        }
+        else 
