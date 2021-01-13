@@ -8846,4 +8846,54 @@ var DateComponent = /** @class */ (function (_super) {
             this.eventRenderer.rangeUpdated(); // poorly named now
             this.eventRenderer.render(eventsPayload);
         }
-        else 
+        else if (this['renderEvents']) {
+            this['renderEvents'](convertEventsPayloadToLegacyArray(eventsPayload));
+        }
+        this.callChildren('executeEventRender', arguments);
+    };
+    DateComponent.prototype.executeEventUnrender = function () {
+        this.callChildren('executeEventUnrender', arguments);
+        if (this.eventRenderer) {
+            this.eventRenderer.unrender();
+        }
+        else if (this['destroyEvents']) {
+            this['destroyEvents']();
+        }
+    };
+    DateComponent.prototype.getBusinessHourSegs = function () {
+        var segs = this.getOwnBusinessHourSegs();
+        this.iterChildren(function (child) {
+            segs.push.apply(segs, child.getBusinessHourSegs());
+        });
+        return segs;
+    };
+    DateComponent.prototype.getOwnBusinessHourSegs = function () {
+        if (this.businessHourRenderer) {
+            return this.businessHourRenderer.getSegs();
+        }
+        return [];
+    };
+    DateComponent.prototype.getEventSegs = function () {
+        var segs = this.getOwnEventSegs();
+        this.iterChildren(function (child) {
+            segs.push.apply(segs, child.getEventSegs());
+        });
+        return segs;
+    };
+    DateComponent.prototype.getOwnEventSegs = function () {
+        if (this.eventRenderer) {
+            return this.eventRenderer.getSegs();
+        }
+        return [];
+    };
+    // Event Rendering Triggering
+    // -----------------------------------------------------------------------------------------------------------------
+    DateComponent.prototype.triggerAfterEventsRendered = function () {
+        this.triggerAfterEventSegsRendered(this.getEventSegs());
+        this.publiclyTrigger('eventAfterAllRender', {
+            context: this,
+            args: [this]
+        });
+    };
+    DateComponent.prototype.triggerAfterEventSegsRendered = function (segs) {
+        var
