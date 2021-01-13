@@ -8943,4 +8943,41 @@ var DateComponent = /** @class */ (function (_super) {
         });
         this.callChildren('showEventsWithId', arguments);
     };
-   
+    // Shows all rendered event segments linked to the given event
+    // RECURSIVE with subcomponents
+    DateComponent.prototype.hideEventsWithId = function (eventDefId) {
+        this.getEventSegs().forEach(function (seg) {
+            if (seg.footprint.eventDef.id === eventDefId &&
+                seg.el // necessary?
+            ) {
+                seg.el.css('visibility', 'hidden');
+            }
+        });
+        this.callChildren('hideEventsWithId', arguments);
+    };
+    // Drag-n-Drop Rendering (for both events and external elements)
+    // ---------------------------------------------------------------------------------------------------------------
+    // Renders a visual indication of a event or external-element drag over the given drop zone.
+    // If an external-element, seg will be `null`.
+    // Must return elements used for any mock events.
+    DateComponent.prototype.renderDrag = function (eventFootprints, seg, isTouch) {
+        var renderedHelper = false;
+        this.iterChildren(function (child) {
+            if (child.renderDrag(eventFootprints, seg, isTouch)) {
+                renderedHelper = true;
+            }
+        });
+        return renderedHelper;
+    };
+    // Unrenders a visual indication of an event or external-element being dragged.
+    DateComponent.prototype.unrenderDrag = function () {
+        this.callChildren('unrenderDrag', arguments);
+    };
+    // Event Resizing
+    // ---------------------------------------------------------------------------------------------------------------
+    // Renders a visual indication of an event being resized.
+    DateComponent.prototype.renderEventResize = function (eventFootprints, seg, isTouch) {
+        this.callChildren('renderEventResize', arguments);
+    };
+    // Unrenders a visual indication of an event being resized.
+    DateComp
