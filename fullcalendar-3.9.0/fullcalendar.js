@@ -8896,4 +8896,51 @@ var DateComponent = /** @class */ (function (_super) {
         });
     };
     DateComponent.prototype.triggerAfterEventSegsRendered = function (segs) {
-        var
+        var _this = this;
+        // an optimization, because getEventLegacy is expensive
+        if (this.hasPublicHandlers('eventAfterRender')) {
+            segs.forEach(function (seg) {
+                var legacy;
+                if (seg.el) {
+                    legacy = seg.footprint.getEventLegacy();
+                    _this.publiclyTrigger('eventAfterRender', {
+                        context: legacy,
+                        args: [legacy, seg.el, _this]
+                    });
+                }
+            });
+        }
+    };
+    DateComponent.prototype.triggerBeforeEventsDestroyed = function () {
+        this.triggerBeforeEventSegsDestroyed(this.getEventSegs());
+    };
+    DateComponent.prototype.triggerBeforeEventSegsDestroyed = function (segs) {
+        var _this = this;
+        if (this.hasPublicHandlers('eventDestroy')) {
+            segs.forEach(function (seg) {
+                var legacy;
+                if (seg.el) {
+                    legacy = seg.footprint.getEventLegacy();
+                    _this.publiclyTrigger('eventDestroy', {
+                        context: legacy,
+                        args: [legacy, seg.el, _this]
+                    });
+                }
+            });
+        }
+    };
+    // Event Rendering Utils
+    // -----------------------------------------------------------------------------------------------------------------
+    // Hides all rendered event segments linked to the given event
+    // RECURSIVE with subcomponents
+    DateComponent.prototype.showEventsWithId = function (eventDefId) {
+        this.getEventSegs().forEach(function (seg) {
+            if (seg.footprint.eventDef.id === eventDefId &&
+                seg.el // necessary?
+            ) {
+                seg.el.css('visibility', '');
+            }
+        });
+        this.callChildren('showEventsWithId', arguments);
+    };
+   
