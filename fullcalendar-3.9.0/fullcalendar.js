@@ -8980,4 +8980,41 @@ var DateComponent = /** @class */ (function (_super) {
         this.callChildren('renderEventResize', arguments);
     };
     // Unrenders a visual indication of an event being resized.
-    DateComp
+    DateComponent.prototype.unrenderEventResize = function () {
+        this.callChildren('unrenderEventResize', arguments);
+    };
+    // Selection
+    // ---------------------------------------------------------------------------------------------------------------
+    // Renders a visual indication of the selection
+    // TODO: rename to `renderSelection` after legacy is gone
+    DateComponent.prototype.renderSelectionFootprint = function (componentFootprint) {
+        this.renderHighlight(componentFootprint);
+        this.callChildren('renderSelectionFootprint', arguments);
+    };
+    // Unrenders a visual indication of selection
+    DateComponent.prototype.unrenderSelection = function () {
+        this.unrenderHighlight();
+        this.callChildren('unrenderSelection', arguments);
+    };
+    // Highlight
+    // ---------------------------------------------------------------------------------------------------------------
+    // Renders an emphasis on the given date range. Given a span (unzoned start/end and other misc data)
+    DateComponent.prototype.renderHighlight = function (componentFootprint) {
+        if (this.fillRenderer) {
+            this.fillRenderer.renderFootprint('highlight', componentFootprint, {
+                getClasses: function () {
+                    return ['fc-highlight'];
+                }
+            });
+        }
+        this.callChildren('renderHighlight', arguments);
+    };
+    // Unrenders the emphasis on a date range
+    DateComponent.prototype.unrenderHighlight = function () {
+        if (this.fillRenderer) {
+            this.fillRenderer.unrender('highlight');
+        }
+        this.callChildren('unrenderHighlight', arguments);
+    };
+    // Hit Areas
+    // ----------------------------------------------------------------------------------------------------------
