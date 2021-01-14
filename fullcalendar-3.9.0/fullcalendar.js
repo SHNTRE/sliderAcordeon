@@ -9062,4 +9062,40 @@ var DateComponent = /** @class */ (function (_super) {
         return footprint;
     };
     DateComponent.prototype.getHitFootprint = function (hit) {
-        // what about being abstract!
+        // what about being abstract!?
+    };
+    // Given position-level information about a date-related area within the grid,
+    // should return a jQuery element that best represents it. passed to dayClick callback.
+    DateComponent.prototype.getHitEl = function (hit) {
+        // what about being abstract!?
+    };
+    /* Converting eventRange -> eventFootprint
+    ------------------------------------------------------------------------------------------------------------------*/
+    DateComponent.prototype.eventRangesToEventFootprints = function (eventRanges) {
+        var eventFootprints = [];
+        var i;
+        for (i = 0; i < eventRanges.length; i++) {
+            eventFootprints.push.apply(// append
+            eventFootprints, this.eventRangeToEventFootprints(eventRanges[i]));
+        }
+        return eventFootprints;
+    };
+    DateComponent.prototype.eventRangeToEventFootprints = function (eventRange) {
+        return [util_2.eventRangeToEventFootprint(eventRange)];
+    };
+    /* Converting componentFootprint/eventFootprint -> segs
+    ------------------------------------------------------------------------------------------------------------------*/
+    DateComponent.prototype.eventFootprintsToSegs = function (eventFootprints) {
+        var segs = [];
+        var i;
+        for (i = 0; i < eventFootprints.length; i++) {
+            segs.push.apply(segs, this.eventFootprintToSegs(eventFootprints[i]));
+        }
+        return segs;
+    };
+    // Given an event's span (unzoned start/end and other misc data), and the event itself,
+    // slices into segments and attaches event-derived properties to them.
+    // eventSpan - { start, end, isStart, isEnd, otherthings... }
+    DateComponent.prototype.eventFootprintToSegs = function (eventFootprint) {
+        var unzonedRange = eventFootprint.componentFootprint.unzonedRange;
+        var seg
