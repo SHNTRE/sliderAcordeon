@@ -9017,4 +9017,49 @@ var DateComponent = /** @class */ (function (_super) {
         this.callChildren('unrenderHighlight', arguments);
     };
     // Hit Areas
-    // ----------------------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------------------------
+    // just because all DateComponents support this interface
+    // doesn't mean they need to have their own internal coord system. they can defer to sub-components.
+    DateComponent.prototype.hitsNeeded = function () {
+        if (!(this.hitsNeededDepth++)) {
+            this.prepareHits();
+        }
+        this.callChildren('hitsNeeded', arguments);
+    };
+    DateComponent.prototype.hitsNotNeeded = function () {
+        if (this.hitsNeededDepth && !(--this.hitsNeededDepth)) {
+            this.releaseHits();
+        }
+        this.callChildren('hitsNotNeeded', arguments);
+    };
+    DateComponent.prototype.prepareHits = function () {
+        // subclasses can implement
+    };
+    DateComponent.prototype.releaseHits = function () {
+        // subclasses can implement
+    };
+    // Given coordinates from the topleft of the document, return data about the date-related area underneath.
+    // Can return an object with arbitrary properties (although top/right/left/bottom are encouraged).
+    // Must have a `grid` property, a reference to this current grid. TODO: avoid this
+    // The returned object will be processed by getHitFootprint and getHitEl.
+    DateComponent.prototype.queryHit = function (leftOffset, topOffset) {
+        var childrenByUid = this.childrenByUid;
+        var uid;
+        var hit;
+        for (uid in childrenByUid) {
+            hit = childrenByUid[uid].queryHit(leftOffset, topOffset);
+            if (hit) {
+                break;
+            }
+        }
+        return hit;
+    };
+    DateComponent.prototype.getSafeHitFootprint = function (hit) {
+        var footprint = this.getHitFootprint(hit);
+        if (!this.dateProfile.activeUnzonedRange.containsRange(footprint.unzonedRange)) {
+            return null;
+        }
+        return footprint;
+    };
+    DateComponent.prototype.getHitFootprint = function (hit) {
+        // what about being abstract!
