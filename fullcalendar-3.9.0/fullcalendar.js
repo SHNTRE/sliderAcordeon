@@ -9098,4 +9098,53 @@ var DateComponent = /** @class */ (function (_super) {
     // eventSpan - { start, end, isStart, isEnd, otherthings... }
     DateComponent.prototype.eventFootprintToSegs = function (eventFootprint) {
         var unzonedRange = eventFootprint.componentFootprint.unzonedRange;
-        var seg
+        var segs;
+        var i;
+        var seg;
+        segs = this.componentFootprintToSegs(eventFootprint.componentFootprint);
+        for (i = 0; i < segs.length; i++) {
+            seg = segs[i];
+            if (!unzonedRange.isStart) {
+                seg.isStart = false;
+            }
+            if (!unzonedRange.isEnd) {
+                seg.isEnd = false;
+            }
+            seg.footprint = eventFootprint;
+            // TODO: rename to seg.eventFootprint
+        }
+        return segs;
+    };
+    DateComponent.prototype.componentFootprintToSegs = function (componentFootprint) {
+        return [];
+    };
+    // Utils
+    // ---------------------------------------------------------------------------------------------------------------
+    DateComponent.prototype.callChildren = function (methodName, args) {
+        this.iterChildren(function (child) {
+            child[methodName].apply(child, args);
+        });
+    };
+    DateComponent.prototype.iterChildren = function (func) {
+        var childrenByUid = this.childrenByUid;
+        var uid;
+        for (uid in childrenByUid) {
+            func(childrenByUid[uid]);
+        }
+    };
+    DateComponent.prototype._getCalendar = function () {
+        var t = this;
+        return t.calendar || t.view.calendar;
+    };
+    DateComponent.prototype._getView = function () {
+        return this.view;
+    };
+    DateComponent.prototype._getDateProfile = function () {
+        return this._getView().get('dateProfile');
+    };
+    // Generates HTML for an anchor to another view into the calendar.
+    // Will either generate an <a> tag or a non-clickable <span> tag, depending on enabled settings.
+    // `gotoOptions` can either be a moment input, or an object with the form:
+    // { date, type, forceOff }
+    // `type` is a view-type like "day" or "week". default value is "day".
+    // `attrs` and `innerHtml` are use to generate the rest of the 
