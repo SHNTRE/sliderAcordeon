@@ -9197,4 +9197,43 @@ var DateComponent = /** @class */ (function (_super) {
         }
         else {
             classes.push('fc-' + util_1.dayIDs[date.day()]);
-            if (view.isDateInOtherMonth(date, this.d
+            if (view.isDateInOtherMonth(date, this.dateProfile)) {
+                classes.push('fc-other-month');
+            }
+            today = view.calendar.getNow();
+            if (date.isSame(today, 'day')) {
+                classes.push('fc-today');
+                if (noThemeHighlight !== true) {
+                    classes.push(view.calendar.theme.getClass('today'));
+                }
+            }
+            else if (date < today) {
+                classes.push('fc-past');
+            }
+            else {
+                classes.push('fc-future');
+            }
+        }
+        return classes;
+    };
+    // Utility for formatting a range. Accepts a range object, formatting string, and optional separator.
+    // Displays all-day ranges naturally, with an inclusive end. Takes the current isRTL into account.
+    // The timezones of the dates within `range` will be respected.
+    DateComponent.prototype.formatRange = function (range, isAllDay, formatStr, separator) {
+        var end = range.end;
+        if (isAllDay) {
+            end = end.clone().subtract(1); // convert to inclusive. last ms of previous day
+        }
+        return date_formatting_1.formatRange(range.start, end, formatStr, separator, this.isRTL);
+    };
+    // Compute the number of the give units in the "current" range.
+    // Will return a floating-point number. Won't round.
+    DateComponent.prototype.currentRangeAs = function (unit) {
+        return this._getDateProfile().currentUnzonedRange.as(unit);
+    };
+    // Returns the date range of the full days the given range visually appears to occupy.
+    // Returns a plain object with start/end, NOT an UnzonedRange!
+    DateComponent.prototype.computeDayRange = function (unzonedRange) {
+        var calendar = this._getCalendar();
+        var startDay = calendar.msToUtcMoment(unzonedRange.startMs, true); // the beginning of the day the range starts
+        var end = calendar.msToUtcMoment(unzonedRange.endMs);
