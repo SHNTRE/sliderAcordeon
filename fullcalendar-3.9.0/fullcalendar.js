@@ -9147,4 +9147,54 @@ var DateComponent = /** @class */ (function (_super) {
     // `gotoOptions` can either be a moment input, or an object with the form:
     // { date, type, forceOff }
     // `type` is a view-type like "day" or "week". default value is "day".
-    // `attrs` and `innerHtml` are use to generate the rest of the 
+    // `attrs` and `innerHtml` are use to generate the rest of the HTML tag.
+    DateComponent.prototype.buildGotoAnchorHtml = function (gotoOptions, attrs, innerHtml) {
+        var date;
+        var type;
+        var forceOff;
+        var finalOptions;
+        if ($.isPlainObject(gotoOptions)) {
+            date = gotoOptions.date;
+            type = gotoOptions.type;
+            forceOff = gotoOptions.forceOff;
+        }
+        else {
+            date = gotoOptions; // a single moment input
+        }
+        date = moment_ext_1.default(date); // if a string, parse it
+        finalOptions = {
+            date: date.format('YYYY-MM-DD'),
+            type: type || 'day'
+        };
+        if (typeof attrs === 'string') {
+            innerHtml = attrs;
+            attrs = null;
+        }
+        attrs = attrs ? ' ' + util_1.attrsToStr(attrs) : ''; // will have a leading space
+        innerHtml = innerHtml || '';
+        if (!forceOff && this.opt('navLinks')) {
+            return '<a' + attrs +
+                ' data-goto="' + util_1.htmlEscape(JSON.stringify(finalOptions)) + '">' +
+                innerHtml +
+                '</a>';
+        }
+        else {
+            return '<span' + attrs + '>' +
+                innerHtml +
+                '</span>';
+        }
+    };
+    DateComponent.prototype.getAllDayHtml = function () {
+        return this.opt('allDayHtml') || util_1.htmlEscape(this.opt('allDayText'));
+    };
+    // Computes HTML classNames for a single-day element
+    DateComponent.prototype.getDayClasses = function (date, noThemeHighlight) {
+        var view = this._getView();
+        var classes = [];
+        var today;
+        if (!this.dateProfile.activeUnzonedRange.containsDate(date)) {
+            classes.push('fc-disabled-day'); // TODO: jQuery UI theme?
+        }
+        else {
+            classes.push('fc-' + util_1.dayIDs[date.day()]);
+            if (view.isDateInOtherMonth(date, this.d
