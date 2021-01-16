@@ -9237,3 +9237,50 @@ var DateComponent = /** @class */ (function (_super) {
         var calendar = this._getCalendar();
         var startDay = calendar.msToUtcMoment(unzonedRange.startMs, true); // the beginning of the day the range starts
         var end = calendar.msToUtcMoment(unzonedRange.endMs);
+        var endTimeMS = +end.time(); // # of milliseconds into `endDay`
+        var endDay = end.clone().stripTime(); // the beginning of the day the range exclusively ends
+        // If the end time is actually inclusively part of the next day and is equal to or
+        // beyond the next day threshold, adjust the end to be the exclusive end of `endDay`.
+        // Otherwise, leaving it as inclusive will cause it to exclude `endDay`.
+        if (endTimeMS && endTimeMS >= this.nextDayThreshold) {
+            endDay.add(1, 'days');
+        }
+        // If end is within `startDay` but not past nextDayThreshold, assign the default duration of one day.
+        if (endDay <= startDay) {
+            endDay = startDay.clone().add(1, 'days');
+        }
+        return { start: startDay, end: endDay };
+    };
+    // Does the given range visually appear to occupy more than one day?
+    DateComponent.prototype.isMultiDayRange = function (unzonedRange) {
+        var dayRange = this.computeDayRange(unzonedRange);
+        return dayRange.end.diff(dayRange.start, 'days') > 1;
+    };
+    DateComponent.guid = 0; // TODO: better system for this?
+    return DateComponent;
+}(Component_1.default));
+exports.default = DateComponent;
+// legacy
+function convertEventsPayloadToLegacyArray(eventsPayload) {
+    var eventDefId;
+    var eventInstances;
+    var legacyEvents = [];
+    var i;
+    for (eventDefId in eventsPayload) {
+        eventInstances = eventsPayload[eventDefId].eventInstances;
+        for (i = 0; i < eventInstances.length; i++) {
+            legacyEvents.push(eventInstances[i].toLegacy());
+        }
+    }
+    return legacyEvents;
+}
+
+
+/***/ }),
+/* 220 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var $ = __webpack_require__(3);
+var moment = __webpack_require__(0);
+var util_1 = __
