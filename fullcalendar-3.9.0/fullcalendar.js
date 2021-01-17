@@ -9321,4 +9321,58 @@ var Calendar = /** @class */ (function () {
         this.initMomentInternals(); // needs to happen after options hash initialized
         this.initCurrentDate();
         this.initEventManager();
-        this.constra
+        this.constraints = new Constraints_1.default(this.eventManager, this);
+        this.constructed();
+    }
+    Calendar.prototype.constructed = function () {
+        // useful for monkeypatching. used?
+    };
+    Calendar.prototype.getView = function () {
+        return this.view;
+    };
+    Calendar.prototype.publiclyTrigger = function (name, triggerInfo) {
+        var optHandler = this.opt(name);
+        var context;
+        var args;
+        if ($.isPlainObject(triggerInfo)) {
+            context = triggerInfo.context;
+            args = triggerInfo.args;
+        }
+        else if ($.isArray(triggerInfo)) {
+            args = triggerInfo;
+        }
+        if (context == null) {
+            context = this.el[0]; // fallback context
+        }
+        if (!args) {
+            args = [];
+        }
+        this.triggerWith(name, context, args); // Emitter's method
+        if (optHandler) {
+            return optHandler.apply(context, args);
+        }
+    };
+    Calendar.prototype.hasPublicHandlers = function (name) {
+        return this.hasHandlers(name) ||
+            this.opt(name); // handler specified in options
+    };
+    // Options Public API
+    // -----------------------------------------------------------------------------------------------------------------
+    // public getter/setter
+    Calendar.prototype.option = function (name, value) {
+        var newOptionHash;
+        if (typeof name === 'string') {
+            if (value === undefined) {
+                return this.optionsManager.get(name);
+            }
+            else {
+                newOptionHash = {};
+                newOptionHash[name] = value;
+                this.optionsManager.add(newOptionHash);
+            }
+        }
+        else if (typeof name === 'object') {
+            this.optionsManager.add(name);
+        }
+    };
+    // pri
