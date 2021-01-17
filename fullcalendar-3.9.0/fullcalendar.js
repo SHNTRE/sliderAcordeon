@@ -9283,4 +9283,42 @@ function convertEventsPayloadToLegacyArray(eventsPayload) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var $ = __webpack_require__(3);
 var moment = __webpack_require__(0);
-var util_1 = __
+var util_1 = __webpack_require__(4);
+var options_1 = __webpack_require__(32);
+var Iterator_1 = __webpack_require__(238);
+var GlobalEmitter_1 = __webpack_require__(21);
+var EmitterMixin_1 = __webpack_require__(11);
+var ListenerMixin_1 = __webpack_require__(7);
+var Toolbar_1 = __webpack_require__(239);
+var OptionsManager_1 = __webpack_require__(240);
+var ViewSpecManager_1 = __webpack_require__(241);
+var Constraints_1 = __webpack_require__(207);
+var locale_1 = __webpack_require__(31);
+var moment_ext_1 = __webpack_require__(10);
+var UnzonedRange_1 = __webpack_require__(5);
+var ComponentFootprint_1 = __webpack_require__(12);
+var EventDateProfile_1 = __webpack_require__(17);
+var EventManager_1 = __webpack_require__(242);
+var BusinessHourGenerator_1 = __webpack_require__(212);
+var EventSourceParser_1 = __webpack_require__(38);
+var EventDefParser_1 = __webpack_require__(49);
+var SingleEventDef_1 = __webpack_require__(13);
+var EventDefMutation_1 = __webpack_require__(37);
+var EventSource_1 = __webpack_require__(6);
+var ThemeRegistry_1 = __webpack_require__(51);
+var Calendar = /** @class */ (function () {
+    function Calendar(el, overrides) {
+        this.loadingLevel = 0; // number of simultaneous loading tasks
+        this.ignoreUpdateViewSize = 0;
+        this.freezeContentHeightDepth = 0;
+        // declare the current calendar instance relies on GlobalEmitter. needed for garbage collection.
+        // unneeded() is called in destroy.
+        GlobalEmitter_1.default.needed();
+        this.el = el;
+        this.viewsByType = {};
+        this.optionsManager = new OptionsManager_1.default(this, overrides);
+        this.viewSpecManager = new ViewSpecManager_1.default(this.optionsManager, this);
+        this.initMomentInternals(); // needs to happen after options hash initialized
+        this.initCurrentDate();
+        this.initEventManager();
+        this.constra
