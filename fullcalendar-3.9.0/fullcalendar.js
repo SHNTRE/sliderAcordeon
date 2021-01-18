@@ -9375,4 +9375,46 @@ var Calendar = /** @class */ (function () {
             this.optionsManager.add(name);
         }
     };
-    // pri
+    // private getter
+    Calendar.prototype.opt = function (name) {
+        return this.optionsManager.get(name);
+    };
+    // View
+    // -----------------------------------------------------------------------------------------------------------------
+    // Given a view name for a custom view or a standard view, creates a ready-to-go View object
+    Calendar.prototype.instantiateView = function (viewType) {
+        var spec = this.viewSpecManager.getViewSpec(viewType);
+        if (!spec) {
+            throw new Error("View type \"" + viewType + "\" is not valid");
+        }
+        return new spec['class'](this, spec);
+    };
+    // Returns a boolean about whether the view is okay to instantiate at some point
+    Calendar.prototype.isValidViewType = function (viewType) {
+        return Boolean(this.viewSpecManager.getViewSpec(viewType));
+    };
+    Calendar.prototype.changeView = function (viewName, dateOrRange) {
+        if (dateOrRange) {
+            if (dateOrRange.start && dateOrRange.end) {
+                this.optionsManager.recordOverrides({
+                    visibleRange: dateOrRange
+                });
+            }
+            else {
+                this.currentDate = this.moment(dateOrRange).stripZone(); // just like gotoDate
+            }
+        }
+        this.renderView(viewName);
+    };
+    // Forces navigation to a view for the given date.
+    // `viewType` can be a specific view name or a generic one like "week" or "day".
+    Calendar.prototype.zoomTo = function (newDate, viewType) {
+        var spec;
+        viewType = viewType || 'day'; // day is default zoom
+        spec = this.viewSpecManager.getViewSpec(viewType) ||
+            this.viewSpecManager.getUnitViewSpec(viewType);
+        this.currentDate = newDate.clone();
+        this.renderView(spec ? spec.type : null);
+    };
+    // Current Date
+    // ---------------------------------------
