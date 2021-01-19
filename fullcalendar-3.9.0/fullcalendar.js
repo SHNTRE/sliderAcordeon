@@ -9417,4 +9417,53 @@ var Calendar = /** @class */ (function () {
         this.renderView(spec ? spec.type : null);
     };
     // Current Date
-    // ---------------------------------------
+    // -----------------------------------------------------------------------------------------------------------------
+    Calendar.prototype.initCurrentDate = function () {
+        var defaultDateInput = this.opt('defaultDate');
+        // compute the initial ambig-timezone date
+        if (defaultDateInput != null) {
+            this.currentDate = this.moment(defaultDateInput).stripZone();
+        }
+        else {
+            this.currentDate = this.getNow(); // getNow already returns unzoned
+        }
+    };
+    Calendar.prototype.prev = function () {
+        var view = this.view;
+        var prevInfo = view.dateProfileGenerator.buildPrev(view.get('dateProfile'));
+        if (prevInfo.isValid) {
+            this.currentDate = prevInfo.date;
+            this.renderView();
+        }
+    };
+    Calendar.prototype.next = function () {
+        var view = this.view;
+        var nextInfo = view.dateProfileGenerator.buildNext(view.get('dateProfile'));
+        if (nextInfo.isValid) {
+            this.currentDate = nextInfo.date;
+            this.renderView();
+        }
+    };
+    Calendar.prototype.prevYear = function () {
+        this.currentDate.add(-1, 'years');
+        this.renderView();
+    };
+    Calendar.prototype.nextYear = function () {
+        this.currentDate.add(1, 'years');
+        this.renderView();
+    };
+    Calendar.prototype.today = function () {
+        this.currentDate = this.getNow(); // should deny like prev/next?
+        this.renderView();
+    };
+    Calendar.prototype.gotoDate = function (zonedDateInput) {
+        this.currentDate = this.moment(zonedDateInput).stripZone();
+        this.renderView();
+    };
+    Calendar.prototype.incrementDate = function (delta) {
+        this.currentDate.add(moment.duration(delta));
+        this.renderView();
+    };
+    // for external API
+    Calendar.prototype.getDate = function () {
+       
