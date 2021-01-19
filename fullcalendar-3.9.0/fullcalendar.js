@@ -9466,4 +9466,47 @@ var Calendar = /** @class */ (function () {
     };
     // for external API
     Calendar.prototype.getDate = function () {
-       
+        return this.applyTimezone(this.currentDate); // infuse the calendar's timezone
+    };
+    // Loading Triggering
+    // -----------------------------------------------------------------------------------------------------------------
+    // Should be called when any type of async data fetching begins
+    Calendar.prototype.pushLoading = function () {
+        if (!(this.loadingLevel++)) {
+            this.publiclyTrigger('loading', [true, this.view]);
+        }
+    };
+    // Should be called when any type of async data fetching completes
+    Calendar.prototype.popLoading = function () {
+        if (!(--this.loadingLevel)) {
+            this.publiclyTrigger('loading', [false, this.view]);
+        }
+    };
+    // High-level Rendering
+    // -----------------------------------------------------------------------------------
+    Calendar.prototype.render = function () {
+        if (!this.contentEl) {
+            this.initialRender();
+        }
+        else if (this.elementVisible()) {
+            // mainly for the public API
+            this.calcSize();
+            this.updateViewSize();
+        }
+    };
+    Calendar.prototype.initialRender = function () {
+        var _this = this;
+        var el = this.el;
+        el.addClass('fc');
+        // event delegation for nav links
+        el.on('click.fc', 'a[data-goto]', function (ev) {
+            var anchorEl = $(ev.currentTarget);
+            var gotoOptions = anchorEl.data('goto'); // will automatically parse JSON
+            var date = _this.moment(gotoOptions.date);
+            var viewType = gotoOptions.type;
+            // property like "navLinkDayClick". might be a string or a function
+            var customAction = _this.view.opt('navLink' + util_1.capitaliseFirstLetter(viewType) + 'Click');
+            if (typeof customAction === 'function') {
+                customAction(date, ev);
+            }
+            else {
