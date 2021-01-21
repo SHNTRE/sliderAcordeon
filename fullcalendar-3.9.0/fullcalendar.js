@@ -9510,3 +9510,45 @@ var Calendar = /** @class */ (function () {
                 customAction(date, ev);
             }
             else {
+                if (typeof customAction === 'string') {
+                    viewType = customAction;
+                }
+                _this.zoomTo(date, viewType);
+            }
+        });
+        // called immediately, and upon option change
+        this.optionsManager.watch('settingTheme', ['?theme', '?themeSystem'], function (opts) {
+            var themeClass = ThemeRegistry_1.getThemeSystemClass(opts.themeSystem || opts.theme);
+            var theme = new themeClass(_this.optionsManager);
+            var widgetClass = theme.getClass('widget');
+            _this.theme = theme;
+            if (widgetClass) {
+                el.addClass(widgetClass);
+            }
+        }, function () {
+            var widgetClass = _this.theme.getClass('widget');
+            _this.theme = null;
+            if (widgetClass) {
+                el.removeClass(widgetClass);
+            }
+        });
+        this.optionsManager.watch('settingBusinessHourGenerator', ['?businessHours'], function (deps) {
+            _this.businessHourGenerator = new BusinessHourGenerator_1.default(deps.businessHours, _this);
+            if (_this.view) {
+                _this.view.set('businessHourGenerator', _this.businessHourGenerator);
+            }
+        }, function () {
+            _this.businessHourGenerator = null;
+        });
+        // called immediately, and upon option change.
+        // HACK: locale often affects isRTL, so we explicitly listen to that too.
+        this.optionsManager.watch('applyingDirClasses', ['?isRTL', '?locale'], function (opts) {
+            el.toggleClass('fc-ltr', !opts.isRTL);
+            el.toggleClass('fc-rtl', opts.isRTL);
+        });
+        this.contentEl = $("<div class='fc-view-container'/>").prependTo(el);
+        this.initToolbars();
+        this.renderHeader();
+        this.renderFooter();
+        this.renderView(this.opt('defaultView'));
+        if (this.opt(
