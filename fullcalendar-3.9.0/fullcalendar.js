@@ -9596,4 +9596,40 @@ var Calendar = /** @class */ (function () {
         view.unwatch('titleForCalendar');
         view.unwatch('dateProfileForCalendar');
     };
-   
+    // View Rendering
+    // -----------------------------------------------------------------------------------
+    // Renders a view because of a date change, view-type change, or for the first time.
+    // If not given a viewType, keep the current view but render different dates.
+    // Accepts an optional scroll state to restore to.
+    Calendar.prototype.renderView = function (viewType) {
+        var oldView = this.view;
+        var newView;
+        this.freezeContentHeight();
+        if (oldView && viewType && oldView.type !== viewType) {
+            this.clearView();
+        }
+        // if viewType changed, or the view was never created, create a fresh view
+        if (!this.view && viewType) {
+            newView = this.view =
+                this.viewsByType[viewType] ||
+                    (this.viewsByType[viewType] = this.instantiateView(viewType));
+            this.bindViewHandlers(newView);
+            newView.startBatchRender(); // so that setElement+setDate rendering are joined
+            newView.setElement($("<div class='fc-view fc-" + viewType + "-view' />").appendTo(this.contentEl));
+            this.toolbarsManager.proxyCall('activateButton', viewType);
+        }
+        if (this.view) {
+            // prevent unnecessary change firing
+            if (this.view.get('businessHourGenerator') !== this.businessHourGenerator) {
+                this.view.set('businessHourGenerator', this.businessHourGenerator);
+            }
+            this.view.setDate(this.currentDate);
+            if (newView) {
+                newView.stopBatchRender();
+            }
+        }
+        this.thawContentHeight();
+    };
+    // Unrenders the current view and reflects this change in the Header.
+    // Unregsiters the `view`, but does not remove from viewByType hash.
+    Calendar.prototype.clearView = function 
