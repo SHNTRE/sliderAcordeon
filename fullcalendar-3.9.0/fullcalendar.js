@@ -9551,4 +9551,49 @@ var Calendar = /** @class */ (function () {
         this.renderHeader();
         this.renderFooter();
         this.renderView(this.opt('defaultView'));
-        if (this.opt(
+        if (this.opt('handleWindowResize')) {
+            $(window).resize(this.windowResizeProxy = util_1.debounce(// prevents rapid calls
+            this.windowResize.bind(this), this.opt('windowResizeDelay')));
+        }
+    };
+    Calendar.prototype.destroy = function () {
+        if (this.view) {
+            this.clearView();
+        }
+        this.toolbarsManager.proxyCall('removeElement');
+        this.contentEl.remove();
+        this.el.removeClass('fc fc-ltr fc-rtl');
+        // removes theme-related root className
+        this.optionsManager.unwatch('settingTheme');
+        this.optionsManager.unwatch('settingBusinessHourGenerator');
+        this.el.off('.fc'); // unbind nav link handlers
+        if (this.windowResizeProxy) {
+            $(window).unbind('resize', this.windowResizeProxy);
+            this.windowResizeProxy = null;
+        }
+        GlobalEmitter_1.default.unneeded();
+    };
+    Calendar.prototype.elementVisible = function () {
+        return this.el.is(':visible');
+    };
+    // Render Queue
+    // -----------------------------------------------------------------------------------------------------------------
+    Calendar.prototype.bindViewHandlers = function (view) {
+        var _this = this;
+        view.watch('titleForCalendar', ['title'], function (deps) {
+            if (view === _this.view) {
+                _this.setToolbarsTitle(deps.title);
+            }
+        });
+        view.watch('dateProfileForCalendar', ['dateProfile'], function (deps) {
+            if (view === _this.view) {
+                _this.currentDate = deps.dateProfile.date; // might have been constrained by view dates
+                _this.updateToolbarButtons(deps.dateProfile);
+            }
+        });
+    };
+    Calendar.prototype.unbindViewHandlers = function (view) {
+        view.unwatch('titleForCalendar');
+        view.unwatch('dateProfileForCalendar');
+    };
+   
