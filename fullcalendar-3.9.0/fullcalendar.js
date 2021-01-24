@@ -9675,4 +9675,52 @@ var Calendar = /** @class */ (function () {
             }
             this.ignoreUpdateViewSize++;
             view.updateSize(this.getSuggestedViewHeight(), this.isHeightAuto(), isResize);
-         
+            this.ignoreUpdateViewSize--;
+            if (isResize) {
+                view.applyScroll(scroll);
+            }
+            return true; // signal success
+        }
+    };
+    Calendar.prototype.calcSize = function () {
+        if (this.elementVisible()) {
+            this._calcSize();
+        }
+    };
+    Calendar.prototype._calcSize = function () {
+        var contentHeightInput = this.opt('contentHeight');
+        var heightInput = this.opt('height');
+        if (typeof contentHeightInput === 'number') {
+            this.suggestedViewHeight = contentHeightInput;
+        }
+        else if (typeof contentHeightInput === 'function') {
+            this.suggestedViewHeight = contentHeightInput();
+        }
+        else if (typeof heightInput === 'number') {
+            this.suggestedViewHeight = heightInput - this.queryToolbarsHeight();
+        }
+        else if (typeof heightInput === 'function') {
+            this.suggestedViewHeight = heightInput() - this.queryToolbarsHeight();
+        }
+        else if (heightInput === 'parent') {
+            this.suggestedViewHeight = this.el.parent().height() - this.queryToolbarsHeight();
+        }
+        else {
+            this.suggestedViewHeight = Math.round(this.contentEl.width() /
+                Math.max(this.opt('aspectRatio'), .5));
+        }
+    };
+    Calendar.prototype.windowResize = function (ev) {
+        if (
+        // the purpose: so we don't process jqui "resize" events that have bubbled up
+        // cast to any because .target, which is Element, can't be compared to window for some reason.
+        ev.target === window &&
+            this.view &&
+            this.view.isDatesRendered) {
+            if (this.updateViewSize(true)) {
+                this.publiclyTrigger('windowResize', [this.view]);
+            }
+        }
+    };
+    /* Height "Freezing"
+    -----------------
