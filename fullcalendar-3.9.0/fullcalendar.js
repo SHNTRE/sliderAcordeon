@@ -9632,4 +9632,47 @@ var Calendar = /** @class */ (function () {
     };
     // Unrenders the current view and reflects this change in the Header.
     // Unregsiters the `view`, but does not remove from viewByType hash.
-    Calendar.prototype.clearView = function 
+    Calendar.prototype.clearView = function () {
+        var currentView = this.view;
+        this.toolbarsManager.proxyCall('deactivateButton', currentView.type);
+        this.unbindViewHandlers(currentView);
+        currentView.removeElement();
+        currentView.unsetDate(); // so bindViewHandlers doesn't fire with old values next time
+        this.view = null;
+    };
+    // Destroys the view, including the view object. Then, re-instantiates it and renders it.
+    // Maintains the same scroll state.
+    // TODO: maintain any other user-manipulated state.
+    Calendar.prototype.reinitView = function () {
+        var oldView = this.view;
+        var scroll = oldView.queryScroll(); // wouldn't be so complicated if Calendar owned the scroll
+        this.freezeContentHeight();
+        this.clearView();
+        this.calcSize();
+        this.renderView(oldView.type); // needs the type to freshly render
+        this.view.applyScroll(scroll);
+        this.thawContentHeight();
+    };
+    // Resizing
+    // -----------------------------------------------------------------------------------
+    Calendar.prototype.getSuggestedViewHeight = function () {
+        if (this.suggestedViewHeight == null) {
+            this.calcSize();
+        }
+        return this.suggestedViewHeight;
+    };
+    Calendar.prototype.isHeightAuto = function () {
+        return this.opt('contentHeight') === 'auto' || this.opt('height') === 'auto';
+    };
+    Calendar.prototype.updateViewSize = function (isResize) {
+        if (isResize === void 0) { isResize = false; }
+        var view = this.view;
+        var scroll;
+        if (!this.ignoreUpdateViewSize && view) {
+            if (isResize) {
+                this.calcSize();
+                scroll = view.queryScroll();
+            }
+            this.ignoreUpdateViewSize++;
+            view.updateSize(this.getSuggestedViewHeight(), this.isHeightAuto(), isResize);
+         
