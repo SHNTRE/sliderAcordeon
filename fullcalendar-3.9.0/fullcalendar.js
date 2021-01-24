@@ -9723,4 +9723,53 @@ var Calendar = /** @class */ (function () {
         }
     };
     /* Height "Freezing"
-    -----------------
+    -----------------------------------------------------------------------------*/
+    Calendar.prototype.freezeContentHeight = function () {
+        if (!(this.freezeContentHeightDepth++)) {
+            this.forceFreezeContentHeight();
+        }
+    };
+    Calendar.prototype.forceFreezeContentHeight = function () {
+        this.contentEl.css({
+            width: '100%',
+            height: this.contentEl.height(),
+            overflow: 'hidden'
+        });
+    };
+    Calendar.prototype.thawContentHeight = function () {
+        this.freezeContentHeightDepth--;
+        // always bring back to natural height
+        this.contentEl.css({
+            width: '',
+            height: '',
+            overflow: ''
+        });
+        // but if there are future thaws, re-freeze
+        if (this.freezeContentHeightDepth) {
+            this.forceFreezeContentHeight();
+        }
+    };
+    // Toolbar
+    // -----------------------------------------------------------------------------------------------------------------
+    Calendar.prototype.initToolbars = function () {
+        this.header = new Toolbar_1.default(this, this.computeHeaderOptions());
+        this.footer = new Toolbar_1.default(this, this.computeFooterOptions());
+        this.toolbarsManager = new Iterator_1.default([this.header, this.footer]);
+    };
+    Calendar.prototype.computeHeaderOptions = function () {
+        return {
+            extraClasses: 'fc-header-toolbar',
+            layout: this.opt('header')
+        };
+    };
+    Calendar.prototype.computeFooterOptions = function () {
+        return {
+            extraClasses: 'fc-footer-toolbar',
+            layout: this.opt('footer')
+        };
+    };
+    // can be called repeatedly and Header will rerender
+    Calendar.prototype.renderHeader = function () {
+        var header = this.header;
+        header.setToolbarOptions(this.computeHeaderOptions());
+        header
