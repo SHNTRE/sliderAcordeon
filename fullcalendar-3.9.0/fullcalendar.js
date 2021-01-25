@@ -9892,4 +9892,50 @@ var Calendar = /** @class */ (function () {
             }
         });
     };
-    // Builds 
+    // Builds a moment using the settings of the current calendar: timezone and locale.
+    // Accepts anything the vanilla moment() constructor accepts.
+    Calendar.prototype.moment = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var mom;
+        if (this.opt('timezone') === 'local') {
+            mom = moment_ext_1.default.apply(null, args);
+            // Force the moment to be local, because momentExt doesn't guarantee it.
+            if (mom.hasTime()) {
+                mom.local();
+            }
+        }
+        else if (this.opt('timezone') === 'UTC') {
+            mom = moment_ext_1.default.utc.apply(null, args); // process as UTC
+        }
+        else {
+            mom = moment_ext_1.default.parseZone.apply(null, args); // let the input decide the zone
+        }
+        this.localizeMoment(mom); // TODO
+        return mom;
+    };
+    Calendar.prototype.msToMoment = function (ms, forceAllDay) {
+        var mom = moment_ext_1.default.utc(ms); // TODO: optimize by using Date.UTC
+        if (forceAllDay) {
+            mom.stripTime();
+        }
+        else {
+            mom = this.applyTimezone(mom); // may or may not apply locale
+        }
+        this.localizeMoment(mom);
+        return mom;
+    };
+    Calendar.prototype.msToUtcMoment = function (ms, forceAllDay) {
+        var mom = moment_ext_1.default.utc(ms); // TODO: optimize by using Date.UTC
+        if (forceAllDay) {
+            mom.stripTime();
+        }
+        this.localizeMoment(mom);
+        return mom;
+    };
+    // Updates the given moment's locale settings to the current calendar locale settings.
+    Calendar.prototype.localizeMoment = function (mom) {
+        mom._locale = this.localeData;
+    };
