@@ -9814,4 +9814,40 @@ var Calendar = /** @class */ (function () {
     // Selection
     // -----------------------------------------------------------------------------------------------------------------
     // this public method receives start/end dates in any format, with any timezone
-    Calendar.
+    Calendar.prototype.select = function (zonedStartInput, zonedEndInput) {
+        this.view.select(this.buildSelectFootprint.apply(this, arguments));
+    };
+    Calendar.prototype.unselect = function () {
+        if (this.view) {
+            this.view.unselect();
+        }
+    };
+    // Given arguments to the select method in the API, returns a span (unzoned start/end and other info)
+    Calendar.prototype.buildSelectFootprint = function (zonedStartInput, zonedEndInput) {
+        var start = this.moment(zonedStartInput).stripZone();
+        var end;
+        if (zonedEndInput) {
+            end = this.moment(zonedEndInput).stripZone();
+        }
+        else if (start.hasTime()) {
+            end = start.clone().add(this.defaultTimedEventDuration);
+        }
+        else {
+            end = start.clone().add(this.defaultAllDayEventDuration);
+        }
+        return new ComponentFootprint_1.default(new UnzonedRange_1.default(start, end), !start.hasTime());
+    };
+    // Date Utils
+    // -----------------------------------------------------------------------------------------------------------------
+    Calendar.prototype.initMomentInternals = function () {
+        var _this = this;
+        this.defaultAllDayEventDuration = moment.duration(this.opt('defaultAllDayEventDuration'));
+        this.defaultTimedEventDuration = moment.duration(this.opt('defaultTimedEventDuration'));
+        // Called immediately, and when any of the options change.
+        // Happens before any internal objects rebuild or rerender, because this is very core.
+        this.optionsManager.watch('buildingMomentLocale', [
+            '?locale', '?monthNames', '?monthNamesShort', '?dayNames', '?dayNamesShort',
+            '?firstDay', '?weekNumberCalculation'
+        ], function (opts) {
+            var weekNumberCalculation = opts.weekNumberCalculation;
+   
