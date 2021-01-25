@@ -9850,4 +9850,46 @@ var Calendar = /** @class */ (function () {
             '?firstDay', '?weekNumberCalculation'
         ], function (opts) {
             var weekNumberCalculation = opts.weekNumberCalculation;
-   
+            var firstDay = opts.firstDay;
+            var _week;
+            // normalize
+            if (weekNumberCalculation === 'iso') {
+                weekNumberCalculation = 'ISO'; // normalize
+            }
+            var localeData = Object.create(// make a cheap copy
+            locale_1.getMomentLocaleData(opts.locale) // will fall back to en
+            );
+            if (opts.monthNames) {
+                localeData._months = opts.monthNames;
+            }
+            if (opts.monthNamesShort) {
+                localeData._monthsShort = opts.monthNamesShort;
+            }
+            if (opts.dayNames) {
+                localeData._weekdays = opts.dayNames;
+            }
+            if (opts.dayNamesShort) {
+                localeData._weekdaysShort = opts.dayNamesShort;
+            }
+            if (firstDay == null && weekNumberCalculation === 'ISO') {
+                firstDay = 1;
+            }
+            if (firstDay != null) {
+                _week = Object.create(localeData._week); // _week: { dow: # }
+                _week.dow = firstDay;
+                localeData._week = _week;
+            }
+            if (weekNumberCalculation === 'ISO' ||
+                weekNumberCalculation === 'local' ||
+                typeof weekNumberCalculation === 'function') {
+                localeData._fullCalendar_weekCalc = weekNumberCalculation; // moment-ext will know what to do with it
+            }
+            _this.localeData = localeData;
+            // If the internal current date object already exists, move to new locale.
+            // We do NOT need to do this technique for event dates, because this happens when converting to "segments".
+            if (_this.currentDate) {
+                _this.localizeMoment(_this.currentDate); // sets to localeData
+            }
+        });
+    };
+    // Builds 
