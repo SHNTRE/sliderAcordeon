@@ -9772,4 +9772,46 @@ var Calendar = /** @class */ (function () {
     Calendar.prototype.renderHeader = function () {
         var header = this.header;
         header.setToolbarOptions(this.computeHeaderOptions());
-        header
+        header.render();
+        if (header.el) {
+            this.el.prepend(header.el);
+        }
+    };
+    // can be called repeatedly and Footer will rerender
+    Calendar.prototype.renderFooter = function () {
+        var footer = this.footer;
+        footer.setToolbarOptions(this.computeFooterOptions());
+        footer.render();
+        if (footer.el) {
+            this.el.append(footer.el);
+        }
+    };
+    Calendar.prototype.setToolbarsTitle = function (title) {
+        this.toolbarsManager.proxyCall('updateTitle', title);
+    };
+    Calendar.prototype.updateToolbarButtons = function (dateProfile) {
+        var now = this.getNow();
+        var view = this.view;
+        var todayInfo = view.dateProfileGenerator.build(now);
+        var prevInfo = view.dateProfileGenerator.buildPrev(view.get('dateProfile'));
+        var nextInfo = view.dateProfileGenerator.buildNext(view.get('dateProfile'));
+        this.toolbarsManager.proxyCall((todayInfo.isValid && !dateProfile.currentUnzonedRange.containsDate(now)) ?
+            'enableButton' :
+            'disableButton', 'today');
+        this.toolbarsManager.proxyCall(prevInfo.isValid ?
+            'enableButton' :
+            'disableButton', 'prev');
+        this.toolbarsManager.proxyCall(nextInfo.isValid ?
+            'enableButton' :
+            'disableButton', 'next');
+    };
+    Calendar.prototype.queryToolbarsHeight = function () {
+        return this.toolbarsManager.items.reduce(function (accumulator, toolbar) {
+            var toolbarHeight = toolbar.el ? toolbar.el.outerHeight(true) : 0; // includes margin
+            return accumulator + toolbarHeight;
+        }, 0);
+    };
+    // Selection
+    // -----------------------------------------------------------------------------------------------------------------
+    // this public method receives start/end dates in any format, with any timezone
+    Calendar.
