@@ -9980,4 +9980,52 @@ var Calendar = /** @class */ (function () {
         else {
             start = this.applyTimezone(start);
             if (end) {
-                end = this
+                end = this.applyTimezone(end);
+            }
+        }
+        return new EventDateProfile_1.default(start, end, this);
+    };
+    // Returns a moment for the current date, as defined by the client's computer or from the `now` option.
+    // Will return an moment with an ambiguous timezone.
+    Calendar.prototype.getNow = function () {
+        var now = this.opt('now');
+        if (typeof now === 'function') {
+            now = now();
+        }
+        return this.moment(now).stripZone();
+    };
+    // Produces a human-readable string for the given duration.
+    // Side-effect: changes the locale of the given duration.
+    Calendar.prototype.humanizeDuration = function (duration) {
+        return duration.locale(this.opt('locale')).humanize();
+    };
+    // will return `null` if invalid range
+    Calendar.prototype.parseUnzonedRange = function (rangeInput) {
+        var start = null;
+        var end = null;
+        if (rangeInput.start) {
+            start = this.moment(rangeInput.start).stripZone();
+        }
+        if (rangeInput.end) {
+            end = this.moment(rangeInput.end).stripZone();
+        }
+        if (!start && !end) {
+            return null;
+        }
+        if (start && end && end.isBefore(start)) {
+            return null;
+        }
+        return new UnzonedRange_1.default(start, end);
+    };
+    // Event-Date Utilities
+    // -----------------------------------------------------------------------------------------------------------------
+    Calendar.prototype.initEventManager = function () {
+        var _this = this;
+        var eventManager = new EventManager_1.default(this);
+        var rawSources = this.opt('eventSources') || [];
+        var singleRawSource = this.opt('events');
+        this.eventManager = eventManager;
+        if (singleRawSource) {
+            rawSources.unshift(singleRawSource);
+        }
+        even
