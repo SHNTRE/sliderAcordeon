@@ -9939,3 +9939,45 @@ var Calendar = /** @class */ (function () {
     Calendar.prototype.localizeMoment = function (mom) {
         mom._locale = this.localeData;
     };
+    // Returns a boolean about whether or not the calendar knows how to calculate
+    // the timezone offset of arbitrary dates in the current timezone.
+    Calendar.prototype.getIsAmbigTimezone = function () {
+        return this.opt('timezone') !== 'local' && this.opt('timezone') !== 'UTC';
+    };
+    // Returns a copy of the given date in the current timezone. Has no effect on dates without times.
+    Calendar.prototype.applyTimezone = function (date) {
+        if (!date.hasTime()) {
+            return date.clone();
+        }
+        var zonedDate = this.moment(date.toArray());
+        var timeAdjust = date.time().asMilliseconds() - zonedDate.time().asMilliseconds();
+        var adjustedZonedDate;
+        // Safari sometimes has problems with this coersion when near DST. Adjust if necessary. (bug #2396)
+        if (timeAdjust) {
+            adjustedZonedDate = zonedDate.clone().add(timeAdjust); // add milliseconds
+            if (date.time().asMilliseconds() - adjustedZonedDate.time().asMilliseconds() === 0) {
+                zonedDate = adjustedZonedDate;
+            }
+        }
+        return zonedDate;
+    };
+    /*
+    Assumes the footprint is non-open-ended.
+    */
+    Calendar.prototype.footprintToDateProfile = function (componentFootprint, ignoreEnd) {
+        if (ignoreEnd === void 0) { ignoreEnd = false; }
+        var start = moment_ext_1.default.utc(componentFootprint.unzonedRange.startMs);
+        var end;
+        if (!ignoreEnd) {
+            end = moment_ext_1.default.utc(componentFootprint.unzonedRange.endMs);
+        }
+        if (componentFootprint.isAllDay) {
+            start.stripTime();
+            if (end) {
+                end.stripTime();
+            }
+        }
+        else {
+            start = this.applyTimezone(start);
+            if (end) {
+                end = this
