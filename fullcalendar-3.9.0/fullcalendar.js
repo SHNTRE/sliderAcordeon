@@ -10158,4 +10158,57 @@ var Calendar = /** @class */ (function () {
             this.eventManager.addSource(source);
         }
     };
-    Calendar.prototype.removeEventSources = function (sourceMultiQ
+    Calendar.prototype.removeEventSources = function (sourceMultiQuery) {
+        var eventManager = this.eventManager;
+        var sources;
+        var i;
+        if (sourceMultiQuery == null) {
+            this.eventManager.removeAllSources();
+        }
+        else {
+            sources = eventManager.multiQuerySources(sourceMultiQuery);
+            eventManager.freeze();
+            for (i = 0; i < sources.length; i++) {
+                eventManager.removeSource(sources[i]);
+            }
+            eventManager.thaw();
+        }
+    };
+    Calendar.prototype.removeEventSource = function (sourceQuery) {
+        var eventManager = this.eventManager;
+        var sources = eventManager.querySources(sourceQuery);
+        var i;
+        eventManager.freeze();
+        for (i = 0; i < sources.length; i++) {
+            eventManager.removeSource(sources[i]);
+        }
+        eventManager.thaw();
+    };
+    Calendar.prototype.refetchEventSources = function (sourceMultiQuery) {
+        var eventManager = this.eventManager;
+        var sources = eventManager.multiQuerySources(sourceMultiQuery);
+        var i;
+        eventManager.freeze();
+        for (i = 0; i < sources.length; i++) {
+            eventManager.refetchSource(sources[i]);
+        }
+        eventManager.thaw();
+    };
+    // not for internal use. use options module directly instead.
+    Calendar.defaults = options_1.globalDefaults;
+    Calendar.englishDefaults = options_1.englishDefaults;
+    Calendar.rtlDefaults = options_1.rtlDefaults;
+    return Calendar;
+}());
+exports.default = Calendar;
+EmitterMixin_1.default.mixInto(Calendar);
+ListenerMixin_1.default.mixInto(Calendar);
+function filterLegacyEventInstances(legacyEventInstances, legacyQuery) {
+    if (legacyQuery == null) {
+        return legacyEventInstances;
+    }
+    else if ($.isFunction(legacyQuery)) {
+        return legacyEventInstances.filter(legacyQuery);
+    }
+    else {
+    
