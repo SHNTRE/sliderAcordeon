@@ -10075,4 +10075,48 @@ var Calendar = /** @class */ (function () {
     Calendar.prototype.refetchEvents = function () {
         this.eventManager.refetchAllSources();
     };
-    Cal
+    Calendar.prototype.renderEvents = function (eventInputs, isSticky) {
+        this.eventManager.freeze();
+        for (var i = 0; i < eventInputs.length; i++) {
+            this.renderEvent(eventInputs[i], isSticky);
+        }
+        this.eventManager.thaw();
+    };
+    Calendar.prototype.renderEvent = function (eventInput, isSticky) {
+        if (isSticky === void 0) { isSticky = false; }
+        var eventManager = this.eventManager;
+        var eventDef = EventDefParser_1.default.parse(eventInput, eventInput.source || eventManager.stickySource);
+        if (eventDef) {
+            eventManager.addEventDef(eventDef, isSticky);
+        }
+    };
+    // legacyQuery operates on legacy event instance objects
+    Calendar.prototype.removeEvents = function (legacyQuery) {
+        var eventManager = this.eventManager;
+        var legacyInstances = [];
+        var idMap = {};
+        var eventDef;
+        var i;
+        if (legacyQuery == null) {
+            eventManager.removeAllEventDefs(); // persist=true
+        }
+        else {
+            eventManager.getEventInstances().forEach(function (eventInstance) {
+                legacyInstances.push(eventInstance.toLegacy());
+            });
+            legacyInstances = filterLegacyEventInstances(legacyInstances, legacyQuery);
+            // compute unique IDs
+            for (i = 0; i < legacyInstances.length; i++) {
+                eventDef = this.eventManager.getEventDefByUid(legacyInstances[i]._id);
+                idMap[eventDef.id] = true;
+            }
+            eventManager.freeze();
+            for (i in idMap) {
+                eventManager.removeEventDefsById(i); // persist=true
+            }
+            eventManager.thaw();
+        }
+    };
+    // legacyQuery operates on legacy event instance objects
+    Calendar.prototype.clientEvents = function (legacyQuery) {
+        var legacyEventIns
