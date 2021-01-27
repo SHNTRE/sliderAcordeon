@@ -10028,4 +10028,51 @@ var Calendar = /** @class */ (function () {
         if (singleRawSource) {
             rawSources.unshift(singleRawSource);
         }
-        even
+        eventManager.on('release', function (eventsPayload) {
+            _this.trigger('eventsReset', eventsPayload);
+        });
+        eventManager.freeze();
+        rawSources.forEach(function (rawSource) {
+            var source = EventSourceParser_1.default.parse(rawSource, _this);
+            if (source) {
+                eventManager.addSource(source);
+            }
+        });
+        eventManager.thaw();
+    };
+    Calendar.prototype.requestEvents = function (start, end) {
+        return this.eventManager.requestEvents(start, end, this.opt('timezone'), !this.opt('lazyFetching'));
+    };
+    // Get an event's normalized end date. If not present, calculate it from the defaults.
+    Calendar.prototype.getEventEnd = function (event) {
+        if (event.end) {
+            return event.end.clone();
+        }
+        else {
+            return this.getDefaultEventEnd(event.allDay, event.start);
+        }
+    };
+    // Given an event's allDay status and start date, return what its fallback end date should be.
+    // TODO: rename to computeDefaultEventEnd
+    Calendar.prototype.getDefaultEventEnd = function (allDay, zonedStart) {
+        var end = zonedStart.clone();
+        if (allDay) {
+            end.stripTime().add(this.defaultAllDayEventDuration);
+        }
+        else {
+            end.add(this.defaultTimedEventDuration);
+        }
+        if (this.getIsAmbigTimezone()) {
+            end.stripZone(); // we don't know what the tzo should be
+        }
+        return end;
+    };
+    // Public Events API
+    // -----------------------------------------------------------------------------------------------------------------
+    Calendar.prototype.rerenderEvents = function () {
+        this.view.flash('displayingEvents');
+    };
+    Calendar.prototype.refetchEvents = function () {
+        this.eventManager.refetchAllSources();
+    };
+    Cal
