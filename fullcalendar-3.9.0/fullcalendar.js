@@ -10119,4 +10119,43 @@ var Calendar = /** @class */ (function () {
     };
     // legacyQuery operates on legacy event instance objects
     Calendar.prototype.clientEvents = function (legacyQuery) {
-        var legacyEventIns
+        var legacyEventInstances = [];
+        this.eventManager.getEventInstances().forEach(function (eventInstance) {
+            legacyEventInstances.push(eventInstance.toLegacy());
+        });
+        return filterLegacyEventInstances(legacyEventInstances, legacyQuery);
+    };
+    Calendar.prototype.updateEvents = function (eventPropsArray) {
+        this.eventManager.freeze();
+        for (var i = 0; i < eventPropsArray.length; i++) {
+            this.updateEvent(eventPropsArray[i]);
+        }
+        this.eventManager.thaw();
+    };
+    Calendar.prototype.updateEvent = function (eventProps) {
+        var eventDef = this.eventManager.getEventDefByUid(eventProps._id);
+        var eventInstance;
+        var eventDefMutation;
+        if (eventDef instanceof SingleEventDef_1.default) {
+            eventInstance = eventDef.buildInstance();
+            eventDefMutation = EventDefMutation_1.default.createFromRawProps(eventInstance, eventProps, // raw props
+            null // largeUnit -- who uses it?
+            );
+            this.eventManager.mutateEventsWithId(eventDef.id, eventDefMutation); // will release
+        }
+    };
+    // Public Event Sources API
+    // ------------------------------------------------------------------------------------
+    Calendar.prototype.getEventSources = function () {
+        return this.eventManager.otherSources.slice(); // clone
+    };
+    Calendar.prototype.getEventSourceById = function (id) {
+        return this.eventManager.getSourceById(EventSource_1.default.normalizeId(id));
+    };
+    Calendar.prototype.addEventSource = function (sourceInput) {
+        var source = EventSourceParser_1.default.parse(sourceInput, this);
+        if (source) {
+            this.eventManager.addSource(source);
+        }
+    };
+    Calendar.prototype.removeEventSources = function (sourceMultiQ
