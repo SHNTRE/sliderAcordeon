@@ -10289,4 +10289,36 @@ var DateProfileGenerator = /** @class */ (function () {
         }
         minTime = moment.duration(this.opt('minTime'));
         maxTime = moment.duration(this.opt('maxTime'));
-        activeUnzonedRange 
+        activeUnzonedRange = this.adjustActiveRange(activeUnzonedRange, minTime, maxTime);
+        activeUnzonedRange = activeUnzonedRange.intersect(validUnzonedRange); // might return null
+        if (activeUnzonedRange) {
+            date = this.msToUtcMoment(activeUnzonedRange.constrainDate(date), // returns MS
+            isDateAllDay);
+        }
+        // it's invalid if the originally requested date is not contained,
+        // or if the range is completely outside of the valid range.
+        isValid = currentInfo.unzonedRange.intersectsWith(validUnzonedRange);
+        return {
+            // constraint for where prev/next operations can go and where events can be dragged/resized to.
+            // an object with optional start and end properties.
+            validUnzonedRange: validUnzonedRange,
+            // range the view is formally responsible for.
+            // for example, a month view might have 1st-31st, excluding padded dates
+            currentUnzonedRange: currentInfo.unzonedRange,
+            // name of largest unit being displayed, like "month" or "week"
+            currentRangeUnit: currentInfo.unit,
+            isRangeAllDay: isRangeAllDay,
+            // dates that display events and accept drag-n-drop
+            // will be `null` if no dates accept events
+            activeUnzonedRange: activeUnzonedRange,
+            // date range with a rendered skeleton
+            // includes not-active days that need some sort of DOM
+            renderUnzonedRange: renderUnzonedRange,
+            // Duration object that denotes the first visible time of any given day
+            minTime: minTime,
+            // Duration object that denotes the exclusive visible end time of any given day
+            maxTime: maxTime,
+            isValid: isValid,
+            date: date,
+            // how far the current date will move for a prev/next operation
+            dateIncrement: this.buildDateIncrement(curren
