@@ -10253,4 +10253,40 @@ var DateProfileGenerator = /** @class */ (function () {
         return this.build(prevDate, -1);
     };
     // Builds a structure with info about what the dates/ranges will be for the "next" view.
-    DateProfileGenerator.proto
+    DateProfileGenerator.prototype.buildNext = function (currentDateProfile) {
+        var nextDate = currentDateProfile.date.clone()
+            .startOf(currentDateProfile.currentRangeUnit)
+            .add(currentDateProfile.dateIncrement);
+        return this.build(nextDate, 1);
+    };
+    // Builds a structure holding dates/ranges for rendering around the given date.
+    // Optional direction param indicates whether the date is being incremented/decremented
+    // from its previous value. decremented = -1, incremented = 1 (default).
+    DateProfileGenerator.prototype.build = function (date, direction, forceToValid) {
+        if (forceToValid === void 0) { forceToValid = false; }
+        var isDateAllDay = !date.hasTime();
+        var validUnzonedRange;
+        var minTime = null;
+        var maxTime = null;
+        var currentInfo;
+        var isRangeAllDay;
+        var renderUnzonedRange;
+        var activeUnzonedRange;
+        var isValid;
+        validUnzonedRange = this.buildValidRange();
+        validUnzonedRange = this.trimHiddenDays(validUnzonedRange);
+        if (forceToValid) {
+            date = this.msToUtcMoment(validUnzonedRange.constrainDate(date), // returns MS
+            isDateAllDay);
+        }
+        currentInfo = this.buildCurrentRangeInfo(date, direction);
+        isRangeAllDay = /^(year|month|week|day)$/.test(currentInfo.unit);
+        renderUnzonedRange = this.buildRenderRange(this.trimHiddenDays(currentInfo.unzonedRange), currentInfo.unit, isRangeAllDay);
+        renderUnzonedRange = this.trimHiddenDays(renderUnzonedRange);
+        activeUnzonedRange = renderUnzonedRange.clone();
+        if (!this.opt('showNonCurrentDates')) {
+            activeUnzonedRange = activeUnzonedRange.intersect(currentInfo.unzonedRange);
+        }
+        minTime = moment.duration(this.opt('minTime'));
+        maxTime = moment.duration(this.opt('maxTime'));
+        activeUnzonedRange 
