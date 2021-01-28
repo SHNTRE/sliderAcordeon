@@ -10211,4 +10211,46 @@ function filterLegacyEventInstances(legacyEventInstances, legacyQuery) {
         return legacyEventInstances.filter(legacyQuery);
     }
     else {
-    
+        legacyQuery += ''; // normalize to string
+        return legacyEventInstances.filter(function (legacyEventInstance) {
+            // soft comparison because id not be normalized to string
+            // tslint:disable-next-line
+            return legacyEventInstance.id == legacyQuery ||
+                legacyEventInstance._id === legacyQuery; // can specify internal id, but must exactly match
+        });
+    }
+}
+
+
+/***/ }),
+/* 221 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var moment = __webpack_require__(0);
+var util_1 = __webpack_require__(4);
+var UnzonedRange_1 = __webpack_require__(5);
+var DateProfileGenerator = /** @class */ (function () {
+    function DateProfileGenerator(_view) {
+        this._view = _view;
+    }
+    DateProfileGenerator.prototype.opt = function (name) {
+        return this._view.opt(name);
+    };
+    DateProfileGenerator.prototype.trimHiddenDays = function (unzonedRange) {
+        return this._view.trimHiddenDays(unzonedRange);
+    };
+    DateProfileGenerator.prototype.msToUtcMoment = function (ms, forceAllDay) {
+        return this._view.calendar.msToUtcMoment(ms, forceAllDay);
+    };
+    /* Date Range Computation
+    ------------------------------------------------------------------------------------------------------------------*/
+    // Builds a structure with info about what the dates/ranges will be for the "prev" view.
+    DateProfileGenerator.prototype.buildPrev = function (currentDateProfile) {
+        var prevDate = currentDateProfile.date.clone()
+            .startOf(currentDateProfile.currentRangeUnit)
+            .subtract(currentDateProfile.dateIncrement);
+        return this.build(prevDate, -1);
+    };
+    // Builds a structure with info about what the dates/ranges will be for the "next" view.
+    DateProfileGenerator.proto
