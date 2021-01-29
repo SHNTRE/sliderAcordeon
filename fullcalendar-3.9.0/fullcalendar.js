@@ -10360,4 +10360,48 @@ var DateProfileGenerator = /** @class */ (function () {
             unit = util_1.computeGreatestUnit(duration);
             unzonedRange = this.buildRangeFromDuration(date, direction, duration, unit);
         }
-        return { duration: duration, un
+        return { duration: duration, unit: unit, unzonedRange: unzonedRange };
+    };
+    DateProfileGenerator.prototype.getFallbackDuration = function () {
+        return moment.duration({ days: 1 });
+    };
+    // Returns a new activeUnzonedRange to have time values (un-ambiguate)
+    // minTime or maxTime causes the range to expand.
+    DateProfileGenerator.prototype.adjustActiveRange = function (unzonedRange, minTime, maxTime) {
+        var start = unzonedRange.getStart();
+        var end = unzonedRange.getEnd();
+        if (this._view.usesMinMaxTime) {
+            if (minTime < 0) {
+                start.time(0).add(minTime);
+            }
+            if (maxTime > 24 * 60 * 60 * 1000) {
+                end.time(maxTime - (24 * 60 * 60 * 1000));
+            }
+        }
+        return new UnzonedRange_1.default(start, end);
+    };
+    // Builds the "current" range when it is specified as an explicit duration.
+    // `unit` is the already-computed computeGreatestUnit value of duration.
+    // TODO: accept a MS-time instead of a moment `date`?
+    DateProfileGenerator.prototype.buildRangeFromDuration = function (date, direction, duration, unit) {
+        var alignment = this.opt('dateAlignment');
+        var dateIncrementInput;
+        var dateIncrementDuration;
+        var start;
+        var end;
+        var res;
+        // compute what the alignment should be
+        if (!alignment) {
+            dateIncrementInput = this.opt('dateIncrement');
+            if (dateIncrementInput) {
+                dateIncrementDuration = moment.duration(dateIncrementInput);
+                // use the smaller of the two units
+                if (dateIncrementDuration < duration) {
+                    alignment = util_1.computeDurationGreatestUnit(dateIncrementDuration, dateIncrementInput);
+                }
+                else {
+                    alignment = unit;
+                }
+            }
+            else {
+                
