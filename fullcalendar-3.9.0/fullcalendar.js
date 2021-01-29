@@ -10321,4 +10321,43 @@ var DateProfileGenerator = /** @class */ (function () {
             isValid: isValid,
             date: date,
             // how far the current date will move for a prev/next operation
-            dateIncrement: this.buildDateIncrement(curren
+            dateIncrement: this.buildDateIncrement(currentInfo.duration)
+            // pass a fallback (might be null) ^
+        };
+    };
+    // Builds an object with optional start/end properties.
+    // Indicates the minimum/maximum dates to display.
+    // not responsible for trimming hidden days.
+    DateProfileGenerator.prototype.buildValidRange = function () {
+        return this._view.getUnzonedRangeOption('validRange', this._view.calendar.getNow()) ||
+            new UnzonedRange_1.default(); // completely open-ended
+    };
+    // Builds a structure with info about the "current" range, the range that is
+    // highlighted as being the current month for example.
+    // See build() for a description of `direction`.
+    // Guaranteed to have `range` and `unit` properties. `duration` is optional.
+    // TODO: accept a MS-time instead of a moment `date`?
+    DateProfileGenerator.prototype.buildCurrentRangeInfo = function (date, direction) {
+        var viewSpec = this._view.viewSpec;
+        var duration = null;
+        var unit = null;
+        var unzonedRange = null;
+        var dayCount;
+        if (viewSpec.duration) {
+            duration = viewSpec.duration;
+            unit = viewSpec.durationUnit;
+            unzonedRange = this.buildRangeFromDuration(date, direction, duration, unit);
+        }
+        else if ((dayCount = this.opt('dayCount'))) {
+            unit = 'day';
+            unzonedRange = this.buildRangeFromDayCount(date, direction, dayCount);
+        }
+        else if ((unzonedRange = this.buildCustomVisibleRange(date))) {
+            unit = util_1.computeGreatestUnit(unzonedRange.getStart(), unzonedRange.getEnd());
+        }
+        else {
+            duration = this.getFallbackDuration();
+            unit = util_1.computeGreatestUnit(duration);
+            unzonedRange = this.buildRangeFromDuration(date, direction, duration, unit);
+        }
+        return { duration: duration, un
