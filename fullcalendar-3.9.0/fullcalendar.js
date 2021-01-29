@@ -10404,4 +10404,50 @@ var DateProfileGenerator = /** @class */ (function () {
                 }
             }
             else {
-                
+                alignment = unit;
+            }
+        }
+        // if the view displays a single day or smaller
+        if (duration.as('days') <= 1) {
+            if (this._view.isHiddenDay(start)) {
+                start = this._view.skipHiddenDays(start, direction);
+                start.startOf('day');
+            }
+        }
+        function computeRes() {
+            start = date.clone().startOf(alignment);
+            end = start.clone().add(duration);
+            res = new UnzonedRange_1.default(start, end);
+        }
+        computeRes();
+        // if range is completely enveloped by hidden days, go past the hidden days
+        if (!this.trimHiddenDays(res)) {
+            date = this._view.skipHiddenDays(date, direction);
+            computeRes();
+        }
+        return res;
+    };
+    // Builds the "current" range when a dayCount is specified.
+    // TODO: accept a MS-time instead of a moment `date`?
+    DateProfileGenerator.prototype.buildRangeFromDayCount = function (date, direction, dayCount) {
+        var customAlignment = this.opt('dateAlignment');
+        var runningCount = 0;
+        var start = date.clone();
+        var end;
+        if (customAlignment) {
+            start.startOf(customAlignment);
+        }
+        start.startOf('day');
+        start = this._view.skipHiddenDays(start, direction);
+        end = start.clone();
+        do {
+            end.add(1, 'day');
+            if (!this._view.isHiddenDay(end)) {
+                runningCount++;
+            }
+        } while (runningCount < dayCount);
+        return new UnzonedRange_1.default(start, end);
+    };
+    // Builds a normalized range object for the "visible" range,
+    // which is a way to define the currentUnzonedRange and activeUnzonedRange at the same time.
+    // TODO: accept a MS-
