@@ -10450,4 +10450,48 @@ var DateProfileGenerator = /** @class */ (function () {
     };
     // Builds a normalized range object for the "visible" range,
     // which is a way to define the currentUnzonedRange and activeUnzonedRange at the same time.
-    // TODO: accept a MS-
+    // TODO: accept a MS-time instead of a moment `date`?
+    DateProfileGenerator.prototype.buildCustomVisibleRange = function (date) {
+        var visibleUnzonedRange = this._view.getUnzonedRangeOption('visibleRange', this._view.calendar.applyTimezone(date) // correct zone. also generates new obj that avoids mutations
+        );
+        if (visibleUnzonedRange && (visibleUnzonedRange.startMs == null || visibleUnzonedRange.endMs == null)) {
+            return null;
+        }
+        return visibleUnzonedRange;
+    };
+    // Computes the range that will represent the element/cells for *rendering*,
+    // but which may have voided days/times.
+    // not responsible for trimming hidden days.
+    DateProfileGenerator.prototype.buildRenderRange = function (currentUnzonedRange, currentRangeUnit, isRangeAllDay) {
+        return currentUnzonedRange.clone();
+    };
+    // Compute the duration value that should be added/substracted to the current date
+    // when a prev/next operation happens.
+    DateProfileGenerator.prototype.buildDateIncrement = function (fallback) {
+        var dateIncrementInput = this.opt('dateIncrement');
+        var customAlignment;
+        if (dateIncrementInput) {
+            return moment.duration(dateIncrementInput);
+        }
+        else if ((customAlignment = this.opt('dateAlignment'))) {
+            return moment.duration(1, customAlignment);
+        }
+        else if (fallback) {
+            return fallback;
+        }
+        else {
+            return moment.duration({ days: 1 });
+        }
+    };
+    return DateProfileGenerator;
+}());
+exports.default = DateProfileGenerator;
+
+
+/***/ }),
+/* 222 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var $
