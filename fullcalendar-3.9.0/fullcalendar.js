@@ -10494,4 +10494,50 @@ exports.default = DateProfileGenerator;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var tslib_1 = __webpack_require__(2);
-var $
+var $ = __webpack_require__(3);
+var moment = __webpack_require__(0);
+var exportHooks = __webpack_require__(16);
+var util_1 = __webpack_require__(4);
+var moment_ext_1 = __webpack_require__(10);
+var ListenerMixin_1 = __webpack_require__(7);
+var HitDragListener_1 = __webpack_require__(23);
+var SingleEventDef_1 = __webpack_require__(13);
+var EventInstanceGroup_1 = __webpack_require__(18);
+var EventSource_1 = __webpack_require__(6);
+var Interaction_1 = __webpack_require__(15);
+var ExternalDropping = /** @class */ (function (_super) {
+    tslib_1.__extends(ExternalDropping, _super);
+    function ExternalDropping() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.isDragging = false; // jqui-dragging an external element? boolean
+        return _this;
+    }
+    /*
+    component impements:
+      - eventRangesToEventFootprints
+      - isEventInstanceGroupAllowed
+      - isExternalInstanceGroupAllowed
+      - renderDrag
+      - unrenderDrag
+    */
+    ExternalDropping.prototype.end = function () {
+        if (this.dragListener) {
+            this.dragListener.endInteraction();
+        }
+    };
+    ExternalDropping.prototype.bindToDocument = function () {
+        this.listenTo($(document), {
+            dragstart: this.handleDragStart,
+            sortstart: this.handleDragStart // jqui
+        });
+    };
+    ExternalDropping.prototype.unbindFromDocument = function () {
+        this.stopListeningTo($(document));
+    };
+    // Called when a jQuery UI drag is initiated anywhere in the DOM
+    ExternalDropping.prototype.handleDragStart = function (ev, ui) {
+        var el;
+        var accept;
+        if (this.opt('droppable')) {
+            el = $((ui ? ui.item : null) || ev.target);
+            // Test that the dragged element passes the dropAccept selector or filter
