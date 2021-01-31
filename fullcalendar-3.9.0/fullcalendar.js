@@ -10574,4 +10574,44 @@ var ExternalDropping = /** @class */ (function (_super) {
                             component.isEventInstanceGroupAllowed(mutatedEventInstanceGroup) :
                             component.isExternalInstanceGroupAllowed(mutatedEventInstanceGroup);
                     }
-               
+                    else {
+                        isAllowed = false;
+                    }
+                }
+                else {
+                    isAllowed = false;
+                }
+                if (!isAllowed) {
+                    singleEventDef = null;
+                    util_1.disableCursor();
+                }
+                if (singleEventDef) {
+                    component.renderDrag(// called without a seg parameter
+                    component.eventRangesToEventFootprints(mutatedEventInstanceGroup.sliceRenderRanges(component.dateProfile.renderUnzonedRange, view.calendar)));
+                }
+            },
+            hitOut: function () {
+                singleEventDef = null; // signal unsuccessful
+            },
+            hitDone: function () {
+                util_1.enableCursor();
+                component.unrenderDrag();
+            },
+            interactionEnd: function (ev) {
+                if (singleEventDef) {
+                    view.reportExternalDrop(singleEventDef, Boolean(meta.eventProps), // isEvent
+                    Boolean(meta.stick), // isSticky
+                    el, ev, ui);
+                }
+                _this.isDragging = false;
+                _this.dragListener = null;
+            }
+        });
+        dragListener.startDrag(ev); // start listening immediately
+    };
+    // Given a hit to be dropped upon, and misc data associated with the jqui drag (guaranteed to be a plain object),
+    // returns the zoned start/end dates for the event that would result from the hypothetical drop. end might be null.
+    // Returning a null value signals an invalid drop hit.
+    // DOES NOT consider overlap/constraint.
+    // Assumes both footprints are non-open-ended.
+    ExternalDropping.prototype.computeExternalDrop = function (componentFootprint, meta) {
