@@ -10615,3 +10615,44 @@ var ExternalDropping = /** @class */ (function (_super) {
     // DOES NOT consider overlap/constraint.
     // Assumes both footprints are non-open-ended.
     ExternalDropping.prototype.computeExternalDrop = function (componentFootprint, meta) {
+        var calendar = this.view.calendar;
+        var start = moment_ext_1.default.utc(componentFootprint.unzonedRange.startMs).stripZone();
+        var end;
+        var eventDef;
+        if (componentFootprint.isAllDay) {
+            // if dropped on an all-day span, and element's metadata specified a time, set it
+            if (meta.startTime) {
+                start.time(meta.startTime);
+            }
+            else {
+                start.stripTime();
+            }
+        }
+        if (meta.duration) {
+            end = start.clone().add(meta.duration);
+        }
+        start = calendar.applyTimezone(start);
+        if (end) {
+            end = calendar.applyTimezone(end);
+        }
+        eventDef = SingleEventDef_1.default.parse($.extend({}, meta.eventProps, {
+            start: start,
+            end: end
+        }), new EventSource_1.default(calendar));
+        return eventDef;
+    };
+    return ExternalDropping;
+}(Interaction_1.default));
+exports.default = ExternalDropping;
+ListenerMixin_1.default.mixInto(ExternalDropping);
+/* External-Dragging-Element Data
+----------------------------------------------------------------------------------------------------------------------*/
+// Require all HTML5 data-* attributes used by FullCalendar to have this prefix.
+// A value of '' will query attributes like data-event. A value of 'fc' will query attributes like data-fc-event.
+exportHooks.dataAttrPrefix = '';
+// Given a jQuery element that might represent a dragged FullCalendar event, returns an intermediate data structure
+// to be used for Event Object creation.
+// A defined `.eventProps`, even when empty, indicates that an event should be created.
+function getDraggedElMeta(el) {
+    var prefix = exportHooks.dataAttrPrefix;
+    var eventProps; // propert
