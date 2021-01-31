@@ -10540,4 +10540,38 @@ var ExternalDropping = /** @class */ (function (_super) {
         var accept;
         if (this.opt('droppable')) {
             el = $((ui ? ui.item : null) || ev.target);
-            // Test that the dragged element passes the dropAccept selector or filter
+            // Test that the dragged element passes the dropAccept selector or filter function.
+            // FYI, the default is "*" (matches all)
+            accept = this.opt('dropAccept');
+            if ($.isFunction(accept) ? accept.call(el[0], el) : el.is(accept)) {
+                if (!this.isDragging) {
+                    this.listenToExternalDrag(el, ev, ui);
+                }
+            }
+        }
+    };
+    // Called when a jQuery UI drag starts and it needs to be monitored for dropping
+    ExternalDropping.prototype.listenToExternalDrag = function (el, ev, ui) {
+        var _this = this;
+        var component = this.component;
+        var view = this.view;
+        var meta = getDraggedElMeta(el); // extra data about event drop, including possible event to create
+        var singleEventDef; // a null value signals an unsuccessful drag
+        // listener that tracks mouse movement over date-associated pixel regions
+        var dragListener = this.dragListener = new HitDragListener_1.default(component, {
+            interactionStart: function () {
+                _this.isDragging = true;
+            },
+            hitOver: function (hit) {
+                var isAllowed = true;
+                var hitFootprint = hit.component.getSafeHitFootprint(hit); // hit might not belong to this grid
+                var mutatedEventInstanceGroup;
+                if (hitFootprint) {
+                    singleEventDef = _this.computeExternalDrop(hitFootprint, meta);
+                    if (singleEventDef) {
+                        mutatedEventInstanceGroup = new EventInstanceGroup_1.default(singleEventDef.buildInstances());
+                        isAllowed = meta.eventProps ? // isEvent?
+                            component.isEventInstanceGroupAllowed(mutatedEventInstanceGroup) :
+                            component.isExternalInstanceGroupAllowed(mutatedEventInstanceGroup);
+                    }
+               
