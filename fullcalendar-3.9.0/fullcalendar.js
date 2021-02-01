@@ -10711,4 +10711,49 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var tslib_1 = __webpack_require__(2);
 var $ = __webpack_require__(3);
 var util_1 = __webpack_require__(4);
-var EventDefMutation_1
+var EventDefMutation_1 = __webpack_require__(37);
+var EventDefDateMutation_1 = __webpack_require__(50);
+var HitDragListener_1 = __webpack_require__(23);
+var Interaction_1 = __webpack_require__(15);
+var EventResizing = /** @class */ (function (_super) {
+    tslib_1.__extends(EventResizing, _super);
+    /*
+    component impements:
+      - bindSegHandlerToEl
+      - publiclyTrigger
+      - diffDates
+      - eventRangesToEventFootprints
+      - isEventInstanceGroupAllowed
+      - getSafeHitFootprint
+    */
+    function EventResizing(component, eventPointing) {
+        var _this = _super.call(this, component) || this;
+        _this.isResizing = false;
+        _this.eventPointing = eventPointing;
+        return _this;
+    }
+    EventResizing.prototype.end = function () {
+        if (this.dragListener) {
+            this.dragListener.endInteraction();
+        }
+    };
+    EventResizing.prototype.bindToEl = function (el) {
+        var component = this.component;
+        component.bindSegHandlerToEl(el, 'mousedown', this.handleMouseDown.bind(this));
+        component.bindSegHandlerToEl(el, 'touchstart', this.handleTouchStart.bind(this));
+    };
+    EventResizing.prototype.handleMouseDown = function (seg, ev) {
+        if (this.component.canStartResize(seg, ev)) {
+            this.buildDragListener(seg, $(ev.target).is('.fc-start-resizer'))
+                .startInteraction(ev, { distance: 5 });
+        }
+    };
+    EventResizing.prototype.handleTouchStart = function (seg, ev) {
+        if (this.component.canStartResize(seg, ev)) {
+            this.buildDragListener(seg, $(ev.target).is('.fc-start-resizer'))
+                .startInteraction(ev);
+        }
+    };
+    // Creates a listener that tracks the user as they resize an event segment.
+    // Generic enough to work with any type of Grid.
+    EventResizing.prototype.buildDragListener 
