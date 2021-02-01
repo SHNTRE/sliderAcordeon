@@ -10756,4 +10756,39 @@ var EventResizing = /** @class */ (function (_super) {
     };
     // Creates a listener that tracks the user as they resize an event segment.
     // Generic enough to work with any type of Grid.
-    EventResizing.prototype.buildDragListener 
+    EventResizing.prototype.buildDragListener = function (seg, isStart) {
+        var _this = this;
+        var component = this.component;
+        var view = this.view;
+        var calendar = view.calendar;
+        var eventManager = calendar.eventManager;
+        var el = seg.el;
+        var eventDef = seg.footprint.eventDef;
+        var eventInstance = seg.footprint.eventInstance;
+        var isDragging;
+        var resizeMutation; // zoned event date properties. falsy if invalid resize
+        // Tracks mouse movement over the *grid's* coordinate map
+        var dragListener = this.dragListener = new HitDragListener_1.default(component, {
+            scroll: this.opt('dragScroll'),
+            subjectEl: el,
+            interactionStart: function () {
+                isDragging = false;
+            },
+            dragStart: function (ev) {
+                isDragging = true;
+                // ensure a mouseout on the manipulated event has been reported
+                _this.eventPointing.handleMouseout(seg, ev);
+                _this.segResizeStart(seg, ev);
+            },
+            hitOver: function (hit, isOrig, origHit) {
+                var isAllowed = true;
+                var origHitFootprint = component.getSafeHitFootprint(origHit);
+                var hitFootprint = component.getSafeHitFootprint(hit);
+                var mutatedEventInstanceGroup;
+                if (origHitFootprint && hitFootprint) {
+                    resizeMutation = isStart ?
+                        _this.computeEventStartResizeMutation(origHitFootprint, hitFootprint, seg.footprint) :
+                        _this.computeEventEndResizeMutation(origHitFootprint, hitFootprint, seg.footprint);
+                    if (resizeMutation) {
+                        mutatedEventInstanceGroup = eventManager.buildMutatedEventInstanceGroup(eventDef.id, resizeMutation);
+                        isAllowed = 
