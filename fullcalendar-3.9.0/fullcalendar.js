@@ -10791,4 +10791,50 @@ var EventResizing = /** @class */ (function (_super) {
                         _this.computeEventEndResizeMutation(origHitFootprint, hitFootprint, seg.footprint);
                     if (resizeMutation) {
                         mutatedEventInstanceGroup = eventManager.buildMutatedEventInstanceGroup(eventDef.id, resizeMutation);
-                        isAllowed = 
+                        isAllowed = component.isEventInstanceGroupAllowed(mutatedEventInstanceGroup);
+                    }
+                    else {
+                        isAllowed = false;
+                    }
+                }
+                else {
+                    isAllowed = false;
+                }
+                if (!isAllowed) {
+                    resizeMutation = null;
+                    util_1.disableCursor();
+                }
+                else if (resizeMutation.isEmpty()) {
+                    // no change. (FYI, event dates might have zones)
+                    resizeMutation = null;
+                }
+                if (resizeMutation) {
+                    view.hideEventsWithId(seg.footprint.eventDef.id);
+                    view.renderEventResize(component.eventRangesToEventFootprints(mutatedEventInstanceGroup.sliceRenderRanges(component.dateProfile.renderUnzonedRange, calendar)), seg);
+                }
+            },
+            hitOut: function () {
+                resizeMutation = null;
+            },
+            hitDone: function () {
+                view.unrenderEventResize(seg);
+                view.showEventsWithId(seg.footprint.eventDef.id);
+                util_1.enableCursor();
+            },
+            interactionEnd: function (ev) {
+                if (isDragging) {
+                    _this.segResizeStop(seg, ev);
+                }
+                if (resizeMutation) {
+                    // no need to re-show original, will rerender all anyways. esp important if eventRenderWait
+                    view.reportEventResize(eventInstance, resizeMutation, el, ev);
+                }
+                _this.dragListener = null;
+            }
+        });
+        return dragListener;
+    };
+    // Called before event segment resizing starts
+    EventResizing.prototype.segResizeStart = function (seg, ev) {
+        this.isResizing = true;
+      
