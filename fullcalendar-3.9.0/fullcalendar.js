@@ -10837,4 +10837,45 @@ var EventResizing = /** @class */ (function (_super) {
     // Called before event segment resizing starts
     EventResizing.prototype.segResizeStart = function (seg, ev) {
         this.isResizing = true;
-      
+        this.component.publiclyTrigger('eventResizeStart', {
+            context: seg.el[0],
+            args: [
+                seg.footprint.getEventLegacy(),
+                ev,
+                {},
+                this.view
+            ]
+        });
+    };
+    // Called after event segment resizing stops
+    EventResizing.prototype.segResizeStop = function (seg, ev) {
+        this.isResizing = false;
+        this.component.publiclyTrigger('eventResizeStop', {
+            context: seg.el[0],
+            args: [
+                seg.footprint.getEventLegacy(),
+                ev,
+                {},
+                this.view
+            ]
+        });
+    };
+    // Returns new date-information for an event segment being resized from its start
+    EventResizing.prototype.computeEventStartResizeMutation = function (startFootprint, endFootprint, origEventFootprint) {
+        var origRange = origEventFootprint.componentFootprint.unzonedRange;
+        var startDelta = this.component.diffDates(endFootprint.unzonedRange.getStart(), startFootprint.unzonedRange.getStart());
+        var dateMutation;
+        var eventDefMutation;
+        if (origRange.getStart().add(startDelta) < origRange.getEnd()) {
+            dateMutation = new EventDefDateMutation_1.default();
+            dateMutation.setStartDelta(startDelta);
+            eventDefMutation = new EventDefMutation_1.default();
+            eventDefMutation.setDateMutation(dateMutation);
+            return eventDefMutation;
+        }
+        return false;
+    };
+    // Returns new date-information for an event segment being resized from its end
+    EventResizing.prototype.computeEventEndResizeMutation = function (startFootprint, endFootprint, origEventFootprint) {
+        var origRange = origEventFootprint.componentFootprint.unzonedRange;
+        var endDelta = this.component.diffDates(endFootprint.unzonedRange.getEnd(), startFootpr
