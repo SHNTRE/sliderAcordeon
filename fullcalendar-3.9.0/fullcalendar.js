@@ -10932,4 +10932,43 @@ var EventDragging = /** @class */ (function (_super) {
     EventDragging.prototype.getSelectionDelay = function () {
         var delay = this.opt('eventLongPressDelay');
         if (delay == null) {
-            delay = this
+            delay = this.opt('longPressDelay'); // fallback
+        }
+        return delay;
+    };
+    EventDragging.prototype.bindToEl = function (el) {
+        var component = this.component;
+        component.bindSegHandlerToEl(el, 'mousedown', this.handleMousedown.bind(this));
+        component.bindSegHandlerToEl(el, 'touchstart', this.handleTouchStart.bind(this));
+    };
+    EventDragging.prototype.handleMousedown = function (seg, ev) {
+        if (!this.component.shouldIgnoreMouse() &&
+            this.component.canStartDrag(seg, ev)) {
+            this.buildDragListener(seg).startInteraction(ev, { distance: 5 });
+        }
+    };
+    EventDragging.prototype.handleTouchStart = function (seg, ev) {
+        var component = this.component;
+        var settings = {
+            delay: this.view.isEventDefSelected(seg.footprint.eventDef) ? // already selected?
+                0 : this.getSelectionDelay()
+        };
+        if (component.canStartDrag(seg, ev)) {
+            this.buildDragListener(seg).startInteraction(ev, settings);
+        }
+        else if (component.canStartSelection(seg, ev)) {
+            this.buildSelectListener(seg).startInteraction(ev, settings);
+        }
+    };
+    // seg isn't draggable, but let's use a generic DragListener
+    // simply for the delay, so it can be selected.
+    // Has side effect of setting/unsetting `dragListener`
+    EventDragging.prototype.buildSelectListener = function (seg) {
+        var _this = this;
+        var view = this.view;
+        var eventDef = seg.footprint.eventDef;
+        var eventInstance = seg.footprint.eventInstance; // null for inverse-background events
+        if (this.dragListener) {
+            return this.dragListener;
+        }
+        var dragListener = this.dragListener = new DragLi
