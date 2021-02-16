@@ -10878,4 +10878,58 @@ var EventResizing = /** @class */ (function (_super) {
     // Returns new date-information for an event segment being resized from its end
     EventResizing.prototype.computeEventEndResizeMutation = function (startFootprint, endFootprint, origEventFootprint) {
         var origRange = origEventFootprint.componentFootprint.unzonedRange;
-        var endDelta = this.component.diffDates(endFootprint.unzonedRange.getEnd(), startFootpr
+        var endDelta = this.component.diffDates(endFootprint.unzonedRange.getEnd(), startFootprint.unzonedRange.getEnd());
+        var dateMutation;
+        var eventDefMutation;
+        if (origRange.getEnd().add(endDelta) > origRange.getStart()) {
+            dateMutation = new EventDefDateMutation_1.default();
+            dateMutation.setEndDelta(endDelta);
+            eventDefMutation = new EventDefMutation_1.default();
+            eventDefMutation.setDateMutation(dateMutation);
+            return eventDefMutation;
+        }
+        return false;
+    };
+    return EventResizing;
+}(Interaction_1.default));
+exports.default = EventResizing;
+
+
+/***/ }),
+/* 224 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var util_1 = __webpack_require__(4);
+var EventDefMutation_1 = __webpack_require__(37);
+var EventDefDateMutation_1 = __webpack_require__(50);
+var DragListener_1 = __webpack_require__(54);
+var HitDragListener_1 = __webpack_require__(23);
+var MouseFollower_1 = __webpack_require__(244);
+var Interaction_1 = __webpack_require__(15);
+var EventDragging = /** @class */ (function (_super) {
+    tslib_1.__extends(EventDragging, _super);
+    /*
+    component implements:
+      - bindSegHandlerToEl
+      - publiclyTrigger
+      - diffDates
+      - eventRangesToEventFootprints
+      - isEventInstanceGroupAllowed
+    */
+    function EventDragging(component, eventPointing) {
+        var _this = _super.call(this, component) || this;
+        _this.isDragging = false;
+        _this.eventPointing = eventPointing;
+        return _this;
+    }
+    EventDragging.prototype.end = function () {
+        if (this.dragListener) {
+            this.dragListener.endInteraction();
+        }
+    };
+    EventDragging.prototype.getSelectionDelay = function () {
+        var delay = this.opt('eventLongPressDelay');
+        if (delay == null) {
+            delay = this
