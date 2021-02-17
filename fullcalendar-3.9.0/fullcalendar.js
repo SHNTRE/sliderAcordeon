@@ -10971,4 +10971,44 @@ var EventDragging = /** @class */ (function (_super) {
         if (this.dragListener) {
             return this.dragListener;
         }
-        var dragListener = this.dragListener = new DragLi
+        var dragListener = this.dragListener = new DragListener_1.default({
+            dragStart: function (ev) {
+                if (dragListener.isTouch &&
+                    !view.isEventDefSelected(eventDef) &&
+                    eventInstance) {
+                    // if not previously selected, will fire after a delay. then, select the event
+                    view.selectEventInstance(eventInstance);
+                }
+            },
+            interactionEnd: function (ev) {
+                _this.dragListener = null;
+            }
+        });
+        return dragListener;
+    };
+    // Builds a listener that will track user-dragging on an event segment.
+    // Generic enough to work with any type of Grid.
+    // Has side effect of setting/unsetting `dragListener`
+    EventDragging.prototype.buildDragListener = function (seg) {
+        var _this = this;
+        var component = this.component;
+        var view = this.view;
+        var calendar = view.calendar;
+        var eventManager = calendar.eventManager;
+        var el = seg.el;
+        var eventDef = seg.footprint.eventDef;
+        var eventInstance = seg.footprint.eventInstance; // null for inverse-background events
+        var isDragging;
+        var mouseFollower; // A clone of the original element that will move with the mouse
+        var eventDefMutation;
+        if (this.dragListener) {
+            return this.dragListener;
+        }
+        // Tracks mouse movement over the *view's* coordinate map. Allows dragging and dropping between subcomponents
+        // of the view.
+        var dragListener = this.dragListener = new HitDragListener_1.default(view, {
+            scroll: this.opt('dragScroll'),
+            subjectEl: el,
+            subjectCenter: true,
+            interactionStart: function (ev) {
+                seg.component = compo
