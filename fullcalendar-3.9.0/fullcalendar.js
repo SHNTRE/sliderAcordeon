@@ -11046,3 +11046,39 @@ var EventDragging = /** @class */ (function (_super) {
                     origHit = seg.hit;
                 }
                 // hit might not belong to this grid, so query origin grid
+                origFootprint = origHit.component.getSafeHitFootprint(origHit);
+                footprint = hit.component.getSafeHitFootprint(hit);
+                if (origFootprint && footprint) {
+                    eventDefMutation = _this.computeEventDropMutation(origFootprint, footprint, eventDef);
+                    if (eventDefMutation) {
+                        mutatedEventInstanceGroup = eventManager.buildMutatedEventInstanceGroup(eventDef.id, eventDefMutation);
+                        isAllowed = component.isEventInstanceGroupAllowed(mutatedEventInstanceGroup);
+                    }
+                    else {
+                        isAllowed = false;
+                    }
+                }
+                else {
+                    isAllowed = false;
+                }
+                if (!isAllowed) {
+                    eventDefMutation = null;
+                    util_1.disableCursor();
+                }
+                // if a valid drop location, have the subclass render a visual indication
+                if (eventDefMutation &&
+                    view.renderDrag(// truthy if rendered something
+                    component.eventRangesToEventFootprints(mutatedEventInstanceGroup.sliceRenderRanges(component.dateProfile.renderUnzonedRange, calendar)), seg, dragListener.isTouch)) {
+                    mouseFollower.hide(); // if the subclass is already using a mock event "helper", hide our own
+                }
+                else {
+                    mouseFollower.show(); // otherwise, have the helper follow the mouse (no snapping)
+                }
+                if (isOrig) {
+                    // needs to have moved hits to be a valid drop
+                    eventDefMutation = null;
+                }
+            },
+            hitOut: function () {
+                view.unrenderDrag(seg); // unrender whatever was done in renderDrag
+             
