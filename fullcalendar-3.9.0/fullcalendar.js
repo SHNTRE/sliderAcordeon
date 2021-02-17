@@ -11011,4 +11011,38 @@ var EventDragging = /** @class */ (function (_super) {
             subjectEl: el,
             subjectCenter: true,
             interactionStart: function (ev) {
-                seg.component = compo
+                seg.component = component; // for renderDrag
+                isDragging = false;
+                mouseFollower = new MouseFollower_1.default(seg.el, {
+                    additionalClass: 'fc-dragging',
+                    parentEl: view.el,
+                    opacity: dragListener.isTouch ? null : _this.opt('dragOpacity'),
+                    revertDuration: _this.opt('dragRevertDuration'),
+                    zIndex: 2 // one above the .fc-view
+                });
+                mouseFollower.hide(); // don't show until we know this is a real drag
+                mouseFollower.start(ev);
+            },
+            dragStart: function (ev) {
+                if (dragListener.isTouch &&
+                    !view.isEventDefSelected(eventDef) &&
+                    eventInstance) {
+                    // if not previously selected, will fire after a delay. then, select the event
+                    view.selectEventInstance(eventInstance);
+                }
+                isDragging = true;
+                // ensure a mouseout on the manipulated event has been reported
+                _this.eventPointing.handleMouseout(seg, ev);
+                _this.segDragStart(seg, ev);
+                view.hideEventsWithId(seg.footprint.eventDef.id);
+            },
+            hitOver: function (hit, isOrig, origHit) {
+                var isAllowed = true;
+                var origFootprint;
+                var footprint;
+                var mutatedEventInstanceGroup;
+                // starting hit could be forced (DayGrid.limit)
+                if (seg.hit) {
+                    origHit = seg.hit;
+                }
+                // hit might not belong to this grid, so query origin grid
