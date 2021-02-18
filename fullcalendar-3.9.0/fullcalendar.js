@@ -11081,4 +11081,50 @@ var EventDragging = /** @class */ (function (_super) {
             },
             hitOut: function () {
                 view.unrenderDrag(seg); // unrender whatever was done in renderDrag
-             
+                mouseFollower.show(); // show in case we are moving out of all hits
+                eventDefMutation = null;
+            },
+            hitDone: function () {
+                util_1.enableCursor();
+            },
+            interactionEnd: function (ev) {
+                delete seg.component; // prevent side effects
+                // do revert animation if hasn't changed. calls a callback when finished (whether animation or not)
+                mouseFollower.stop(!eventDefMutation, function () {
+                    if (isDragging) {
+                        view.unrenderDrag(seg);
+                        _this.segDragStop(seg, ev);
+                    }
+                    view.showEventsWithId(seg.footprint.eventDef.id);
+                    if (eventDefMutation) {
+                        // no need to re-show original, will rerender all anyways. esp important if eventRenderWait
+                        view.reportEventDrop(eventInstance, eventDefMutation, el, ev);
+                    }
+                });
+                _this.dragListener = null;
+            }
+        });
+        return dragListener;
+    };
+    // Called before event segment dragging starts
+    EventDragging.prototype.segDragStart = function (seg, ev) {
+        this.isDragging = true;
+        this.component.publiclyTrigger('eventDragStart', {
+            context: seg.el[0],
+            args: [
+                seg.footprint.getEventLegacy(),
+                ev,
+                {},
+                this.view
+            ]
+        });
+    };
+    // Called after event segment dragging stops
+    EventDragging.prototype.segDragStop = function (seg, ev) {
+        this.isDragging = false;
+        this.component.publiclyTrigger('eventDragStop', {
+            context: seg.el[0],
+            args: [
+                seg.footprint.getEventLegacy(),
+                ev,
+           
