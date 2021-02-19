@@ -11178,4 +11178,53 @@ var tslib_1 = __webpack_require__(2);
 var util_1 = __webpack_require__(4);
 var HitDragListener_1 = __webpack_require__(23);
 var ComponentFootprint_1 = __webpack_require__(12);
-var UnzonedRange_1 = __webpack_require__(5
+var UnzonedRange_1 = __webpack_require__(5);
+var Interaction_1 = __webpack_require__(15);
+var DateSelecting = /** @class */ (function (_super) {
+    tslib_1.__extends(DateSelecting, _super);
+    /*
+    component must implement:
+      - bindDateHandlerToEl
+      - getSafeHitFootprint
+      - renderHighlight
+      - unrenderHighlight
+    */
+    function DateSelecting(component) {
+        var _this = _super.call(this, component) || this;
+        _this.dragListener = _this.buildDragListener();
+        return _this;
+    }
+    DateSelecting.prototype.end = function () {
+        this.dragListener.endInteraction();
+    };
+    DateSelecting.prototype.getDelay = function () {
+        var delay = this.opt('selectLongPressDelay');
+        if (delay == null) {
+            delay = this.opt('longPressDelay'); // fallback
+        }
+        return delay;
+    };
+    DateSelecting.prototype.bindToEl = function (el) {
+        var _this = this;
+        var component = this.component;
+        var dragListener = this.dragListener;
+        component.bindDateHandlerToEl(el, 'mousedown', function (ev) {
+            if (_this.opt('selectable') && !component.shouldIgnoreMouse()) {
+                dragListener.startInteraction(ev, {
+                    distance: _this.opt('selectMinDistance')
+                });
+            }
+        });
+        component.bindDateHandlerToEl(el, 'touchstart', function (ev) {
+            if (_this.opt('selectable') && !component.shouldIgnoreTouch()) {
+                dragListener.startInteraction(ev, {
+                    delay: _this.getDelay()
+                });
+            }
+        });
+        util_1.preventSelection(el);
+    };
+    // Creates a listener that tracks the user's drag across day elements, for day selecting.
+    DateSelecting.prototype.buildDragListener = function () {
+        var _this = this;
+        var c
