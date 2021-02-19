@@ -11127,4 +11127,55 @@ var EventDragging = /** @class */ (function (_super) {
             args: [
                 seg.footprint.getEventLegacy(),
                 ev,
-           
+                {},
+                this.view
+            ]
+        });
+    };
+    // DOES NOT consider overlap/constraint
+    EventDragging.prototype.computeEventDropMutation = function (startFootprint, endFootprint, eventDef) {
+        var eventDefMutation = new EventDefMutation_1.default();
+        eventDefMutation.setDateMutation(this.computeEventDateMutation(startFootprint, endFootprint));
+        return eventDefMutation;
+    };
+    EventDragging.prototype.computeEventDateMutation = function (startFootprint, endFootprint) {
+        var date0 = startFootprint.unzonedRange.getStart();
+        var date1 = endFootprint.unzonedRange.getStart();
+        var clearEnd = false;
+        var forceTimed = false;
+        var forceAllDay = false;
+        var dateDelta;
+        var dateMutation;
+        if (startFootprint.isAllDay !== endFootprint.isAllDay) {
+            clearEnd = true;
+            if (endFootprint.isAllDay) {
+                forceAllDay = true;
+                date0.stripTime();
+            }
+            else {
+                forceTimed = true;
+            }
+        }
+        dateDelta = this.component.diffDates(date1, date0);
+        dateMutation = new EventDefDateMutation_1.default();
+        dateMutation.clearEnd = clearEnd;
+        dateMutation.forceTimed = forceTimed;
+        dateMutation.forceAllDay = forceAllDay;
+        dateMutation.setDateDelta(dateDelta);
+        return dateMutation;
+    };
+    return EventDragging;
+}(Interaction_1.default));
+exports.default = EventDragging;
+
+
+/***/ }),
+/* 225 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var util_1 = __webpack_require__(4);
+var HitDragListener_1 = __webpack_require__(23);
+var ComponentFootprint_1 = __webpack_require__(12);
+var UnzonedRange_1 = __webpack_require__(5
