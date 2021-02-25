@@ -11227,4 +11227,44 @@ var DateSelecting = /** @class */ (function (_super) {
     // Creates a listener that tracks the user's drag across day elements, for day selecting.
     DateSelecting.prototype.buildDragListener = function () {
         var _this = this;
-        var c
+        var component = this.component;
+        var selectionFootprint; // null if invalid selection
+        var dragListener = new HitDragListener_1.default(component, {
+            scroll: this.opt('dragScroll'),
+            interactionStart: function () {
+                selectionFootprint = null;
+            },
+            dragStart: function (ev) {
+                _this.view.unselect(ev); // since we could be rendering a new selection, we want to clear any old one
+            },
+            hitOver: function (hit, isOrig, origHit) {
+                var origHitFootprint;
+                var hitFootprint;
+                if (origHit) {
+                    origHitFootprint = component.getSafeHitFootprint(origHit);
+                    hitFootprint = component.getSafeHitFootprint(hit);
+                    if (origHitFootprint && hitFootprint) {
+                        selectionFootprint = _this.computeSelection(origHitFootprint, hitFootprint);
+                    }
+                    else {
+                        selectionFootprint = null;
+                    }
+                    if (selectionFootprint) {
+                        component.renderSelectionFootprint(selectionFootprint);
+                    }
+                    else if (selectionFootprint === false) {
+                        util_1.disableCursor();
+                    }
+                }
+            },
+            hitOut: function () {
+                selectionFootprint = null;
+                component.unrenderSelection();
+            },
+            hitDone: function () {
+                util_1.enableCursor();
+            },
+            interactionEnd: function (ev, isCancelled) {
+                if (!isCancelled && selectionFootprint) {
+                    // the selection will already have been rendered. just report it
+            
