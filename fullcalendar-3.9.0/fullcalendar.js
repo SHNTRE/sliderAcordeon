@@ -11267,4 +11267,43 @@ var DateSelecting = /** @class */ (function (_super) {
             interactionEnd: function (ev, isCancelled) {
                 if (!isCancelled && selectionFootprint) {
                     // the selection will already have been rendered. just report it
-            
+                    _this.view.reportSelection(selectionFootprint, ev);
+                }
+            }
+        });
+        return dragListener;
+    };
+    // Given the first and last date-spans of a selection, returns another date-span object.
+    // Subclasses can override and provide additional data in the span object. Will be passed to renderSelectionFootprint().
+    // Will return false if the selection is invalid and this should be indicated to the user.
+    // Will return null/undefined if a selection invalid but no error should be reported.
+    DateSelecting.prototype.computeSelection = function (footprint0, footprint1) {
+        var wholeFootprint = this.computeSelectionFootprint(footprint0, footprint1);
+        if (wholeFootprint && !this.isSelectionFootprintAllowed(wholeFootprint)) {
+            return false;
+        }
+        return wholeFootprint;
+    };
+    // Given two spans, must return the combination of the two.
+    // TODO: do this separation of concerns (combining VS validation) for event dnd/resize too.
+    // Assumes both footprints are non-open-ended.
+    DateSelecting.prototype.computeSelectionFootprint = function (footprint0, footprint1) {
+        var ms = [
+            footprint0.unzonedRange.startMs,
+            footprint0.unzonedRange.endMs,
+            footprint1.unzonedRange.startMs,
+            footprint1.unzonedRange.endMs
+        ];
+        ms.sort(util_1.compareNumbers);
+        return new ComponentFootprint_1.default(new UnzonedRange_1.default(ms[0], ms[3]), footprint0.isAllDay);
+    };
+    DateSelecting.prototype.isSelectionFootprintAllowed = function (componentFootprint) {
+        return this.component.dateProfile.validUnzonedRange.containsRange(componentFootprint.unzonedRange) &&
+            this.view.calendar.constraints.isSelectionFootprintAllowed(componentFootprint);
+    };
+    return DateSelecting;
+}(Interaction_1.default));
+exports.default = DateSelecting;
+
+
+/***/ 
