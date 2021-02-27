@@ -11344,4 +11344,43 @@ var AgendaView = /** @class */ (function (_super) {
         return _this;
     }
     // Instantiates the TimeGrid object this view needs. Draws from this.timeGridClass
-    AgendaView.prototype.instantiateTimeGrid = fu
+    AgendaView.prototype.instantiateTimeGrid = function () {
+        var timeGrid = new this.timeGridClass(this);
+        util_1.copyOwnProps(agendaTimeGridMethods, timeGrid);
+        return timeGrid;
+    };
+    // Instantiates the DayGrid object this view might need. Draws from this.dayGridClass
+    AgendaView.prototype.instantiateDayGrid = function () {
+        var dayGrid = new this.dayGridClass(this);
+        util_1.copyOwnProps(agendaDayGridMethods, dayGrid);
+        return dayGrid;
+    };
+    /* Rendering
+    ------------------------------------------------------------------------------------------------------------------*/
+    AgendaView.prototype.renderSkeleton = function () {
+        var timeGridWrapEl;
+        var timeGridEl;
+        this.el.addClass('fc-agenda-view').html(this.renderSkeletonHtml());
+        this.scroller.render();
+        timeGridWrapEl = this.scroller.el.addClass('fc-time-grid-container');
+        timeGridEl = $('<div class="fc-time-grid" />').appendTo(timeGridWrapEl);
+        this.el.find('.fc-body > tr > td').append(timeGridWrapEl);
+        this.timeGrid.headContainerEl = this.el.find('.fc-head-container');
+        this.timeGrid.setElement(timeGridEl);
+        if (this.dayGrid) {
+            this.dayGrid.setElement(this.el.find('.fc-day-grid'));
+            // have the day-grid extend it's coordinate area over the <hr> dividing the two grids
+            this.dayGrid.bottomCoordPadding = this.dayGrid.el.next('hr').outerHeight();
+        }
+    };
+    AgendaView.prototype.unrenderSkeleton = function () {
+        this.timeGrid.removeElement();
+        if (this.dayGrid) {
+            this.dayGrid.removeElement();
+        }
+        this.scroller.destroy();
+    };
+    // Builds the HTML skeleton for the view.
+    // The day-grid and time-grid components will render inside containers defined by this HTML.
+    AgendaView.prototype.renderSkeletonHtml = function () {
+        var theme = this.calendar.theme
