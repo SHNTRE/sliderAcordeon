@@ -11306,4 +11306,42 @@ var DateSelecting = /** @class */ (function (_super) {
 exports.default = DateSelecting;
 
 
-/***/ 
+/***/ }),
+/* 226 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var moment = __webpack_require__(0);
+var $ = __webpack_require__(3);
+var util_1 = __webpack_require__(4);
+var Scroller_1 = __webpack_require__(39);
+var View_1 = __webpack_require__(41);
+var TimeGrid_1 = __webpack_require__(227);
+var DayGrid_1 = __webpack_require__(61);
+var AGENDA_ALL_DAY_EVENT_LIMIT = 5;
+var agendaTimeGridMethods;
+var agendaDayGridMethods;
+/* An abstract class for all agenda-related views. Displays one more columns with time slots running vertically.
+----------------------------------------------------------------------------------------------------------------------*/
+// Is a manager for the TimeGrid subcomponent and possibly the DayGrid subcomponent (if allDaySlot is on).
+// Responsible for managing width/height.
+var AgendaView = /** @class */ (function (_super) {
+    tslib_1.__extends(AgendaView, _super);
+    function AgendaView(calendar, viewSpec) {
+        var _this = _super.call(this, calendar, viewSpec) || this;
+        _this.usesMinMaxTime = true; // indicates that minTime/maxTime affects rendering
+        _this.timeGrid = _this.instantiateTimeGrid();
+        _this.addChild(_this.timeGrid);
+        if (_this.opt('allDaySlot')) {
+            _this.dayGrid = _this.instantiateDayGrid(); // the all-day subcomponent of this view
+            _this.addChild(_this.dayGrid);
+        }
+        _this.scroller = new Scroller_1.default({
+            overflowX: 'hidden',
+            overflowY: 'auto'
+        });
+        return _this;
+    }
+    // Instantiates the TimeGrid object this view needs. Draws from this.timeGridClass
+    AgendaView.prototype.instantiateTimeGrid = fu
