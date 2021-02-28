@@ -11425,4 +11425,37 @@ var AgendaView = /** @class */ (function (_super) {
         var scrollerHeight;
         var scrollbarWidths;
         _super.prototype.updateSize.call(this, totalHeight, isAuto, isResize);
-        // make all axis cells line up, and reco
+        // make all axis cells line up, and record the width so newly created axis cells will have it
+        this.axisWidth = util_1.matchCellWidths(this.el.find('.fc-axis'));
+        // hack to give the view some height prior to timeGrid's columns being rendered
+        // TODO: separate setting height from scroller VS timeGrid.
+        if (!this.timeGrid.colEls) {
+            if (!isAuto) {
+                scrollerHeight = this.computeScrollerHeight(totalHeight);
+                this.scroller.setHeight(scrollerHeight);
+            }
+            return;
+        }
+        // set of fake row elements that must compensate when scroller has scrollbars
+        var noScrollRowEls = this.el.find('.fc-row:not(.fc-scroller *)');
+        // reset all dimensions back to the original state
+        this.timeGrid.bottomRuleEl.hide(); // .show() will be called later if this <hr> is necessary
+        this.scroller.clear(); // sets height to 'auto' and clears overflow
+        util_1.uncompensateScroll(noScrollRowEls);
+        // limit number of events in the all-day area
+        if (this.dayGrid) {
+            this.dayGrid.removeSegPopover(); // kill the "more" popover if displayed
+            eventLimit = this.opt('eventLimit');
+            if (eventLimit && typeof eventLimit !== 'number') {
+                eventLimit = AGENDA_ALL_DAY_EVENT_LIMIT; // make sure "auto" goes to a real number
+            }
+            if (eventLimit) {
+                this.dayGrid.limitRows(eventLimit);
+            }
+        }
+        if (!isAuto) {
+            scrollerHeight = this.computeScrollerHeight(totalHeight);
+            this.scroller.setHeight(scrollerHeight);
+            scrollbarWidths = this.scroller.getScrollbarWidths();
+            if (scrollbarWidths.left || scrollbarWidths.right) {
+                // make the all-day and header rows lin
