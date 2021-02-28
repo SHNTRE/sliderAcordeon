@@ -11383,4 +11383,46 @@ var AgendaView = /** @class */ (function (_super) {
     // Builds the HTML skeleton for the view.
     // The day-grid and time-grid components will render inside containers defined by this HTML.
     AgendaView.prototype.renderSkeletonHtml = function () {
-        var theme = this.calendar.theme
+        var theme = this.calendar.theme;
+        return '' +
+            '<table class="' + theme.getClass('tableGrid') + '">' +
+            (this.opt('columnHeader') ?
+                '<thead class="fc-head">' +
+                    '<tr>' +
+                    '<td class="fc-head-container ' + theme.getClass('widgetHeader') + '">&nbsp;</td>' +
+                    '</tr>' +
+                    '</thead>' :
+                '') +
+            '<tbody class="fc-body">' +
+            '<tr>' +
+            '<td class="' + theme.getClass('widgetContent') + '">' +
+            (this.dayGrid ?
+                '<div class="fc-day-grid"/>' +
+                    '<hr class="fc-divider ' + theme.getClass('widgetHeader') + '"/>' :
+                '') +
+            '</td>' +
+            '</tr>' +
+            '</tbody>' +
+            '</table>';
+    };
+    // Generates an HTML attribute string for setting the width of the axis, if it is known
+    AgendaView.prototype.axisStyleAttr = function () {
+        if (this.axisWidth != null) {
+            return 'style="width:' + this.axisWidth + 'px"';
+        }
+        return '';
+    };
+    /* Now Indicator
+    ------------------------------------------------------------------------------------------------------------------*/
+    AgendaView.prototype.getNowIndicatorUnit = function () {
+        return this.timeGrid.getNowIndicatorUnit();
+    };
+    /* Dimensions
+    ------------------------------------------------------------------------------------------------------------------*/
+    // Adjusts the vertical dimensions of the view to the specified values
+    AgendaView.prototype.updateSize = function (totalHeight, isAuto, isResize) {
+        var eventLimit;
+        var scrollerHeight;
+        var scrollbarWidths;
+        _super.prototype.updateSize.call(this, totalHeight, isAuto, isResize);
+        // make all axis cells line up, and reco
