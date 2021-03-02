@@ -11490,4 +11490,47 @@ var AgendaView = /** @class */ (function (_super) {
         if (top) {
             top++; // to overcome top border that slots beyond the first have. looks better
         }
-        return { to
+        return { top: top };
+    };
+    AgendaView.prototype.queryDateScroll = function () {
+        return { top: this.scroller.getScrollTop() };
+    };
+    AgendaView.prototype.applyDateScroll = function (scroll) {
+        if (scroll.top !== undefined) {
+            this.scroller.setScrollTop(scroll.top);
+        }
+    };
+    /* Hit Areas
+    ------------------------------------------------------------------------------------------------------------------*/
+    // forward all hit-related method calls to the grids (dayGrid might not be defined)
+    AgendaView.prototype.getHitFootprint = function (hit) {
+        // TODO: hit.component is set as a hack to identify where the hit came from
+        return hit.component.getHitFootprint(hit);
+    };
+    AgendaView.prototype.getHitEl = function (hit) {
+        // TODO: hit.component is set as a hack to identify where the hit came from
+        return hit.component.getHitEl(hit);
+    };
+    /* Event Rendering
+    ------------------------------------------------------------------------------------------------------------------*/
+    AgendaView.prototype.executeEventRender = function (eventsPayload) {
+        var dayEventsPayload = {};
+        var timedEventsPayload = {};
+        var id;
+        var eventInstanceGroup;
+        // separate the events into all-day and timed
+        for (id in eventsPayload) {
+            eventInstanceGroup = eventsPayload[id];
+            if (eventInstanceGroup.getEventDef().isAllDay()) {
+                dayEventsPayload[id] = eventInstanceGroup;
+            }
+            else {
+                timedEventsPayload[id] = eventInstanceGroup;
+            }
+        }
+        this.timeGrid.executeEventRender(timedEventsPayload);
+        if (this.dayGrid) {
+            this.dayGrid.executeEventRender(dayEventsPayload);
+        }
+    };
+ 
