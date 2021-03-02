@@ -11458,4 +11458,36 @@ var AgendaView = /** @class */ (function (_super) {
             this.scroller.setHeight(scrollerHeight);
             scrollbarWidths = this.scroller.getScrollbarWidths();
             if (scrollbarWidths.left || scrollbarWidths.right) {
-                // make the all-day and header rows lin
+                // make the all-day and header rows lines up
+                util_1.compensateScroll(noScrollRowEls, scrollbarWidths);
+                // the scrollbar compensation might have changed text flow, which might affect height, so recalculate
+                // and reapply the desired height to the scroller.
+                scrollerHeight = this.computeScrollerHeight(totalHeight);
+                this.scroller.setHeight(scrollerHeight);
+            }
+            // guarantees the same scrollbar widths
+            this.scroller.lockOverflow(scrollbarWidths);
+            // if there's any space below the slats, show the horizontal rule.
+            // this won't cause any new overflow, because lockOverflow already called.
+            if (this.timeGrid.getTotalSlatHeight() < scrollerHeight) {
+                this.timeGrid.bottomRuleEl.show();
+            }
+        }
+    };
+    // given a desired total height of the view, returns what the height of the scroller should be
+    AgendaView.prototype.computeScrollerHeight = function (totalHeight) {
+        return totalHeight -
+            util_1.subtractInnerElHeight(this.el, this.scroller.el); // everything that's NOT the scroller
+    };
+    /* Scroll
+    ------------------------------------------------------------------------------------------------------------------*/
+    // Computes the initial pre-configured scroll state prior to allowing the user to change it
+    AgendaView.prototype.computeInitialDateScroll = function () {
+        var scrollTime = moment.duration(this.opt('scrollTime'));
+        var top = this.timeGrid.computeTimeTop(scrollTime);
+        // zoom can give weird floating-point values. rather scroll a little bit further
+        top = Math.ceil(top);
+        if (top) {
+            top++; // to overcome top border that slots beyond the first have. looks better
+        }
+        return { to
