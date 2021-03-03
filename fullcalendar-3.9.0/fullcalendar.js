@@ -11570,4 +11570,40 @@ AgendaView.prototype.timeGridClass = TimeGrid_1.default;
 AgendaView.prototype.dayGridClass = DayGrid_1.default;
 // Will customize the rendering behavior of the AgendaView's timeGrid
 agendaTimeGridMethods = {
-    // Generates th
+    // Generates the HTML that will go before the day-of week header cells
+    renderHeadIntroHtml: function () {
+        var view = this.view;
+        var calendar = view.calendar;
+        var weekStart = calendar.msToUtcMoment(this.dateProfile.renderUnzonedRange.startMs, true);
+        var weekText;
+        if (this.opt('weekNumbers')) {
+            weekText = weekStart.format(this.opt('smallWeekFormat'));
+            return '' +
+                '<th class="fc-axis fc-week-number ' + calendar.theme.getClass('widgetHeader') + '" ' + view.axisStyleAttr() + '>' +
+                view.buildGotoAnchorHtml(// aside from link, important for matchCellWidths
+                { date: weekStart, type: 'week', forceOff: this.colCnt > 1 }, util_1.htmlEscape(weekText) // inner HTML
+                ) +
+                '</th>';
+        }
+        else {
+            return '<th class="fc-axis ' + calendar.theme.getClass('widgetHeader') + '" ' + view.axisStyleAttr() + '></th>';
+        }
+    },
+    // Generates the HTML that goes before the bg of the TimeGrid slot area. Long vertical column.
+    renderBgIntroHtml: function () {
+        var view = this.view;
+        return '<td class="fc-axis ' + view.calendar.theme.getClass('widgetContent') + '" ' + view.axisStyleAttr() + '></td>';
+    },
+    // Generates the HTML that goes before all other types of cells.
+    // Affects content-skeleton, helper-skeleton, highlight-skeleton for both the time-grid and day-grid.
+    renderIntroHtml: function () {
+        var view = this.view;
+        return '<td class="fc-axis" ' + view.axisStyleAttr() + '></td>';
+    }
+};
+// Will customize the rendering behavior of the AgendaView's dayGrid
+agendaDayGridMethods = {
+    // Generates the HTML that goes before the all-day cells
+    renderBgIntroHtml: function () {
+        var view = this.view;
+        re
