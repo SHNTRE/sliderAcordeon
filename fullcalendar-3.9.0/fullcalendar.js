@@ -11533,4 +11533,41 @@ var AgendaView = /** @class */ (function (_super) {
             this.dayGrid.executeEventRender(dayEventsPayload);
         }
     };
- 
+    /* Dragging/Resizing Routing
+    ------------------------------------------------------------------------------------------------------------------*/
+    // A returned value of `true` signals that a mock "helper" event has been rendered.
+    AgendaView.prototype.renderDrag = function (eventFootprints, seg, isTouch) {
+        var groups = groupEventFootprintsByAllDay(eventFootprints);
+        var renderedHelper = false;
+        renderedHelper = this.timeGrid.renderDrag(groups.timed, seg, isTouch);
+        if (this.dayGrid) {
+            renderedHelper = this.dayGrid.renderDrag(groups.allDay, seg, isTouch) || renderedHelper;
+        }
+        return renderedHelper;
+    };
+    AgendaView.prototype.renderEventResize = function (eventFootprints, seg, isTouch) {
+        var groups = groupEventFootprintsByAllDay(eventFootprints);
+        this.timeGrid.renderEventResize(groups.timed, seg, isTouch);
+        if (this.dayGrid) {
+            this.dayGrid.renderEventResize(groups.allDay, seg, isTouch);
+        }
+    };
+    /* Selection
+    ------------------------------------------------------------------------------------------------------------------*/
+    // Renders a visual indication of a selection
+    AgendaView.prototype.renderSelectionFootprint = function (componentFootprint) {
+        if (!componentFootprint.isAllDay) {
+            this.timeGrid.renderSelectionFootprint(componentFootprint);
+        }
+        else if (this.dayGrid) {
+            this.dayGrid.renderSelectionFootprint(componentFootprint);
+        }
+    };
+    return AgendaView;
+}(View_1.default));
+exports.default = AgendaView;
+AgendaView.prototype.timeGridClass = TimeGrid_1.default;
+AgendaView.prototype.dayGridClass = DayGrid_1.default;
+// Will customize the rendering behavior of the AgendaView's timeGrid
+agendaTimeGridMethods = {
+    // Generates th
