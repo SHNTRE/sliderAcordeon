@@ -11606,4 +11606,54 @@ agendaDayGridMethods = {
     // Generates the HTML that goes before the all-day cells
     renderBgIntroHtml: function () {
         var view = this.view;
-        re
+        return '' +
+            '<td class="fc-axis ' + view.calendar.theme.getClass('widgetContent') + '" ' + view.axisStyleAttr() + '>' +
+            '<span>' + // needed for matchCellWidths
+            view.getAllDayHtml() +
+            '</span>' +
+            '</td>';
+    },
+    // Generates the HTML that goes before all other types of cells.
+    // Affects content-skeleton, helper-skeleton, highlight-skeleton for both the time-grid and day-grid.
+    renderIntroHtml: function () {
+        var view = this.view;
+        return '<td class="fc-axis" ' + view.axisStyleAttr() + '></td>';
+    }
+};
+function groupEventFootprintsByAllDay(eventFootprints) {
+    var allDay = [];
+    var timed = [];
+    var i;
+    for (i = 0; i < eventFootprints.length; i++) {
+        if (eventFootprints[i].componentFootprint.isAllDay) {
+            allDay.push(eventFootprints[i]);
+        }
+        else {
+            timed.push(eventFootprints[i]);
+        }
+    }
+    return { allDay: allDay, timed: timed };
+}
+
+
+/***/ }),
+/* 227 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var $ = __webpack_require__(3);
+var moment = __webpack_require__(0);
+var util_1 = __webpack_require__(4);
+var InteractiveDateComponent_1 = __webpack_require__(40);
+var BusinessHourRenderer_1 = __webpack_require__(56);
+var StandardInteractionsMixin_1 = __webpack_require__(60);
+var DayTableMixin_1 = __webpack_require__(55);
+var CoordCache_1 = __webpack_require__(53);
+var UnzonedRange_1 = __webpack_require__(5);
+var ComponentFootprint_1 = __webpack_require__(12);
+var TimeGridEventRenderer_1 = __webpack_require__(246);
+var TimeGridHelperRenderer_1 = __webpack_require__(247);
+var TimeGridFillRenderer_1 = __webpack_require__(248);
+/* A component that renders one or more columns of vertical time slots
+-----
