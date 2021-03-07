@@ -11656,4 +11656,48 @@ var TimeGridEventRenderer_1 = __webpack_require__(246);
 var TimeGridHelperRenderer_1 = __webpack_require__(247);
 var TimeGridFillRenderer_1 = __webpack_require__(248);
 /* A component that renders one or more columns of vertical time slots
------
+----------------------------------------------------------------------------------------------------------------------*/
+// We mixin DayTable, even though there is only a single row of days
+// potential nice values for the slot-duration and interval-duration
+// from largest to smallest
+var AGENDA_STOCK_SUB_DURATIONS = [
+    { hours: 1 },
+    { minutes: 30 },
+    { minutes: 15 },
+    { seconds: 30 },
+    { seconds: 15 }
+];
+var TimeGrid = /** @class */ (function (_super) {
+    tslib_1.__extends(TimeGrid, _super);
+    function TimeGrid(view) {
+        var _this = _super.call(this, view) || this;
+        _this.processOptions();
+        return _this;
+    }
+    // Slices up the given span (unzoned start/end with other misc data) into an array of segments
+    TimeGrid.prototype.componentFootprintToSegs = function (componentFootprint) {
+        var segs = this.sliceRangeByTimes(componentFootprint.unzonedRange);
+        var i;
+        for (i = 0; i < segs.length; i++) {
+            if (this.isRTL) {
+                segs[i].col = this.daysPerRow - 1 - segs[i].dayIndex;
+            }
+            else {
+                segs[i].col = segs[i].dayIndex;
+            }
+        }
+        return segs;
+    };
+    /* Date Handling
+    ------------------------------------------------------------------------------------------------------------------*/
+    TimeGrid.prototype.sliceRangeByTimes = function (unzonedRange) {
+        var segs = [];
+        var segRange;
+        var dayIndex;
+        for (dayIndex = 0; dayIndex < this.daysPerRow; dayIndex++) {
+            segRange = unzonedRange.intersect(this.dayRanges[dayIndex]);
+            if (segRange) {
+                segs.push({
+                    startMs: segRange.startMs,
+                    endMs: segRange.endMs,
+ 
