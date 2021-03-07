@@ -11700,4 +11700,44 @@ var TimeGrid = /** @class */ (function (_super) {
                 segs.push({
                     startMs: segRange.startMs,
                     endMs: segRange.endMs,
- 
+                    isStart: segRange.isStart,
+                    isEnd: segRange.isEnd,
+                    dayIndex: dayIndex
+                });
+            }
+        }
+        return segs;
+    };
+    /* Options
+    ------------------------------------------------------------------------------------------------------------------*/
+    // Parses various options into properties of this object
+    TimeGrid.prototype.processOptions = function () {
+        var slotDuration = this.opt('slotDuration');
+        var snapDuration = this.opt('snapDuration');
+        var input;
+        slotDuration = moment.duration(slotDuration);
+        snapDuration = snapDuration ? moment.duration(snapDuration) : slotDuration;
+        this.slotDuration = slotDuration;
+        this.snapDuration = snapDuration;
+        this.snapsPerSlot = slotDuration / snapDuration; // TODO: ensure an integer multiple?
+        // might be an array value (for TimelineView).
+        // if so, getting the most granular entry (the last one probably).
+        input = this.opt('slotLabelFormat');
+        if ($.isArray(input)) {
+            input = input[input.length - 1];
+        }
+        this.labelFormat = input ||
+            this.opt('smallTimeFormat'); // the computed default
+        input = this.opt('slotLabelInterval');
+        this.labelInterval = input ?
+            moment.duration(input) :
+            this.computeLabelInterval(slotDuration);
+    };
+    // Computes an automatic value for slotLabelInterval
+    TimeGrid.prototype.computeLabelInterval = function (slotDuration) {
+        var i;
+        var labelInterval;
+        var slotsPerLabel;
+        // find the smallest stock label interval that results in more than one slots-per-label
+        for (i = AGENDA_STOCK_SUB_DURATIONS.length - 1; i >= 0; i--) {
+            labelInterval = moment.duration(A
