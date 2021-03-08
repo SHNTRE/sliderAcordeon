@@ -11780,4 +11780,42 @@ var TimeGrid = /** @class */ (function (_super) {
             isVertical: true
         });
     };
-    // Generates the HTML for the horizontal "slats" th
+    // Generates the HTML for the horizontal "slats" that run width-wise. Has a time axis on a side. Depends on RTL.
+    TimeGrid.prototype.renderSlatRowHtml = function () {
+        var view = this.view;
+        var calendar = view.calendar;
+        var theme = calendar.theme;
+        var isRTL = this.isRTL;
+        var dateProfile = this.dateProfile;
+        var html = '';
+        var slotTime = moment.duration(+dateProfile.minTime); // wish there was .clone() for durations
+        var slotIterator = moment.duration(0);
+        var slotDate; // will be on the view's first day, but we only care about its time
+        var isLabeled;
+        var axisHtml;
+        // Calculate the time for each slot
+        while (slotTime < dateProfile.maxTime) {
+            slotDate = calendar.msToUtcMoment(dateProfile.renderUnzonedRange.startMs).time(slotTime);
+            isLabeled = util_1.isInt(util_1.divideDurationByDuration(slotIterator, this.labelInterval));
+            axisHtml =
+                '<td class="fc-axis fc-time ' + theme.getClass('widgetContent') + '" ' + view.axisStyleAttr() + '>' +
+                    (isLabeled ?
+                        '<span>' + // for matchCellWidths
+                            util_1.htmlEscape(slotDate.format(this.labelFormat)) +
+                            '</span>' :
+                        '') +
+                    '</td>';
+            html +=
+                '<tr data-time="' + slotDate.format('HH:mm:ss') + '"' +
+                    (isLabeled ? '' : ' class="fc-minor"') +
+                    '>' +
+                    (!isRTL ? axisHtml : '') +
+                    '<td class="' + theme.getClass('widgetContent') + '"/>' +
+                    (isRTL ? axisHtml : '') +
+                    '</tr>';
+            slotTime.add(this.slotDuration);
+            slotIterator.add(this.slotDuration);
+        }
+        return html;
+    };
+    TimeG
