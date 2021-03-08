@@ -11740,4 +11740,44 @@ var TimeGrid = /** @class */ (function (_super) {
         var slotsPerLabel;
         // find the smallest stock label interval that results in more than one slots-per-label
         for (i = AGENDA_STOCK_SUB_DURATIONS.length - 1; i >= 0; i--) {
-            labelInterval = moment.duration(A
+            labelInterval = moment.duration(AGENDA_STOCK_SUB_DURATIONS[i]);
+            slotsPerLabel = util_1.divideDurationByDuration(labelInterval, slotDuration);
+            if (util_1.isInt(slotsPerLabel) && slotsPerLabel > 1) {
+                return labelInterval;
+            }
+        }
+        return moment.duration(slotDuration); // fall back. clone
+    };
+    /* Date Rendering
+    ------------------------------------------------------------------------------------------------------------------*/
+    TimeGrid.prototype.renderDates = function (dateProfile) {
+        this.dateProfile = dateProfile;
+        this.updateDayTable();
+        this.renderSlats();
+        this.renderColumns();
+    };
+    TimeGrid.prototype.unrenderDates = function () {
+        // this.unrenderSlats(); // don't need this because repeated .html() calls clear
+        this.unrenderColumns();
+    };
+    TimeGrid.prototype.renderSkeleton = function () {
+        var theme = this.view.calendar.theme;
+        this.el.html('<div class="fc-bg"></div>' +
+            '<div class="fc-slats"></div>' +
+            '<hr class="fc-divider ' + theme.getClass('widgetHeader') + '" style="display:none" />');
+        this.bottomRuleEl = this.el.find('hr');
+    };
+    TimeGrid.prototype.renderSlats = function () {
+        var theme = this.view.calendar.theme;
+        this.slatContainerEl = this.el.find('> .fc-slats')
+            .html(// avoids needing ::unrenderSlats()
+        '<table class="' + theme.getClass('tableGrid') + '">' +
+            this.renderSlatRowHtml() +
+            '</table>');
+        this.slatEls = this.slatContainerEl.find('tr');
+        this.slatCoordCache = new CoordCache_1.default({
+            els: this.slatEls,
+            isVertical: true
+        });
+    };
+    // Generates the HTML for the horizontal "slats" th
