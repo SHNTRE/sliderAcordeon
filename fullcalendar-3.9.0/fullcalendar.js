@@ -11818,4 +11818,43 @@ var TimeGrid = /** @class */ (function (_super) {
         }
         return html;
     };
-    TimeG
+    TimeGrid.prototype.renderColumns = function () {
+        var dateProfile = this.dateProfile;
+        var theme = this.view.calendar.theme;
+        this.dayRanges = this.dayDates.map(function (dayDate) {
+            return new UnzonedRange_1.default(dayDate.clone().add(dateProfile.minTime), dayDate.clone().add(dateProfile.maxTime));
+        });
+        if (this.headContainerEl) {
+            this.headContainerEl.html(this.renderHeadHtml());
+        }
+        this.el.find('> .fc-bg').html('<table class="' + theme.getClass('tableGrid') + '">' +
+            this.renderBgTrHtml(0) + // row=0
+            '</table>');
+        this.colEls = this.el.find('.fc-day, .fc-disabled-day');
+        this.colCoordCache = new CoordCache_1.default({
+            els: this.colEls,
+            isHorizontal: true
+        });
+        this.renderContentSkeleton();
+    };
+    TimeGrid.prototype.unrenderColumns = function () {
+        this.unrenderContentSkeleton();
+    };
+    /* Content Skeleton
+    ------------------------------------------------------------------------------------------------------------------*/
+    // Renders the DOM that the view's content will live in
+    TimeGrid.prototype.renderContentSkeleton = function () {
+        var cellHtml = '';
+        var i;
+        var skeletonEl;
+        for (i = 0; i < this.colCnt; i++) {
+            cellHtml +=
+                '<td>' +
+                    '<div class="fc-content-col">' +
+                    '<div class="fc-event-container fc-helper-container"></div>' +
+                    '<div class="fc-event-container"></div>' +
+                    '<div class="fc-highlight-container"></div>' +
+                    '<div class="fc-bgevent-container"></div>' +
+                    '<div class="fc-business-container"></div>' +
+                    '</div>' +
+  
