@@ -11857,4 +11857,46 @@ var TimeGrid = /** @class */ (function (_super) {
                     '<div class="fc-bgevent-container"></div>' +
                     '<div class="fc-business-container"></div>' +
                     '</div>' +
-  
+                    '</td>';
+        }
+        skeletonEl = this.contentSkeletonEl = $('<div class="fc-content-skeleton">' +
+            '<table>' +
+            '<tr>' + cellHtml + '</tr>' +
+            '</table>' +
+            '</div>');
+        this.colContainerEls = skeletonEl.find('.fc-content-col');
+        this.helperContainerEls = skeletonEl.find('.fc-helper-container');
+        this.fgContainerEls = skeletonEl.find('.fc-event-container:not(.fc-helper-container)');
+        this.bgContainerEls = skeletonEl.find('.fc-bgevent-container');
+        this.highlightContainerEls = skeletonEl.find('.fc-highlight-container');
+        this.businessContainerEls = skeletonEl.find('.fc-business-container');
+        this.bookendCells(skeletonEl.find('tr')); // TODO: do this on string level
+        this.el.append(skeletonEl);
+    };
+    TimeGrid.prototype.unrenderContentSkeleton = function () {
+        if (this.contentSkeletonEl) {
+            this.contentSkeletonEl.remove();
+            this.contentSkeletonEl = null;
+            this.colContainerEls = null;
+            this.helperContainerEls = null;
+            this.fgContainerEls = null;
+            this.bgContainerEls = null;
+            this.highlightContainerEls = null;
+            this.businessContainerEls = null;
+        }
+    };
+    // Given a flat array of segments, return an array of sub-arrays, grouped by each segment's col
+    TimeGrid.prototype.groupSegsByCol = function (segs) {
+        var segsByCol = [];
+        var i;
+        for (i = 0; i < this.colCnt; i++) {
+            segsByCol.push([]);
+        }
+        for (i = 0; i < segs.length; i++) {
+            segsByCol[segs[i].col].push(segs[i]);
+        }
+        return segsByCol;
+    };
+    // Given segments grouped by column, insert the segments' elements into a parallel array of container
+    // elements, each living within a column.
+    TimeG
