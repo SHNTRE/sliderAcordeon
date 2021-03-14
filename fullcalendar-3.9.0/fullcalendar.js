@@ -11899,4 +11899,44 @@ var TimeGrid = /** @class */ (function (_super) {
     };
     // Given segments grouped by column, insert the segments' elements into a parallel array of container
     // elements, each living within a column.
-    TimeG
+    TimeGrid.prototype.attachSegsByCol = function (segsByCol, containerEls) {
+        var col;
+        var segs;
+        var i;
+        for (col = 0; col < this.colCnt; col++) {
+            segs = segsByCol[col];
+            for (i = 0; i < segs.length; i++) {
+                containerEls.eq(col).append(segs[i].el);
+            }
+        }
+    };
+    /* Now Indicator
+    ------------------------------------------------------------------------------------------------------------------*/
+    TimeGrid.prototype.getNowIndicatorUnit = function () {
+        return 'minute'; // will refresh on the minute
+    };
+    TimeGrid.prototype.renderNowIndicator = function (date) {
+        // HACK: if date columns not ready for some reason (scheduler)
+        if (!this.colContainerEls) {
+            return;
+        }
+        // seg system might be overkill, but it handles scenario where line needs to be rendered
+        //  more than once because of columns with the same date (resources columns for example)
+        var segs = this.componentFootprintToSegs(new ComponentFootprint_1.default(new UnzonedRange_1.default(date, date.valueOf() + 1), // protect against null range
+        false // all-day
+        ));
+        var top = this.computeDateTop(date, date);
+        var nodes = [];
+        var i;
+        // render lines within the columns
+        for (i = 0; i < segs.length; i++) {
+            nodes.push($('<div class="fc-now-indicator fc-now-indicator-line"></div>')
+                .css('top', top)
+                .appendTo(this.colContainerEls.eq(segs[i].col))[0]);
+        }
+        // render an arrow over the axis
+        if (segs.length > 0) {
+            nodes.push($('<div class="fc-now-indicator fc-now-indicator-arrow"></div>')
+                .css('top', top)
+                .appendTo(this.el.find('.fc-content-skeleton'))[0]);
+ 
