@@ -11939,4 +11939,39 @@ var TimeGrid = /** @class */ (function (_super) {
             nodes.push($('<div class="fc-now-indicator fc-now-indicator-arrow"></div>')
                 .css('top', top)
                 .appendTo(this.el.find('.fc-content-skeleton'))[0]);
- 
+        }
+        this.nowIndicatorEls = $(nodes);
+    };
+    TimeGrid.prototype.unrenderNowIndicator = function () {
+        if (this.nowIndicatorEls) {
+            this.nowIndicatorEls.remove();
+            this.nowIndicatorEls = null;
+        }
+    };
+    /* Coordinates
+    ------------------------------------------------------------------------------------------------------------------*/
+    TimeGrid.prototype.updateSize = function (totalHeight, isAuto, isResize) {
+        _super.prototype.updateSize.call(this, totalHeight, isAuto, isResize);
+        this.slatCoordCache.build();
+        if (isResize) {
+            this.updateSegVerticals([].concat(this.eventRenderer.getSegs(), this.businessSegs || []));
+        }
+    };
+    TimeGrid.prototype.getTotalSlatHeight = function () {
+        return this.slatContainerEl.outerHeight();
+    };
+    // Computes the top coordinate, relative to the bounds of the grid, of the given date.
+    // `ms` can be a millisecond UTC time OR a UTC moment.
+    // A `startOfDayDate` must be given for avoiding ambiguity over how to treat midnight.
+    TimeGrid.prototype.computeDateTop = function (ms, startOfDayDate) {
+        return this.computeTimeTop(moment.duration(ms - startOfDayDate.clone().stripTime()));
+    };
+    // Computes the top coordinate, relative to the bounds of the grid, of the given time (a Duration).
+    TimeGrid.prototype.computeTimeTop = function (time) {
+        var len = this.slatEls.length;
+        var dateProfile = this.dateProfile;
+        var slatCoverage = (time - dateProfile.minTime) / this.slotDuration; // floating-point value of # of slots covered
+        var slatIndex;
+        var slatRemainder;
+        // compute a floating-point number for how many slats should be progressed through.
+        // from 0 to number of
