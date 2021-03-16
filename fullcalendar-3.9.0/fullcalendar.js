@@ -11974,4 +11974,42 @@ var TimeGrid = /** @class */ (function (_super) {
         var slatIndex;
         var slatRemainder;
         // compute a floating-point number for how many slats should be progressed through.
-        // from 0 to number of
+        // from 0 to number of slats (inclusive)
+        // constrained because minTime/maxTime might be customized.
+        slatCoverage = Math.max(0, slatCoverage);
+        slatCoverage = Math.min(len, slatCoverage);
+        // an integer index of the furthest whole slat
+        // from 0 to number slats (*exclusive*, so len-1)
+        slatIndex = Math.floor(slatCoverage);
+        slatIndex = Math.min(slatIndex, len - 1);
+        // how much further through the slatIndex slat (from 0.0-1.0) must be covered in addition.
+        // could be 1.0 if slatCoverage is covering *all* the slots
+        slatRemainder = slatCoverage - slatIndex;
+        return this.slatCoordCache.getTopPosition(slatIndex) +
+            this.slatCoordCache.getHeight(slatIndex) * slatRemainder;
+    };
+    // Refreshes the CSS top/bottom coordinates for each segment element.
+    // Works when called after initial render, after a window resize/zoom for example.
+    TimeGrid.prototype.updateSegVerticals = function (segs) {
+        this.computeSegVerticals(segs);
+        this.assignSegVerticals(segs);
+    };
+    // For each segment in an array, computes and assigns its top and bottom properties
+    TimeGrid.prototype.computeSegVerticals = function (segs) {
+        var eventMinHeight = this.opt('agendaEventMinHeight');
+        var i;
+        var seg;
+        var dayDate;
+        for (i = 0; i < segs.length; i++) {
+            seg = segs[i];
+            dayDate = this.dayDates[seg.dayIndex];
+            seg.top = this.computeDateTop(seg.startMs, dayDate);
+            seg.bottom = Math.max(seg.top + eventMinHeight, this.computeDateTop(seg.endMs, dayDate));
+        }
+    };
+    // Given segments that already have their top/bottom properties computed, applies those values to
+    // the segments' elements.
+    TimeGrid.prototype.assignSegVerticals = function (segs) {
+        var i;
+        var seg;
+   
