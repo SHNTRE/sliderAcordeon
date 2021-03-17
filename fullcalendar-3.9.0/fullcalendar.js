@@ -12012,4 +12012,39 @@ var TimeGrid = /** @class */ (function (_super) {
     TimeGrid.prototype.assignSegVerticals = function (segs) {
         var i;
         var seg;
-   
+        for (i = 0; i < segs.length; i++) {
+            seg = segs[i];
+            seg.el.css(this.generateSegVerticalCss(seg));
+        }
+    };
+    // Generates an object with CSS properties for the top/bottom coordinates of a segment element
+    TimeGrid.prototype.generateSegVerticalCss = function (seg) {
+        return {
+            top: seg.top,
+            bottom: -seg.bottom // flipped because needs to be space beyond bottom edge of event container
+        };
+    };
+    /* Hit System
+    ------------------------------------------------------------------------------------------------------------------*/
+    TimeGrid.prototype.prepareHits = function () {
+        this.colCoordCache.build();
+        this.slatCoordCache.build();
+    };
+    TimeGrid.prototype.releaseHits = function () {
+        this.colCoordCache.clear();
+        // NOTE: don't clear slatCoordCache because we rely on it for computeTimeTop
+    };
+    TimeGrid.prototype.queryHit = function (leftOffset, topOffset) {
+        var snapsPerSlot = this.snapsPerSlot;
+        var colCoordCache = this.colCoordCache;
+        var slatCoordCache = this.slatCoordCache;
+        if (colCoordCache.isLeftInBounds(leftOffset) && slatCoordCache.isTopInBounds(topOffset)) {
+            var colIndex = colCoordCache.getHorizontalIndex(leftOffset);
+            var slatIndex = slatCoordCache.getVerticalIndex(topOffset);
+            if (colIndex != null && slatIndex != null) {
+                var slatTop = slatCoordCache.getTopOffset(slatIndex);
+                var slatHeight = slatCoordCache.getHeight(slatIndex);
+                var partial = (topOffset - slatTop) / slatHeight; // floating point number between 0 and 1
+                var localSnapIndex = Math.floor(partial * snapsPerSlot); // the snap # relative to start of slat
+                var snapIndex = slatIndex * snapsPerSlot + localSnapIndex;
+                var snapTop = slat
