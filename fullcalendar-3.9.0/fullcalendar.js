@@ -12047,4 +12047,42 @@ var TimeGrid = /** @class */ (function (_super) {
                 var partial = (topOffset - slatTop) / slatHeight; // floating point number between 0 and 1
                 var localSnapIndex = Math.floor(partial * snapsPerSlot); // the snap # relative to start of slat
                 var snapIndex = slatIndex * snapsPerSlot + localSnapIndex;
-                var snapTop = slat
+                var snapTop = slatTop + (localSnapIndex / snapsPerSlot) * slatHeight;
+                var snapBottom = slatTop + ((localSnapIndex + 1) / snapsPerSlot) * slatHeight;
+                return {
+                    col: colIndex,
+                    snap: snapIndex,
+                    component: this,
+                    left: colCoordCache.getLeftOffset(colIndex),
+                    right: colCoordCache.getRightOffset(colIndex),
+                    top: snapTop,
+                    bottom: snapBottom
+                };
+            }
+        }
+    };
+    TimeGrid.prototype.getHitFootprint = function (hit) {
+        var start = this.getCellDate(0, hit.col); // row=0
+        var time = this.computeSnapTime(hit.snap); // pass in the snap-index
+        var end;
+        start.time(time);
+        end = start.clone().add(this.snapDuration);
+        return new ComponentFootprint_1.default(new UnzonedRange_1.default(start, end), false // all-day?
+        );
+    };
+    // Given a row number of the grid, representing a "snap", returns a time (Duration) from its start-of-day
+    TimeGrid.prototype.computeSnapTime = function (snapIndex) {
+        return moment.duration(this.dateProfile.minTime + this.snapDuration * snapIndex);
+    };
+    TimeGrid.prototype.getHitEl = function (hit) {
+        return this.colEls.eq(hit.col);
+    };
+    /* Event Drag Visualization
+    ------------------------------------------------------------------------------------------------------------------*/
+    // Renders a visual indication of an event being dragged over the specified date(s).
+    // A returned value of `true` signals that a mock "helper" event has been rendered.
+    TimeGrid.prototype.renderDrag = function (eventFootprints, seg, isTouch) {
+        var i;
+        if (seg) {
+            if (eventFootprints.length) {
+                this.helperRenderer.renderE
