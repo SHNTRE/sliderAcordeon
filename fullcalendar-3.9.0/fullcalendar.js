@@ -12085,4 +12085,44 @@ var TimeGrid = /** @class */ (function (_super) {
         var i;
         if (seg) {
             if (eventFootprints.length) {
-                this.helperRenderer.renderE
+                this.helperRenderer.renderEventDraggingFootprints(eventFootprints, seg, isTouch);
+                // signal that a helper has been rendered
+                return true;
+            }
+        }
+        else {
+            for (i = 0; i < eventFootprints.length; i++) {
+                this.renderHighlight(eventFootprints[i].componentFootprint);
+            }
+        }
+    };
+    // Unrenders any visual indication of an event being dragged
+    TimeGrid.prototype.unrenderDrag = function () {
+        this.unrenderHighlight();
+        this.helperRenderer.unrender();
+    };
+    /* Event Resize Visualization
+    ------------------------------------------------------------------------------------------------------------------*/
+    // Renders a visual indication of an event being resized
+    TimeGrid.prototype.renderEventResize = function (eventFootprints, seg, isTouch) {
+        this.helperRenderer.renderEventResizingFootprints(eventFootprints, seg, isTouch);
+    };
+    // Unrenders any visual indication of an event being resized
+    TimeGrid.prototype.unrenderEventResize = function () {
+        this.helperRenderer.unrender();
+    };
+    /* Selection
+    ------------------------------------------------------------------------------------------------------------------*/
+    // Renders a visual indication of a selection. Overrides the default, which was to simply render a highlight.
+    TimeGrid.prototype.renderSelectionFootprint = function (componentFootprint) {
+        if (this.opt('selectHelper')) {
+            this.helperRenderer.renderComponentFootprint(componentFootprint);
+        }
+        else {
+            this.renderHighlight(componentFootprint);
+        }
+    };
+    // Unrenders any visual indication of a selection
+    TimeGrid.prototype.unrenderSelection = function () {
+        this.helperRenderer.unrender();
+        this.unr
