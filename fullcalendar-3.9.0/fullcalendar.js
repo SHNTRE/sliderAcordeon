@@ -12125,4 +12125,40 @@ var TimeGrid = /** @class */ (function (_super) {
     // Unrenders any visual indication of a selection
     TimeGrid.prototype.unrenderSelection = function () {
         this.helperRenderer.unrender();
-        this.unr
+        this.unrenderHighlight();
+    };
+    return TimeGrid;
+}(InteractiveDateComponent_1.default));
+exports.default = TimeGrid;
+TimeGrid.prototype.eventRendererClass = TimeGridEventRenderer_1.default;
+TimeGrid.prototype.businessHourRendererClass = BusinessHourRenderer_1.default;
+TimeGrid.prototype.helperRendererClass = TimeGridHelperRenderer_1.default;
+TimeGrid.prototype.fillRendererClass = TimeGridFillRenderer_1.default;
+StandardInteractionsMixin_1.default.mixInto(TimeGrid);
+DayTableMixin_1.default.mixInto(TimeGrid);
+
+
+/***/ }),
+/* 228 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var UnzonedRange_1 = __webpack_require__(5);
+var DateProfileGenerator_1 = __webpack_require__(221);
+var BasicViewDateProfileGenerator = /** @class */ (function (_super) {
+    tslib_1.__extends(BasicViewDateProfileGenerator, _super);
+    function BasicViewDateProfileGenerator() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    // Computes the date range that will be rendered.
+    BasicViewDateProfileGenerator.prototype.buildRenderRange = function (currentUnzonedRange, currentRangeUnit, isRangeAllDay) {
+        var renderUnzonedRange = _super.prototype.buildRenderRange.call(this, currentUnzonedRange, currentRangeUnit, isRangeAllDay); // an UnzonedRange
+        var start = this.msToUtcMoment(renderUnzonedRange.startMs, isRangeAllDay);
+        var end = this.msToUtcMoment(renderUnzonedRange.endMs, isRangeAllDay);
+        // year and month views should be aligned with weeks. this is already done for week
+        if (/^(year|month)$/.test(currentRangeUnit)) {
+            start.startOf('week');
+            // make end-of-week if not already
+            if (end.weekday()) {
+  
