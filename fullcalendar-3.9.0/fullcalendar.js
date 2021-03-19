@@ -12161,4 +12161,45 @@ var BasicViewDateProfileGenerator = /** @class */ (function (_super) {
             start.startOf('week');
             // make end-of-week if not already
             if (end.weekday()) {
-  
+                end.add(1, 'week').startOf('week'); // exclusively move backwards
+            }
+        }
+        return new UnzonedRange_1.default(start, end);
+    };
+    return BasicViewDateProfileGenerator;
+}(DateProfileGenerator_1.default));
+exports.default = BasicViewDateProfileGenerator;
+
+
+/***/ }),
+/* 229 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var moment = __webpack_require__(0);
+var util_1 = __webpack_require__(4);
+var BasicView_1 = __webpack_require__(62);
+var MonthViewDateProfileGenerator_1 = __webpack_require__(253);
+/* A month view with day cells running in rows (one-per-week) and columns
+----------------------------------------------------------------------------------------------------------------------*/
+var MonthView = /** @class */ (function (_super) {
+    tslib_1.__extends(MonthView, _super);
+    function MonthView() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    // Overrides the default BasicView behavior to have special multi-week auto-height logic
+    MonthView.prototype.setGridHeight = function (height, isAuto) {
+        // if auto, make the height of each row the height that it would be if there were 6 weeks
+        if (isAuto) {
+            height *= this.dayGrid.rowCnt / 6;
+        }
+        util_1.distributeHeight(this.dayGrid.rowEls, height, !isAuto); // if auto, don't compensate for height-hogging rows
+    };
+    MonthView.prototype.isDateInOtherMonth = function (date, dateProfile) {
+        return date.month() !== moment.utc(dateProfile.currentUnzonedRange.startMs).month(); // TODO: optimize
+    };
+    return MonthView;
+}(BasicView_1.default));
+exports.default = MonthView;
+MonthView.prototype.dateProfileGeneratorClass = MonthViewDateProfileGenerato
