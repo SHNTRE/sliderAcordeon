@@ -12202,4 +12202,53 @@ var MonthView = /** @class */ (function (_super) {
     return MonthView;
 }(BasicView_1.default));
 exports.default = MonthView;
-MonthView.prototype.dateProfileGeneratorClass = MonthViewDateProfileGenerato
+MonthView.prototype.dateProfileGeneratorClass = MonthViewDateProfileGenerator_1.default;
+
+
+/***/ }),
+/* 230 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var $ = __webpack_require__(3);
+var util_1 = __webpack_require__(4);
+var UnzonedRange_1 = __webpack_require__(5);
+var View_1 = __webpack_require__(41);
+var Scroller_1 = __webpack_require__(39);
+var ListEventRenderer_1 = __webpack_require__(254);
+var ListEventPointing_1 = __webpack_require__(255);
+/*
+Responsible for the scroller, and forwarding event-related actions into the "grid".
+*/
+var ListView = /** @class */ (function (_super) {
+    tslib_1.__extends(ListView, _super);
+    function ListView(calendar, viewSpec) {
+        var _this = _super.call(this, calendar, viewSpec) || this;
+        _this.segSelector = '.fc-list-item'; // which elements accept event actions
+        _this.scroller = new Scroller_1.default({
+            overflowX: 'hidden',
+            overflowY: 'auto'
+        });
+        return _this;
+    }
+    ListView.prototype.renderSkeleton = function () {
+        this.el.addClass('fc-list-view ' +
+            this.calendar.theme.getClass('listView'));
+        this.scroller.render();
+        this.scroller.el.appendTo(this.el);
+        this.contentEl = this.scroller.scrollEl; // shortcut
+    };
+    ListView.prototype.unrenderSkeleton = function () {
+        this.scroller.destroy(); // will remove the Grid too
+    };
+    ListView.prototype.updateSize = function (totalHeight, isAuto, isResize) {
+        _super.prototype.updateSize.call(this, totalHeight, isAuto, isResize);
+        this.scroller.clear(); // sets height to 'auto' and clears overflow
+        if (!isAuto) {
+            this.scroller.setHeight(this.computeScrollerHeight(totalHeight));
+        }
+    };
+    ListView.prototype.computeScrollerHeight = function (totalHeight) {
+        return totalHeight -
+            util_1.subtractInnerElHeig
