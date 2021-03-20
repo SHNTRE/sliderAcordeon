@@ -12293,4 +12293,52 @@ var ListView = /** @class */ (function (_super) {
                     footprint.unzonedRange.endMs < dayRanges[dayIndex + 1].startMs + this.nextDayThreshold) {
                     seg.endMs = footprint.unzonedRange.endMs;
                     seg.isEnd = true;
-       
+                    break;
+                }
+            }
+        }
+        return segs;
+    };
+    ListView.prototype.renderEmptyMessage = function () {
+        this.contentEl.html('<div class="fc-list-empty-wrap2">' + // TODO: try less wraps
+            '<div class="fc-list-empty-wrap1">' +
+            '<div class="fc-list-empty">' +
+            util_1.htmlEscape(this.opt('noEventsMessage')) +
+            '</div>' +
+            '</div>' +
+            '</div>');
+    };
+    // render the event segments in the view
+    ListView.prototype.renderSegList = function (allSegs) {
+        var segsByDay = this.groupSegsByDay(allSegs); // sparse array
+        var dayIndex;
+        var daySegs;
+        var i;
+        var tableEl = $('<table class="fc-list-table ' + this.calendar.theme.getClass('tableList') + '"><tbody/></table>');
+        var tbodyEl = tableEl.find('tbody');
+        for (dayIndex = 0; dayIndex < segsByDay.length; dayIndex++) {
+            daySegs = segsByDay[dayIndex];
+            if (daySegs) {
+                // append a day header
+                tbodyEl.append(this.dayHeaderHtml(this.dayDates[dayIndex]));
+                this.eventRenderer.sortEventSegs(daySegs);
+                for (i = 0; i < daySegs.length; i++) {
+                    tbodyEl.append(daySegs[i].el); // append event row
+                }
+            }
+        }
+        this.contentEl.empty().append(tableEl);
+    };
+    // Returns a sparse array of arrays, segs grouped by their dayIndex
+    ListView.prototype.groupSegsByDay = function (segs) {
+        var segsByDay = []; // sparse array
+        var i;
+        var seg;
+        for (i = 0; i < segs.length; i++) {
+            seg = segs[i];
+            (segsByDay[seg.dayIndex] || (segsByDay[seg.dayIndex] = []))
+                .push(seg);
+        }
+        return segsByDay;
+    };
+    // generates the HT
