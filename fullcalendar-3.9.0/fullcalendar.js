@@ -12251,4 +12251,46 @@ var ListView = /** @class */ (function (_super) {
     };
     ListView.prototype.computeScrollerHeight = function (totalHeight) {
         return totalHeight -
-            util_1.subtractInnerElHeig
+            util_1.subtractInnerElHeight(this.el, this.scroller.el); // everything that's NOT the scroller
+    };
+    ListView.prototype.renderDates = function (dateProfile) {
+        var calendar = this.calendar;
+        var dayStart = calendar.msToUtcMoment(dateProfile.renderUnzonedRange.startMs, true);
+        var viewEnd = calendar.msToUtcMoment(dateProfile.renderUnzonedRange.endMs, true);
+        var dayDates = [];
+        var dayRanges = [];
+        while (dayStart < viewEnd) {
+            dayDates.push(dayStart.clone());
+            dayRanges.push(new UnzonedRange_1.default(dayStart, dayStart.clone().add(1, 'day')));
+            dayStart.add(1, 'day');
+        }
+        this.dayDates = dayDates;
+        this.dayRanges = dayRanges;
+        // all real rendering happens in EventRenderer
+    };
+    // slices by day
+    ListView.prototype.componentFootprintToSegs = function (footprint) {
+        var dayRanges = this.dayRanges;
+        var dayIndex;
+        var segRange;
+        var seg;
+        var segs = [];
+        for (dayIndex = 0; dayIndex < dayRanges.length; dayIndex++) {
+            segRange = footprint.unzonedRange.intersect(dayRanges[dayIndex]);
+            if (segRange) {
+                seg = {
+                    startMs: segRange.startMs,
+                    endMs: segRange.endMs,
+                    isStart: segRange.isStart,
+                    isEnd: segRange.isEnd,
+                    dayIndex: dayIndex
+                };
+                segs.push(seg);
+                // detect when footprint won't go fully into the next day,
+                // and mutate the latest seg to the be the end.
+                if (!seg.isEnd && !footprint.isAllDay &&
+                    dayIndex + 1 < dayRanges.length &&
+                    footprint.unzonedRange.endMs < dayRanges[dayIndex + 1].startMs + this.nextDayThreshold) {
+                    seg.endMs = footprint.unzonedRange.endMs;
+                    seg.isEnd = true;
+       
