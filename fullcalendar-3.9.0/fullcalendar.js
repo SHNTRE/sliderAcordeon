@@ -12391,4 +12391,55 @@ __webpack_require__(263);
 $.fullCalendar = exportHooks;
 $.fn.fullCalendar = function (options) {
     var args = Array.prototype.slice.call(arguments, 1); // for a possible method call
-    var res =
+    var res = this; // what this function will return (this jQuery object by default)
+    this.each(function (i, _element) {
+        var element = $(_element);
+        var calendar = element.data('fullCalendar'); // get the existing calendar object (if any)
+        var singleRes; // the returned value of this single method call
+        // a method call
+        if (typeof options === 'string') {
+            if (options === 'getCalendar') {
+                if (!i) {
+                    res = calendar;
+                }
+            }
+            else if (options === 'destroy') {
+                if (calendar) {
+                    calendar.destroy();
+                    element.removeData('fullCalendar');
+                }
+            }
+            else if (!calendar) {
+                util_1.warn('Attempting to call a FullCalendar method on an element with no calendar.');
+            }
+            else if ($.isFunction(calendar[options])) {
+                singleRes = calendar[options].apply(calendar, args);
+                if (!i) {
+                    res = singleRes; // record the first method call result
+                }
+                if (options === 'destroy') {
+                    element.removeData('fullCalendar');
+                }
+            }
+            else {
+                util_1.warn("'" + options + "' is an unknown FullCalendar method.");
+            }
+        }
+        else if (!calendar) {
+            calendar = new Calendar_1.default(element, options);
+            element.data('fullCalendar', calendar);
+            calendar.render();
+        }
+    });
+    return res;
+};
+module.exports = exportHooks;
+
+
+/***/ }),
+/* 237 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var Mode
