@@ -12341,4 +12341,54 @@ var ListView = /** @class */ (function (_super) {
         }
         return segsByDay;
     };
-    // generates the HT
+    // generates the HTML for the day headers that live amongst the event rows
+    ListView.prototype.dayHeaderHtml = function (dayDate) {
+        var mainFormat = this.opt('listDayFormat');
+        var altFormat = this.opt('listDayAltFormat');
+        return '<tr class="fc-list-heading" data-date="' + dayDate.format('YYYY-MM-DD') + '">' +
+            '<td class="' + (this.calendar.theme.getClass('tableListHeading') ||
+            this.calendar.theme.getClass('widgetHeader')) + '" colspan="3">' +
+            (mainFormat ?
+                this.buildGotoAnchorHtml(dayDate, { 'class': 'fc-list-heading-main' }, util_1.htmlEscape(dayDate.format(mainFormat)) // inner HTML
+                ) :
+                '') +
+            (altFormat ?
+                this.buildGotoAnchorHtml(dayDate, { 'class': 'fc-list-heading-alt' }, util_1.htmlEscape(dayDate.format(altFormat)) // inner HTML
+                ) :
+                '') +
+            '</td>' +
+            '</tr>';
+    };
+    return ListView;
+}(View_1.default));
+exports.default = ListView;
+ListView.prototype.eventRendererClass = ListEventRenderer_1.default;
+ListView.prototype.eventPointingClass = ListEventPointing_1.default;
+
+
+/***/ }),
+/* 231 */,
+/* 232 */,
+/* 233 */,
+/* 234 */,
+/* 235 */,
+/* 236 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var $ = __webpack_require__(3);
+var exportHooks = __webpack_require__(16);
+var util_1 = __webpack_require__(4);
+var Calendar_1 = __webpack_require__(220);
+// for intentional side-effects
+__webpack_require__(10);
+__webpack_require__(47);
+__webpack_require__(256);
+__webpack_require__(257);
+__webpack_require__(260);
+__webpack_require__(261);
+__webpack_require__(262);
+__webpack_require__(263);
+$.fullCalendar = exportHooks;
+$.fn.fullCalendar = function (options) {
+    var args = Array.prototype.slice.call(arguments, 1); // for a possible method call
+    var res =
