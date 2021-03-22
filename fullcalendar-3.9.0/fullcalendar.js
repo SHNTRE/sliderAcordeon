@@ -12494,4 +12494,55 @@ var Iterator = /** @class */ (function () {
     function Iterator(items) {
         this.items = items || [];
     }
-    /* Calls a method on eve
+    /* Calls a method on every item passing the arguments through */
+    Iterator.prototype.proxyCall = function (methodName) {
+        var args = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            args[_i - 1] = arguments[_i];
+        }
+        var results = [];
+        this.items.forEach(function (item) {
+            results.push(item[methodName].apply(item, args));
+        });
+        return results;
+    };
+    return Iterator;
+}());
+exports.default = Iterator;
+
+
+/***/ }),
+/* 239 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var $ = __webpack_require__(3);
+var util_1 = __webpack_require__(4);
+/* Toolbar with buttons and title
+----------------------------------------------------------------------------------------------------------------------*/
+var Toolbar = /** @class */ (function () {
+    function Toolbar(calendar, toolbarOptions) {
+        this.el = null; // mirrors local `el`
+        this.viewsWithButtons = [];
+        this.calendar = calendar;
+        this.toolbarOptions = toolbarOptions;
+    }
+    // method to update toolbar-specific options, not calendar-wide options
+    Toolbar.prototype.setToolbarOptions = function (newToolbarOptions) {
+        this.toolbarOptions = newToolbarOptions;
+    };
+    // can be called repeatedly and will rerender
+    Toolbar.prototype.render = function () {
+        var sections = this.toolbarOptions.layout;
+        var el = this.el;
+        if (sections) {
+            if (!el) {
+                el = this.el = $("<div class='fc-toolbar " + this.toolbarOptions.extraClasses + "'/>");
+            }
+            else {
+                el.empty();
+            }
+            el.append(this.renderSection('left'))
+                .append(this.renderSection('right'))
+                .append(this.renderSection('center'))
+                .append('<div class="fc-clea
