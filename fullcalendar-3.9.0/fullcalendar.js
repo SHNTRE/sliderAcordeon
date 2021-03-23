@@ -12545,4 +12545,47 @@ var Toolbar = /** @class */ (function () {
             el.append(this.renderSection('left'))
                 .append(this.renderSection('right'))
                 .append(this.renderSection('center'))
-                .append('<div class="fc-clea
+                .append('<div class="fc-clear"/>');
+        }
+        else {
+            this.removeElement();
+        }
+    };
+    Toolbar.prototype.removeElement = function () {
+        if (this.el) {
+            this.el.remove();
+            this.el = null;
+        }
+    };
+    Toolbar.prototype.renderSection = function (position) {
+        var _this = this;
+        var calendar = this.calendar;
+        var theme = calendar.theme;
+        var optionsManager = calendar.optionsManager;
+        var viewSpecManager = calendar.viewSpecManager;
+        var sectionEl = $('<div class="fc-' + position + '"/>');
+        var buttonStr = this.toolbarOptions.layout[position];
+        var calendarCustomButtons = optionsManager.get('customButtons') || {};
+        var calendarButtonTextOverrides = optionsManager.overrides.buttonText || {};
+        var calendarButtonText = optionsManager.get('buttonText') || {};
+        if (buttonStr) {
+            $.each(buttonStr.split(' '), function (i, buttonGroupStr) {
+                var groupChildren = $();
+                var isOnlyButtons = true;
+                var groupEl;
+                $.each(buttonGroupStr.split(','), function (j, buttonName) {
+                    var customButtonProps;
+                    var viewSpec;
+                    var buttonClick;
+                    var buttonIcon; // only one of these will be set
+                    var buttonText; // "
+                    var buttonInnerHtml;
+                    var buttonClasses;
+                    var buttonEl;
+                    var buttonAriaAttr;
+                    if (buttonName === 'title') {
+                        groupChildren = groupChildren.add($('<h2>&nbsp;</h2>')); // we always want it to take up height
+                        isOnlyButtons = false;
+                    }
+                    else {
+               
