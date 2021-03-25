@@ -12588,4 +12588,34 @@ var Toolbar = /** @class */ (function () {
                         isOnlyButtons = false;
                     }
                     else {
-               
+                        if ((customButtonProps = calendarCustomButtons[buttonName])) {
+                            buttonClick = function (ev) {
+                                if (customButtonProps.click) {
+                                    customButtonProps.click.call(buttonEl[0], ev);
+                                }
+                            };
+                            (buttonIcon = theme.getCustomButtonIconClass(customButtonProps)) ||
+                                (buttonIcon = theme.getIconClass(buttonName)) ||
+                                (buttonText = customButtonProps.text);
+                        }
+                        else if ((viewSpec = viewSpecManager.getViewSpec(buttonName))) {
+                            _this.viewsWithButtons.push(buttonName);
+                            buttonClick = function () {
+                                calendar.changeView(buttonName);
+                            };
+                            (buttonText = viewSpec.buttonTextOverride) ||
+                                (buttonIcon = theme.getIconClass(buttonName)) ||
+                                (buttonText = viewSpec.buttonTextDefault);
+                        }
+                        else if (calendar[buttonName]) {
+                            buttonClick = function () {
+                                calendar[buttonName]();
+                            };
+                            (buttonText = calendarButtonTextOverrides[buttonName]) ||
+                                (buttonIcon = theme.getIconClass(buttonName)) ||
+                                (buttonText = calendarButtonText[buttonName]);
+                            //            ^ everything else is considered default
+                        }
+                        if (buttonClick) {
+                            buttonClasses = [
+                                'fc-' + butto
