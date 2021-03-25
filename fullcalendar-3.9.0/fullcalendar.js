@@ -12618,4 +12618,31 @@ var Toolbar = /** @class */ (function () {
                         }
                         if (buttonClick) {
                             buttonClasses = [
-                                'fc-' + butto
+                                'fc-' + buttonName + '-button',
+                                theme.getClass('button'),
+                                theme.getClass('stateDefault')
+                            ];
+                            if (buttonText) {
+                                buttonInnerHtml = util_1.htmlEscape(buttonText);
+                                buttonAriaAttr = '';
+                            }
+                            else if (buttonIcon) {
+                                buttonInnerHtml = "<span class='" + buttonIcon + "'></span>";
+                                buttonAriaAttr = ' aria-label="' + buttonName + '"';
+                            }
+                            buttonEl = $(// type="button" so that it doesn't submit a form
+                            '<button type="button" class="' + buttonClasses.join(' ') + '"' +
+                                buttonAriaAttr +
+                                '>' + buttonInnerHtml + '</button>')
+                                .click(function (ev) {
+                                // don't process clicks for disabled buttons
+                                if (!buttonEl.hasClass(theme.getClass('stateDisabled'))) {
+                                    buttonClick(ev);
+                                    // after the click action, if the button becomes the "active" tab, or disabled,
+                                    // it should never have a hover class, so remove it now.
+                                    if (buttonEl.hasClass(theme.getClass('stateActive')) ||
+                                        buttonEl.hasClass(theme.getClass('stateDisabled'))) {
+                                        buttonEl.removeClass(theme.getClass('stateHover'));
+                                    }
+                                }
+ 
