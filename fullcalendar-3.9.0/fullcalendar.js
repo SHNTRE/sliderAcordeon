@@ -12676,4 +12676,51 @@ var Toolbar = /** @class */ (function () {
                     }
                 });
                 if (isOnlyButtons) {
-   
+                    groupChildren
+                        .first().addClass(theme.getClass('cornerLeft')).end()
+                        .last().addClass(theme.getClass('cornerRight')).end();
+                }
+                if (groupChildren.length > 1) {
+                    groupEl = $('<div/>');
+                    if (isOnlyButtons) {
+                        groupEl.addClass(theme.getClass('buttonGroup'));
+                    }
+                    groupEl.append(groupChildren);
+                    sectionEl.append(groupEl);
+                }
+                else {
+                    sectionEl.append(groupChildren); // 1 or 0 children
+                }
+            });
+        }
+        return sectionEl;
+    };
+    Toolbar.prototype.updateTitle = function (text) {
+        if (this.el) {
+            this.el.find('h2').text(text);
+        }
+    };
+    Toolbar.prototype.activateButton = function (buttonName) {
+        if (this.el) {
+            this.el.find('.fc-' + buttonName + '-button')
+                .addClass(this.calendar.theme.getClass('stateActive'));
+        }
+    };
+    Toolbar.prototype.deactivateButton = function (buttonName) {
+        if (this.el) {
+            this.el.find('.fc-' + buttonName + '-button')
+                .removeClass(this.calendar.theme.getClass('stateActive'));
+        }
+    };
+    Toolbar.prototype.disableButton = function (buttonName) {
+        if (this.el) {
+            this.el.find('.fc-' + buttonName + '-button')
+                .prop('disabled', true)
+                .addClass(this.calendar.theme.getClass('stateDisabled'));
+        }
+    };
+    Toolbar.prototype.enableButton = function (buttonName) {
+        if (this.el) {
+            this.el.find('.fc-' + buttonName + '-button')
+                .prop('disabled', false)
+                .removeClass(this.calendar.theme.getClass('state
