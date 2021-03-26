@@ -12645,4 +12645,35 @@ var Toolbar = /** @class */ (function () {
                                         buttonEl.removeClass(theme.getClass('stateHover'));
                                     }
                                 }
- 
+                            })
+                                .mousedown(function () {
+                                // the *down* effect (mouse pressed in).
+                                // only on buttons that are not the "active" tab, or disabled
+                                buttonEl
+                                    .not('.' + theme.getClass('stateActive'))
+                                    .not('.' + theme.getClass('stateDisabled'))
+                                    .addClass(theme.getClass('stateDown'));
+                            })
+                                .mouseup(function () {
+                                // undo the *down* effect
+                                buttonEl.removeClass(theme.getClass('stateDown'));
+                            })
+                                .hover(function () {
+                                // the *hover* effect.
+                                // only on buttons that are not the "active" tab, or disabled
+                                buttonEl
+                                    .not('.' + theme.getClass('stateActive'))
+                                    .not('.' + theme.getClass('stateDisabled'))
+                                    .addClass(theme.getClass('stateHover'));
+                            }, function () {
+                                // undo the *hover* effect
+                                buttonEl
+                                    .removeClass(theme.getClass('stateHover'))
+                                    .removeClass(theme.getClass('stateDown')); // if mouseleave happens before mouseup
+                            });
+                            groupChildren = groupChildren.add(buttonEl);
+                        }
+                    }
+                });
+                if (isOnlyButtons) {
+   
