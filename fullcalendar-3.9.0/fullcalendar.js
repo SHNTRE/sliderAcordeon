@@ -12773,4 +12773,43 @@ var OptionsManager = /** @class */ (function (_super) {
                 return; // can't change date this way. use gotoDate instead
             }
             else if (optionName === 'businessHours') {
-                return; // this model al
+                return; // this model already reacts to this
+            }
+            else if (/^(event|select)(Overlap|Constraint|Allow)$/.test(optionName)) {
+                return; // doesn't affect rendering. only interactions.
+            }
+            else if (optionName === 'timezone') {
+                this._calendar.view.flash('initialEvents');
+                return;
+            }
+        }
+        // catch-all. rerender the header and footer and rebuild/rerender the current view
+        this._calendar.renderHeader();
+        this._calendar.renderFooter();
+        // even non-current views will be affected by this option change. do before rerender
+        // TODO: detangle
+        this._calendar.viewsByType = {};
+        this._calendar.reinitView();
+    };
+    // Computes the flattened options hash for the calendar and assigns to `this.options`.
+    // Assumes this.overrides and this.dynamicOverrides have already been initialized.
+    OptionsManager.prototype.compute = function () {
+        var locale;
+        var localeDefaults;
+        var isRTL;
+        var dirDefaults;
+        var rawOptions;
+        locale = util_1.firstDefined(// explicit locale option given?
+        this.dynamicOverrides.locale, this.overrides.locale);
+        localeDefaults = locale_1.localeOptionHash[locale];
+        if (!localeDefaults) {
+            locale = options_1.globalDefaults.locale;
+            localeDefaults = locale_1.localeOptionHash[locale] || {};
+        }
+        isRTL = util_1.firstDefined(// based on options computed so far, is direction RTL?
+        this.dynamicOverrides.isRTL, this.overrides.isRTL, localeDefaults.isRTL, options_1.globalDefaults.isRTL);
+        dirDefaults = isRTL ? options_1.rtlDefaults : {};
+        this.dirDefaults = dirDefaults;
+        this.localeDefaults = localeDefaults;
+        rawOptions = options_1.mergeOptions([
+     
