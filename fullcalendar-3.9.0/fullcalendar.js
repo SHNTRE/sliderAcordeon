@@ -12723,4 +12723,54 @@ var Toolbar = /** @class */ (function () {
         if (this.el) {
             this.el.find('.fc-' + buttonName + '-button')
                 .prop('disabled', false)
-                .removeClass(this.calendar.theme.getClass('state
+                .removeClass(this.calendar.theme.getClass('stateDisabled'));
+        }
+    };
+    Toolbar.prototype.getViewsWithButtons = function () {
+        return this.viewsWithButtons;
+    };
+    return Toolbar;
+}());
+exports.default = Toolbar;
+
+
+/***/ }),
+/* 240 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var $ = __webpack_require__(3);
+var util_1 = __webpack_require__(4);
+var options_1 = __webpack_require__(32);
+var locale_1 = __webpack_require__(31);
+var Model_1 = __webpack_require__(48);
+var OptionsManager = /** @class */ (function (_super) {
+    tslib_1.__extends(OptionsManager, _super);
+    function OptionsManager(_calendar, overrides) {
+        var _this = _super.call(this) || this;
+        _this._calendar = _calendar;
+        _this.overrides = $.extend({}, overrides); // make a copy
+        _this.dynamicOverrides = {};
+        _this.compute();
+        return _this;
+    }
+    OptionsManager.prototype.add = function (newOptionHash) {
+        var optionCnt = 0;
+        var optionName;
+        this.recordOverrides(newOptionHash); // will trigger this model's watchers
+        for (optionName in newOptionHash) {
+            optionCnt++;
+        }
+        // special-case handling of single option change.
+        // if only one option change, `optionName` will be its name.
+        if (optionCnt === 1) {
+            if (optionName === 'height' || optionName === 'contentHeight' || optionName === 'aspectRatio') {
+                this._calendar.updateViewSize(true); // isResize=true
+                return;
+            }
+            else if (optionName === 'defaultDate') {
+                return; // can't change date this way. use gotoDate instead
+            }
+            else if (optionName === 'businessHours') {
+                return; // this model al
