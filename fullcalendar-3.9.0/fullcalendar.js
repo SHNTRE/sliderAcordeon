@@ -12812,4 +12812,50 @@ var OptionsManager = /** @class */ (function (_super) {
         this.dirDefaults = dirDefaults;
         this.localeDefaults = localeDefaults;
         rawOptions = options_1.mergeOptions([
-     
+            options_1.globalDefaults,
+            dirDefaults,
+            localeDefaults,
+            this.overrides,
+            this.dynamicOverrides
+        ]);
+        locale_1.populateInstanceComputableOptions(rawOptions); // fill in gaps with computed options
+        this.reset(rawOptions);
+    };
+    // stores the new options internally, but does not rerender anything.
+    OptionsManager.prototype.recordOverrides = function (newOptionHash) {
+        var optionName;
+        for (optionName in newOptionHash) {
+            this.dynamicOverrides[optionName] = newOptionHash[optionName];
+        }
+        this._calendar.viewSpecManager.clearCache(); // the dynamic override invalidates the options in this cache, so just clear it
+        this.compute(); // this.options needs to be recomputed after the dynamic override
+    };
+    return OptionsManager;
+}(Model_1.default));
+exports.default = OptionsManager;
+
+
+/***/ }),
+/* 241 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var moment = __webpack_require__(0);
+var $ = __webpack_require__(3);
+var ViewRegistry_1 = __webpack_require__(22);
+var util_1 = __webpack_require__(4);
+var options_1 = __webpack_require__(32);
+var locale_1 = __webpack_require__(31);
+var ViewSpecManager = /** @class */ (function () {
+    function ViewSpecManager(optionsManager, _calendar) {
+        this.optionsManager = optionsManager;
+        this._calendar = _calendar;
+        this.clearCache();
+    }
+    ViewSpecManager.prototype.clearCache = function () {
+        this.viewSpecCache = {};
+    };
+    // Gets information about how to create a view. Will use a cache.
+    ViewSpecManager.prototype.getViewSpec = function (viewType) {
+        var cache = this.viewSpecCache;
+        return cache[viewType] || (cache[viewType] = this.
