@@ -12858,4 +12858,44 @@ var ViewSpecManager = /** @class */ (function () {
     // Gets information about how to create a view. Will use a cache.
     ViewSpecManager.prototype.getViewSpec = function (viewType) {
         var cache = this.viewSpecCache;
-        return cache[viewType] || (cache[viewType] = this.
+        return cache[viewType] || (cache[viewType] = this.buildViewSpec(viewType));
+    };
+    // Given a duration singular unit, like "week" or "day", finds a matching view spec.
+    // Preference is given to views that have corresponding buttons.
+    ViewSpecManager.prototype.getUnitViewSpec = function (unit) {
+        var viewTypes;
+        var i;
+        var spec;
+        if ($.inArray(unit, util_1.unitsDesc) !== -1) {
+            // put views that have buttons first. there will be duplicates, but oh well
+            viewTypes = this._calendar.header.getViewsWithButtons(); // TODO: include footer as well?
+            $.each(ViewRegistry_1.viewHash, function (viewType) {
+                viewTypes.push(viewType);
+            });
+            for (i = 0; i < viewTypes.length; i++) {
+                spec = this.getViewSpec(viewTypes[i]);
+                if (spec) {
+                    if (spec.singleUnit === unit) {
+                        return spec;
+                    }
+                }
+            }
+        }
+    };
+    // Builds an object with information on how to create a given view
+    ViewSpecManager.prototype.buildViewSpec = function (requestedViewType) {
+        var viewOverrides = this.optionsManager.overrides.views || {};
+        var specChain = []; // for the view. lowest to highest priority
+        var defaultsChain = []; // for the view. lowest to highest priority
+        var overridesChain = []; // for the view. lowest to highest priority
+        var viewType = requestedViewType;
+        var spec; // for the view
+        var overrides; // for the view
+        var durationInput;
+        var duration;
+        var unit;
+        // iterate from the specific view definition to a more general one until we hit an actual View class
+        while (viewType) {
+            spec = ViewRegistry_1.viewHash[viewType];
+            overrides = viewOverrides[viewType];
+            viewType = null; // clear. might repopulate f
