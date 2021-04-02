@@ -12898,4 +12898,46 @@ var ViewSpecManager = /** @class */ (function () {
         while (viewType) {
             spec = ViewRegistry_1.viewHash[viewType];
             overrides = viewOverrides[viewType];
-            viewType = null; // clear. might repopulate f
+            viewType = null; // clear. might repopulate for another iteration
+            if (typeof spec === 'function') {
+                spec = { 'class': spec };
+            }
+            if (spec) {
+                specChain.unshift(spec);
+                defaultsChain.unshift(spec.defaults || {});
+                durationInput = durationInput || spec.duration;
+                viewType = viewType || spec.type;
+            }
+            if (overrides) {
+                overridesChain.unshift(overrides); // view-specific option hashes have options at zero-level
+                durationInput = durationInput || overrides.duration;
+                viewType = viewType || overrides.type;
+            }
+        }
+        spec = util_1.mergeProps(specChain);
+        spec.type = requestedViewType;
+        if (!spec['class']) {
+            return false;
+        }
+        // fall back to top-level `duration` option
+        durationInput = durationInput ||
+            this.optionsManager.dynamicOverrides.duration ||
+            this.optionsManager.overrides.duration;
+        if (durationInput) {
+            duration = moment.duration(durationInput);
+            if (duration.valueOf()) {
+                unit = util_1.computeDurationGreatestUnit(duration, durationInput);
+                spec.duration = duration;
+                spec.durationUnit = unit;
+                // view is a single-unit duration, like "week" or "day"
+                // incorporate options for this. lowest priority
+                if (duration.as(unit) === 1) {
+                    spec.singleUnit = unit;
+                    overridesChain.unshift(viewOverrides[unit] || {});
+                }
+            }
+        }
+        spec.defaults = options_1.mergeOptions(defaultsChain);
+        spec.overrides = options_1.mergeOptions(overridesChain);
+        this.buildViewSpecOptions(spec);
+        this.buildViewSpec
