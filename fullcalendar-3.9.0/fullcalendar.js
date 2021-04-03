@@ -12940,4 +12940,39 @@ var ViewSpecManager = /** @class */ (function () {
         spec.defaults = options_1.mergeOptions(defaultsChain);
         spec.overrides = options_1.mergeOptions(overridesChain);
         this.buildViewSpecOptions(spec);
-        this.buildViewSpec
+        this.buildViewSpecButtonText(spec, requestedViewType);
+        return spec;
+    };
+    // Builds and assigns a view spec's options object from its already-assigned defaults and overrides
+    ViewSpecManager.prototype.buildViewSpecOptions = function (spec) {
+        var optionsManager = this.optionsManager;
+        spec.options = options_1.mergeOptions([
+            options_1.globalDefaults,
+            spec.defaults,
+            optionsManager.dirDefaults,
+            optionsManager.localeDefaults,
+            optionsManager.overrides,
+            spec.overrides,
+            optionsManager.dynamicOverrides // dynamically set via setter. highest precedence
+        ]);
+        locale_1.populateInstanceComputableOptions(spec.options);
+    };
+    // Computes and assigns a view spec's buttonText-related options
+    ViewSpecManager.prototype.buildViewSpecButtonText = function (spec, requestedViewType) {
+        var optionsManager = this.optionsManager;
+        // given an options object with a possible `buttonText` hash, lookup the buttonText for the
+        // requested view, falling back to a generic unit entry like "week" or "day"
+        function queryButtonText(options) {
+            var buttonText = options.buttonText || {};
+            return buttonText[requestedViewType] ||
+                // view can decide to look up a certain key
+                (spec.buttonTextKey ? buttonText[spec.buttonTextKey] : null) ||
+                // a key like "month"
+                (spec.singleUnit ? buttonText[spec.singleUnit] : null);
+        }
+        // highest to lowest priority
+        spec.buttonTextOverride =
+            queryButtonText(optionsManager.dynamicOverrides) ||
+                queryButtonText(optionsManager.overrides) || // constructor-specified buttonText lookup hash takes precedence
+                spec.overrides.buttonText; // `buttonText` for view-specific options is a string
+        // hig
