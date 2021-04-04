@@ -13017,4 +13017,48 @@ var EventManager = /** @class */ (function () {
             timezone !== this.currentPeriod.timezone) {
             this.setPeriod(// will change this.currentPeriod
             new EventPeriod_1.default(start, end, timezone));
-        
+        }
+        return this.currentPeriod.whenReleased();
+    };
+    // Source Adding/Removing
+    // -----------------------------------------------------------------------------------------------------------------
+    EventManager.prototype.addSource = function (eventSource) {
+        this.otherSources.push(eventSource);
+        if (this.currentPeriod) {
+            this.currentPeriod.requestSource(eventSource); // might release
+        }
+    };
+    EventManager.prototype.removeSource = function (doomedSource) {
+        util_1.removeExact(this.otherSources, doomedSource);
+        if (this.currentPeriod) {
+            this.currentPeriod.purgeSource(doomedSource); // might release
+        }
+    };
+    EventManager.prototype.removeAllSources = function () {
+        this.otherSources = [];
+        if (this.currentPeriod) {
+            this.currentPeriod.purgeAllSources(); // might release
+        }
+    };
+    // Source Refetching
+    // -----------------------------------------------------------------------------------------------------------------
+    EventManager.prototype.refetchSource = function (eventSource) {
+        var currentPeriod = this.currentPeriod;
+        if (currentPeriod) {
+            currentPeriod.freeze();
+            currentPeriod.purgeSource(eventSource);
+            currentPeriod.requestSource(eventSource);
+            currentPeriod.thaw();
+        }
+    };
+    EventManager.prototype.refetchAllSources = function () {
+        var currentPeriod = this.currentPeriod;
+        if (currentPeriod) {
+            currentPeriod.freeze();
+            currentPeriod.purgeAllSources();
+            currentPeriod.requestSources(this.getSources());
+            currentPeriod.thaw();
+        }
+    };
+    // Source Querying
+    // ------------------------------------------------------------
