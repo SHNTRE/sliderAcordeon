@@ -12975,4 +12975,46 @@ var ViewSpecManager = /** @class */ (function () {
             queryButtonText(optionsManager.dynamicOverrides) ||
                 queryButtonText(optionsManager.overrides) || // constructor-specified buttonText lookup hash takes precedence
                 spec.overrides.buttonText; // `buttonText` for view-specific options is a string
-        // hig
+        // highest to lowest priority. mirrors buildViewSpecOptions
+        spec.buttonTextDefault =
+            queryButtonText(optionsManager.localeDefaults) ||
+                queryButtonText(optionsManager.dirDefaults) ||
+                spec.defaults.buttonText || // a single string. from ViewSubclass.defaults
+                queryButtonText(options_1.globalDefaults) ||
+                (spec.duration ? this._calendar.humanizeDuration(spec.duration) : null) || // like "3 days"
+                requestedViewType; // fall back to given view name
+    };
+    return ViewSpecManager;
+}());
+exports.default = ViewSpecManager;
+
+
+/***/ }),
+/* 242 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var $ = __webpack_require__(3);
+var util_1 = __webpack_require__(4);
+var EventPeriod_1 = __webpack_require__(243);
+var ArrayEventSource_1 = __webpack_require__(52);
+var EventSource_1 = __webpack_require__(6);
+var EventSourceParser_1 = __webpack_require__(38);
+var SingleEventDef_1 = __webpack_require__(13);
+var EventInstanceGroup_1 = __webpack_require__(18);
+var EmitterMixin_1 = __webpack_require__(11);
+var ListenerMixin_1 = __webpack_require__(7);
+var EventManager = /** @class */ (function () {
+    function EventManager(calendar) {
+        this.calendar = calendar;
+        this.stickySource = new ArrayEventSource_1.default(calendar);
+        this.otherSources = [];
+    }
+    EventManager.prototype.requestEvents = function (start, end, timezone, force) {
+        if (force ||
+            !this.currentPeriod ||
+            !this.currentPeriod.isWithinRange(start, end) ||
+            timezone !== this.currentPeriod.timezone) {
+            this.setPeriod(// will change this.currentPeriod
+            new EventPeriod_1.default(start, end, timezone));
+        
