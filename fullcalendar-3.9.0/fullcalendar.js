@@ -13061,4 +13061,55 @@ var EventManager = /** @class */ (function () {
         }
     };
     // Source Querying
-    // ------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------------
+    EventManager.prototype.getSources = function () {
+        return [this.stickySource].concat(this.otherSources);
+    };
+    // like querySources, but accepts multple match criteria (like multiple IDs)
+    EventManager.prototype.multiQuerySources = function (matchInputs) {
+        // coerce into an array
+        if (!matchInputs) {
+            matchInputs = [];
+        }
+        else if (!$.isArray(matchInputs)) {
+            matchInputs = [matchInputs];
+        }
+        var matchingSources = [];
+        var i;
+        // resolve raw inputs to real event source objects
+        for (i = 0; i < matchInputs.length; i++) {
+            matchingSources.push.apply(// append
+            matchingSources, this.querySources(matchInputs[i]));
+        }
+        return matchingSources;
+    };
+    // matchInput can either by a real event source object, an ID, or the function/URL for the source.
+    // returns an array of matching source objects.
+    EventManager.prototype.querySources = function (matchInput) {
+        var sources = this.otherSources;
+        var i;
+        var source;
+        // given a proper event source object
+        for (i = 0; i < sources.length; i++) {
+            source = sources[i];
+            if (source === matchInput) {
+                return [source];
+            }
+        }
+        // an ID match
+        source = this.getSourceById(EventSource_1.default.normalizeId(matchInput));
+        if (source) {
+            return [source];
+        }
+        // parse as an event source
+        matchInput = EventSourceParser_1.default.parse(matchInput, this.calendar);
+        if (matchInput) {
+            return $.grep(sources, function (source) {
+                return isSourcesEquivalent(matchInput, source);
+            });
+        }
+    };
+    /*
+    ID assumed to already be normalized
+    */
+    EventMa
