@@ -13112,4 +13112,48 @@ var EventManager = /** @class */ (function () {
     /*
     ID assumed to already be normalized
     */
-    EventMa
+    EventManager.prototype.getSourceById = function (id) {
+        return $.grep(this.otherSources, function (source) {
+            return source.id && source.id === id;
+        })[0];
+    };
+    // Event-Period
+    // -----------------------------------------------------------------------------------------------------------------
+    EventManager.prototype.setPeriod = function (eventPeriod) {
+        if (this.currentPeriod) {
+            this.unbindPeriod(this.currentPeriod);
+            this.currentPeriod = null;
+        }
+        this.currentPeriod = eventPeriod;
+        this.bindPeriod(eventPeriod);
+        eventPeriod.requestSources(this.getSources());
+    };
+    EventManager.prototype.bindPeriod = function (eventPeriod) {
+        this.listenTo(eventPeriod, 'release', function (eventsPayload) {
+            this.trigger('release', eventsPayload);
+        });
+    };
+    EventManager.prototype.unbindPeriod = function (eventPeriod) {
+        this.stopListeningTo(eventPeriod);
+    };
+    // Event Getting/Adding/Removing
+    // -----------------------------------------------------------------------------------------------------------------
+    EventManager.prototype.getEventDefByUid = function (uid) {
+        if (this.currentPeriod) {
+            return this.currentPeriod.getEventDefByUid(uid);
+        }
+    };
+    EventManager.prototype.addEventDef = function (eventDef, isSticky) {
+        if (isSticky) {
+            this.stickySource.addEventDef(eventDef);
+        }
+        if (this.currentPeriod) {
+            this.currentPeriod.addEventDef(eventDef); // might release
+        }
+    };
+    EventManager.prototype.removeEventDefsById = function (eventId) {
+        this.getSources().forEach(function (eventSource) {
+            eventSource.removeEventDefsById(eventId);
+        });
+        if (this.currentPeriod) {
+        
