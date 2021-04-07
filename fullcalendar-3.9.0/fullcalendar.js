@@ -13205,4 +13205,54 @@ var EventManager = /** @class */ (function () {
         var eventDefs = this.getEventDefsById(eventDefId);
         var i;
         var defCopy;
-        var allInstances = [
+        var allInstances = [];
+        for (i = 0; i < eventDefs.length; i++) {
+            defCopy = eventDefs[i].clone();
+            if (defCopy instanceof SingleEventDef_1.default) {
+                eventDefMutation.mutateSingle(defCopy);
+                allInstances.push.apply(allInstances, // append
+                defCopy.buildInstances());
+            }
+        }
+        return new EventInstanceGroup_1.default(allInstances);
+    };
+    // Freezing
+    // -----------------------------------------------------------------------------------------------------------------
+    EventManager.prototype.freeze = function () {
+        if (this.currentPeriod) {
+            this.currentPeriod.freeze();
+        }
+    };
+    EventManager.prototype.thaw = function () {
+        if (this.currentPeriod) {
+            this.currentPeriod.thaw();
+        }
+    };
+    // methods that simply forward to EventPeriod
+    EventManager.prototype.getEventDefsById = function (eventDefId) {
+        return this.currentPeriod.getEventDefsById(eventDefId);
+    };
+    EventManager.prototype.getEventInstances = function () {
+        return this.currentPeriod.getEventInstances();
+    };
+    EventManager.prototype.getEventInstancesWithId = function (eventDefId) {
+        return this.currentPeriod.getEventInstancesWithId(eventDefId);
+    };
+    EventManager.prototype.getEventInstancesWithoutId = function (eventDefId) {
+        return this.currentPeriod.getEventInstancesWithoutId(eventDefId);
+    };
+    return EventManager;
+}());
+exports.default = EventManager;
+EmitterMixin_1.default.mixInto(EventManager);
+ListenerMixin_1.default.mixInto(EventManager);
+function isSourcesEquivalent(source0, source1) {
+    return source0.getPrimitive() === source1.getPrimitive();
+}
+
+
+/***/ }),
+/* 243 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { va
