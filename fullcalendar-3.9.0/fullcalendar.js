@@ -13156,4 +13156,53 @@ var EventManager = /** @class */ (function () {
             eventSource.removeEventDefsById(eventId);
         });
         if (this.currentPeriod) {
-        
+            this.currentPeriod.removeEventDefsById(eventId); // might release
+        }
+    };
+    EventManager.prototype.removeAllEventDefs = function () {
+        this.getSources().forEach(function (eventSource) {
+            eventSource.removeAllEventDefs();
+        });
+        if (this.currentPeriod) {
+            this.currentPeriod.removeAllEventDefs();
+        }
+    };
+    // Event Mutating
+    // -----------------------------------------------------------------------------------------------------------------
+    /*
+    Returns an undo function.
+    */
+    EventManager.prototype.mutateEventsWithId = function (eventDefId, eventDefMutation) {
+        var currentPeriod = this.currentPeriod;
+        var eventDefs;
+        var undoFuncs = [];
+        if (currentPeriod) {
+            currentPeriod.freeze();
+            eventDefs = currentPeriod.getEventDefsById(eventDefId);
+            eventDefs.forEach(function (eventDef) {
+                // add/remove esp because id might change
+                currentPeriod.removeEventDef(eventDef);
+                undoFuncs.push(eventDefMutation.mutateSingle(eventDef));
+                currentPeriod.addEventDef(eventDef);
+            });
+            currentPeriod.thaw();
+            return function () {
+                currentPeriod.freeze();
+                for (var i = 0; i < eventDefs.length; i++) {
+                    currentPeriod.removeEventDef(eventDefs[i]);
+                    undoFuncs[i]();
+                    currentPeriod.addEventDef(eventDefs[i]);
+                }
+                currentPeriod.thaw();
+            };
+        }
+        return function () { };
+    };
+    /*
+    copies and then mutates
+    */
+    EventManager.prototype.buildMutatedEventInstanceGroup = function (eventDefId, eventDefMutation) {
+        var eventDefs = this.getEventDefsById(eventDefId);
+        var i;
+        var defCopy;
+        var allInstances = [
