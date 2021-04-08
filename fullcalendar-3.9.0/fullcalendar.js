@@ -13255,4 +13255,49 @@ function isSourcesEquivalent(source0, source1) {
 /* 243 */
 /***/ (function(module, exports, __webpack_require__) {
 
-Object.defineProperty(exports, "__esModule", { va
+Object.defineProperty(exports, "__esModule", { value: true });
+var $ = __webpack_require__(3);
+var util_1 = __webpack_require__(4);
+var Promise_1 = __webpack_require__(20);
+var EmitterMixin_1 = __webpack_require__(11);
+var UnzonedRange_1 = __webpack_require__(5);
+var EventInstanceGroup_1 = __webpack_require__(18);
+var EventPeriod = /** @class */ (function () {
+    function EventPeriod(start, end, timezone) {
+        this.pendingCnt = 0;
+        this.freezeDepth = 0;
+        this.stuntedReleaseCnt = 0;
+        this.releaseCnt = 0;
+        this.start = start;
+        this.end = end;
+        this.timezone = timezone;
+        this.unzonedRange = new UnzonedRange_1.default(start.clone().stripZone(), end.clone().stripZone());
+        this.requestsByUid = {};
+        this.eventDefsByUid = {};
+        this.eventDefsById = {};
+        this.eventInstanceGroupsById = {};
+    }
+    EventPeriod.prototype.isWithinRange = function (start, end) {
+        // TODO: use a range util function?
+        return !start.isBefore(this.start) && !end.isAfter(this.end);
+    };
+    // Requesting and Purging
+    // -----------------------------------------------------------------------------------------------------------------
+    EventPeriod.prototype.requestSources = function (sources) {
+        this.freeze();
+        for (var i = 0; i < sources.length; i++) {
+            this.requestSource(sources[i]);
+        }
+        this.thaw();
+    };
+    EventPeriod.prototype.requestSource = function (source) {
+        var _this = this;
+        var request = { source: source, status: 'pending', eventDefs: null };
+        this.requestsByUid[source.uid] = request;
+        this.pendingCnt += 1;
+        source.fetch(this.start, this.end, this.timezone).then(function (eventDefs) {
+            if (request.status !== 'cancelled') {
+                request.status = 'completed';
+                request.eventDefs = eventDefs;
+                _this.addEventDefs(eventDefs);
+                _this.
