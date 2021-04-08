@@ -13300,4 +13300,56 @@ var EventPeriod = /** @class */ (function () {
                 request.status = 'completed';
                 request.eventDefs = eventDefs;
                 _this.addEventDefs(eventDefs);
-                _this.
+                _this.pendingCnt--;
+                _this.tryRelease();
+            }
+        }, function () {
+            if (request.status !== 'cancelled') {
+                request.status = 'failed';
+                _this.pendingCnt--;
+                _this.tryRelease();
+            }
+        });
+    };
+    EventPeriod.prototype.purgeSource = function (source) {
+        var request = this.requestsByUid[source.uid];
+        if (request) {
+            delete this.requestsByUid[source.uid];
+            if (request.status === 'pending') {
+                request.status = 'cancelled';
+                this.pendingCnt--;
+                this.tryRelease();
+            }
+            else if (request.status === 'completed') {
+                request.eventDefs.forEach(this.removeEventDef.bind(this));
+            }
+        }
+    };
+    EventPeriod.prototype.purgeAllSources = function () {
+        var requestsByUid = this.requestsByUid;
+        var uid;
+        var request;
+        var completedCnt = 0;
+        for (uid in requestsByUid) {
+            request = requestsByUid[uid];
+            if (request.status === 'pending') {
+                request.status = 'cancelled';
+            }
+            else if (request.status === 'completed') {
+                completedCnt++;
+            }
+        }
+        this.requestsByUid = {};
+        this.pendingCnt = 0;
+        if (completedCnt) {
+            this.removeAllEventDefs(); // might release
+        }
+    };
+    // Event Definitions
+    // -----------------------------------------------------------------------------------------------------------------
+    EventPeriod.prototype.getEventDefByUid = function (eventDefUid) {
+        return this.eventDefsByUid[eventDefUid];
+    };
+    EventPeriod.prototype.getEventDefsById = function (eventDefId) {
+        var a = this.eventDefsById[eventDefId];
+     
