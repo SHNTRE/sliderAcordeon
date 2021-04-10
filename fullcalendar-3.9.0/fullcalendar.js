@@ -13352,4 +13352,53 @@ var EventPeriod = /** @class */ (function () {
     };
     EventPeriod.prototype.getEventDefsById = function (eventDefId) {
         var a = this.eventDefsById[eventDefId];
-     
+        if (a) {
+            return a.slice(); // clone
+        }
+        return [];
+    };
+    EventPeriod.prototype.addEventDefs = function (eventDefs) {
+        for (var i = 0; i < eventDefs.length; i++) {
+            this.addEventDef(eventDefs[i]);
+        }
+    };
+    EventPeriod.prototype.addEventDef = function (eventDef) {
+        var eventDefsById = this.eventDefsById;
+        var eventDefId = eventDef.id;
+        var eventDefs = eventDefsById[eventDefId] || (eventDefsById[eventDefId] = []);
+        var eventInstances = eventDef.buildInstances(this.unzonedRange);
+        var i;
+        eventDefs.push(eventDef);
+        this.eventDefsByUid[eventDef.uid] = eventDef;
+        for (i = 0; i < eventInstances.length; i++) {
+            this.addEventInstance(eventInstances[i], eventDefId);
+        }
+    };
+    EventPeriod.prototype.removeEventDefsById = function (eventDefId) {
+        var _this = this;
+        this.getEventDefsById(eventDefId).forEach(function (eventDef) {
+            _this.removeEventDef(eventDef);
+        });
+    };
+    EventPeriod.prototype.removeAllEventDefs = function () {
+        var isEmpty = $.isEmptyObject(this.eventDefsByUid);
+        this.eventDefsByUid = {};
+        this.eventDefsById = {};
+        this.eventInstanceGroupsById = {};
+        if (!isEmpty) {
+            this.tryRelease();
+        }
+    };
+    EventPeriod.prototype.removeEventDef = function (eventDef) {
+        var eventDefsById = this.eventDefsById;
+        var eventDefs = eventDefsById[eventDef.id];
+        delete this.eventDefsByUid[eventDef.uid];
+        if (eventDefs) {
+            util_1.removeExact(eventDefs, eventDef);
+            if (!eventDefs.length) {
+                delete eventDefsById[eventDef.id];
+            }
+            this.removeEventInstancesForDef(eventDef);
+        }
+    };
+    // Event 
