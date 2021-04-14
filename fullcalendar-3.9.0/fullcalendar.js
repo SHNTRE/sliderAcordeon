@@ -13401,4 +13401,45 @@ var EventPeriod = /** @class */ (function () {
             this.removeEventInstancesForDef(eventDef);
         }
     };
-    // Event 
+    // Event Instances
+    // -----------------------------------------------------------------------------------------------------------------
+    EventPeriod.prototype.getEventInstances = function () {
+        var eventInstanceGroupsById = this.eventInstanceGroupsById;
+        var eventInstances = [];
+        var id;
+        for (id in eventInstanceGroupsById) {
+            eventInstances.push.apply(eventInstances, // append
+            eventInstanceGroupsById[id].eventInstances);
+        }
+        return eventInstances;
+    };
+    EventPeriod.prototype.getEventInstancesWithId = function (eventDefId) {
+        var eventInstanceGroup = this.eventInstanceGroupsById[eventDefId];
+        if (eventInstanceGroup) {
+            return eventInstanceGroup.eventInstances.slice(); // clone
+        }
+        return [];
+    };
+    EventPeriod.prototype.getEventInstancesWithoutId = function (eventDefId) {
+        var eventInstanceGroupsById = this.eventInstanceGroupsById;
+        var matchingInstances = [];
+        var id;
+        for (id in eventInstanceGroupsById) {
+            if (id !== eventDefId) {
+                matchingInstances.push.apply(matchingInstances, // append
+                eventInstanceGroupsById[id].eventInstances);
+            }
+        }
+        return matchingInstances;
+    };
+    EventPeriod.prototype.addEventInstance = function (eventInstance, eventDefId) {
+        var eventInstanceGroupsById = this.eventInstanceGroupsById;
+        var eventInstanceGroup = eventInstanceGroupsById[eventDefId] ||
+            (eventInstanceGroupsById[eventDefId] = new EventInstanceGroup_1.default());
+        eventInstanceGroup.eventInstances.push(eventInstance);
+        this.tryRelease();
+    };
+    EventPeriod.prototype.removeEventInstancesForDef = function (eventDef) {
+        var eventInstanceGroupsById = this.eventInstanceGroupsById;
+        var eventInstanceGroup = eventInstanceGroupsById[eventDef.id];
+        va
