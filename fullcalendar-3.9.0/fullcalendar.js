@@ -13442,4 +13442,57 @@ var EventPeriod = /** @class */ (function () {
     EventPeriod.prototype.removeEventInstancesForDef = function (eventDef) {
         var eventInstanceGroupsById = this.eventInstanceGroupsById;
         var eventInstanceGroup = eventInstanceGroupsById[eventDef.id];
-        va
+        var removeCnt;
+        if (eventInstanceGroup) {
+            removeCnt = util_1.removeMatching(eventInstanceGroup.eventInstances, function (currentEventInstance) {
+                return currentEventInstance.def === eventDef;
+            });
+            if (!eventInstanceGroup.eventInstances.length) {
+                delete eventInstanceGroupsById[eventDef.id];
+            }
+            if (removeCnt) {
+                this.tryRelease();
+            }
+        }
+    };
+    // Releasing and Freezing
+    // -----------------------------------------------------------------------------------------------------------------
+    EventPeriod.prototype.tryRelease = function () {
+        if (!this.pendingCnt) {
+            if (!this.freezeDepth) {
+                this.release();
+            }
+            else {
+                this.stuntedReleaseCnt++;
+            }
+        }
+    };
+    EventPeriod.prototype.release = function () {
+        this.releaseCnt++;
+        this.trigger('release', this.eventInstanceGroupsById);
+    };
+    EventPeriod.prototype.whenReleased = function () {
+        var _this = this;
+        if (this.releaseCnt) {
+            return Promise_1.default.resolve(this.eventInstanceGroupsById);
+        }
+        else {
+            return Promise_1.default.construct(function (onResolve) {
+                _this.one('release', onResolve);
+            });
+        }
+    };
+    EventPeriod.prototype.freeze = function () {
+        if (!(this.freezeDepth++)) {
+            this.stuntedReleaseCnt = 0;
+        }
+    };
+    EventPeriod.prototype.thaw = function () {
+        if (!(--this.freezeDepth) && this.stuntedReleaseCnt && !this.pendingCnt) {
+            this.release();
+        }
+    };
+    return EventPeriod;
+}());
+exports.default = EventPeriod;
+Emi
