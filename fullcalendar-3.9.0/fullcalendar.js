@@ -13495,4 +13495,46 @@ var EventPeriod = /** @class */ (function () {
     return EventPeriod;
 }());
 exports.default = EventPeriod;
-Emi
+EmitterMixin_1.default.mixInto(EventPeriod);
+
+
+/***/ }),
+/* 244 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var $ = __webpack_require__(3);
+var util_1 = __webpack_require__(4);
+var ListenerMixin_1 = __webpack_require__(7);
+/* Creates a clone of an element and lets it track the mouse as it moves
+----------------------------------------------------------------------------------------------------------------------*/
+var MouseFollower = /** @class */ (function () {
+    function MouseFollower(sourceEl, options) {
+        this.isFollowing = false;
+        this.isHidden = false;
+        this.isAnimating = false; // doing the revert animation?
+        this.options = options = options || {};
+        this.sourceEl = sourceEl;
+        this.parentEl = options.parentEl ? $(options.parentEl) : sourceEl.parent(); // default to sourceEl's parent
+    }
+    // Causes the element to start following the mouse
+    MouseFollower.prototype.start = function (ev) {
+        if (!this.isFollowing) {
+            this.isFollowing = true;
+            this.y0 = util_1.getEvY(ev);
+            this.x0 = util_1.getEvX(ev);
+            this.topDelta = 0;
+            this.leftDelta = 0;
+            if (!this.isHidden) {
+                this.updatePosition();
+            }
+            if (util_1.getEvIsTouch(ev)) {
+                this.listenTo($(document), 'touchmove', this.handleMove);
+            }
+            else {
+                this.listenTo($(document), 'mousemove', this.handleMove);
+            }
+        }
+    };
+    // Causes the element to stop following the mouse. If shouldRevert is true, will animate back to original position.
+    // `callback` gets invoked when the animation is complete. If no animation, it is invoked immediately
