@@ -13537,4 +13537,53 @@ var MouseFollower = /** @class */ (function () {
         }
     };
     // Causes the element to stop following the mouse. If shouldRevert is true, will animate back to original position.
-    // `callback` gets invoked when the animation is complete. If no animation, it is invoked immediately
+    // `callback` gets invoked when the animation is complete. If no animation, it is invoked immediately.
+    MouseFollower.prototype.stop = function (shouldRevert, callback) {
+        var _this = this;
+        var revertDuration = this.options.revertDuration;
+        var complete = function () {
+            _this.isAnimating = false;
+            _this.removeElement();
+            _this.top0 = _this.left0 = null; // reset state for future updatePosition calls
+            if (callback) {
+                callback();
+            }
+        };
+        if (this.isFollowing && !this.isAnimating) {
+            this.isFollowing = false;
+            this.stopListeningTo($(document));
+            if (shouldRevert && revertDuration && !this.isHidden) {
+                this.isAnimating = true;
+                this.el.animate({
+                    top: this.top0,
+                    left: this.left0
+                }, {
+                    duration: revertDuration,
+                    complete: complete
+                });
+            }
+            else {
+                complete();
+            }
+        }
+    };
+    // Gets the tracking element. Create it if necessary
+    MouseFollower.prototype.getEl = function () {
+        var el = this.el;
+        if (!el) {
+            el = this.el = this.sourceEl.clone()
+                .addClass(this.options.additionalClass || '')
+                .css({
+                position: 'absolute',
+                visibility: '',
+                display: this.isHidden ? 'none' : '',
+                margin: 0,
+                right: 'auto',
+                bottom: 'auto',
+                width: this.sourceEl.width(),
+                height: this.sourceEl.height(),
+                opacity: this.options.opacity || '',
+                zIndex: this.options.zIndex
+            });
+            // we don't want long taps or any mouse interaction causing selection/menus.
+            // would use preventSelection(), bu
