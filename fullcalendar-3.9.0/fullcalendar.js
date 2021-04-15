@@ -13691,4 +13691,53 @@ var DateClicking = /** @class */ (function (_super) {
         var component = this.component;
         var dayClickHit; // null if invalid dayClick
         var dragListener = new HitDragListener_1.default(component, {
-            scroll: 
+            scroll: this.opt('dragScroll'),
+            interactionStart: function () {
+                dayClickHit = dragListener.origHit;
+            },
+            hitOver: function (hit, isOrig, origHit) {
+                // if user dragged to another cell at any point, it can no longer be a dayClick
+                if (!isOrig) {
+                    dayClickHit = null;
+                }
+            },
+            hitOut: function () {
+                dayClickHit = null;
+            },
+            interactionEnd: function (ev, isCancelled) {
+                var componentFootprint;
+                if (!isCancelled && dayClickHit) {
+                    componentFootprint = component.getSafeHitFootprint(dayClickHit);
+                    if (componentFootprint) {
+                        _this.view.triggerDayClick(componentFootprint, component.getHitEl(dayClickHit), ev);
+                    }
+                }
+            }
+        });
+        // because dragListener won't be called with any time delay, "dragging" will begin immediately,
+        // which will kill any touchmoving/scrolling. Prevent this.
+        dragListener.shouldCancelTouchScroll = false;
+        dragListener.scrollAlwaysKills = true;
+        return dragListener;
+    };
+    return DateClicking;
+}(Interaction_1.default));
+exports.default = DateClicking;
+
+
+/***/ }),
+/* 246 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var util_1 = __webpack_require__(4);
+var EventRenderer_1 = __webpack_require__(42);
+/*
+Only handles foreground segs.
+Does not own rendering. Use for low-level util methods by TimeGrid.
+*/
+var TimeGridEventRenderer = /** @class */ (function (_super) {
+    tslib_1.__extends(TimeGridEventRenderer, _super);
+    function TimeGridEventRenderer(timeGrid, fillRenderer) {
+    
