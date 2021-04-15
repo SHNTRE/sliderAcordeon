@@ -13586,4 +13586,55 @@ var MouseFollower = /** @class */ (function () {
                 zIndex: this.options.zIndex
             });
             // we don't want long taps or any mouse interaction causing selection/menus.
-            // would use preventSelection(), bu
+            // would use preventSelection(), but that prevents selectstart, causing problems.
+            el.addClass('fc-unselectable');
+            el.appendTo(this.parentEl);
+        }
+        return el;
+    };
+    // Removes the tracking element if it has already been created
+    MouseFollower.prototype.removeElement = function () {
+        if (this.el) {
+            this.el.remove();
+            this.el = null;
+        }
+    };
+    // Update the CSS position of the tracking element
+    MouseFollower.prototype.updatePosition = function () {
+        var sourceOffset;
+        var origin;
+        this.getEl(); // ensure this.el
+        // make sure origin info was computed
+        if (this.top0 == null) {
+            sourceOffset = this.sourceEl.offset();
+            origin = this.el.offsetParent().offset();
+            this.top0 = sourceOffset.top - origin.top;
+            this.left0 = sourceOffset.left - origin.left;
+        }
+        this.el.css({
+            top: this.top0 + this.topDelta,
+            left: this.left0 + this.leftDelta
+        });
+    };
+    // Gets called when the user moves the mouse
+    MouseFollower.prototype.handleMove = function (ev) {
+        this.topDelta = util_1.getEvY(ev) - this.y0;
+        this.leftDelta = util_1.getEvX(ev) - this.x0;
+        if (!this.isHidden) {
+            this.updatePosition();
+        }
+    };
+    // Temporarily makes the tracking element invisible. Can be called before following starts
+    MouseFollower.prototype.hide = function () {
+        if (!this.isHidden) {
+            this.isHidden = true;
+            if (this.el) {
+                this.el.hide();
+            }
+        }
+    };
+    // Show the tracking element after it has been temporarily hidden
+    MouseFollower.prototype.show = function () {
+        if (this.isHidden) {
+            this.isHidden = false;
+            this.updatePositi
