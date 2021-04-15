@@ -13637,4 +13637,58 @@ var MouseFollower = /** @class */ (function () {
     MouseFollower.prototype.show = function () {
         if (this.isHidden) {
             this.isHidden = false;
-            this.updatePositi
+            this.updatePosition();
+            this.getEl().show();
+        }
+    };
+    return MouseFollower;
+}());
+exports.default = MouseFollower;
+ListenerMixin_1.default.mixInto(MouseFollower);
+
+
+/***/ }),
+/* 245 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var HitDragListener_1 = __webpack_require__(23);
+var Interaction_1 = __webpack_require__(15);
+var DateClicking = /** @class */ (function (_super) {
+    tslib_1.__extends(DateClicking, _super);
+    /*
+    component must implement:
+      - bindDateHandlerToEl
+      - getSafeHitFootprint
+      - getHitEl
+    */
+    function DateClicking(component) {
+        var _this = _super.call(this, component) || this;
+        _this.dragListener = _this.buildDragListener();
+        return _this;
+    }
+    DateClicking.prototype.end = function () {
+        this.dragListener.endInteraction();
+    };
+    DateClicking.prototype.bindToEl = function (el) {
+        var component = this.component;
+        var dragListener = this.dragListener;
+        component.bindDateHandlerToEl(el, 'mousedown', function (ev) {
+            if (!component.shouldIgnoreMouse()) {
+                dragListener.startInteraction(ev);
+            }
+        });
+        component.bindDateHandlerToEl(el, 'touchstart', function (ev) {
+            if (!component.shouldIgnoreTouch()) {
+                dragListener.startInteraction(ev);
+            }
+        });
+    };
+    // Creates a listener that tracks the user's drag across day elements, for day clicking.
+    DateClicking.prototype.buildDragListener = function () {
+        var _this = this;
+        var component = this.component;
+        var dayClickHit; // null if invalid dayClick
+        var dragListener = new HitDragListener_1.default(component, {
+            scroll: 
