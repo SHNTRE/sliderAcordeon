@@ -13740,4 +13740,43 @@ Does not own rendering. Use for low-level util methods by TimeGrid.
 var TimeGridEventRenderer = /** @class */ (function (_super) {
     tslib_1.__extends(TimeGridEventRenderer, _super);
     function TimeGridEventRenderer(timeGrid, fillRenderer) {
-    
+        var _this = _super.call(this, timeGrid, fillRenderer) || this;
+        _this.timeGrid = timeGrid;
+        return _this;
+    }
+    TimeGridEventRenderer.prototype.renderFgSegs = function (segs) {
+        this.renderFgSegsIntoContainers(segs, this.timeGrid.fgContainerEls);
+    };
+    // Given an array of foreground segments, render a DOM element for each, computes position,
+    // and attaches to the column inner-container elements.
+    TimeGridEventRenderer.prototype.renderFgSegsIntoContainers = function (segs, containerEls) {
+        var segsByCol;
+        var col;
+        segsByCol = this.timeGrid.groupSegsByCol(segs);
+        for (col = 0; col < this.timeGrid.colCnt; col++) {
+            this.updateFgSegCoords(segsByCol[col]);
+        }
+        this.timeGrid.attachSegsByCol(segsByCol, containerEls);
+    };
+    TimeGridEventRenderer.prototype.unrenderFgSegs = function () {
+        if (this.fgSegs) {
+            this.fgSegs.forEach(function (seg) {
+                seg.el.remove();
+            });
+        }
+    };
+    // Computes a default event time formatting string if `timeFormat` is not explicitly defined
+    TimeGridEventRenderer.prototype.computeEventTimeFormat = function () {
+        return this.opt('noMeridiemTimeFormat'); // like "6:30" (no AM/PM)
+    };
+    // Computes a default `displayEventEnd` value if one is not expliclty defined
+    TimeGridEventRenderer.prototype.computeDisplayEventEnd = function () {
+        return true;
+    };
+    // Renders the HTML for a single event segment's default rendering
+    TimeGridEventRenderer.prototype.fgSegHtml = function (seg, disableResizing) {
+        var view = this.view;
+        var calendar = view.calendar;
+        var componentFootprint = seg.footprint.componentFootprint;
+        var isAllDay = componentFootprint.isAllDay;
+        var 
