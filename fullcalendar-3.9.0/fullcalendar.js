@@ -13779,4 +13779,31 @@ var TimeGridEventRenderer = /** @class */ (function (_super) {
         var calendar = view.calendar;
         var componentFootprint = seg.footprint.componentFootprint;
         var isAllDay = componentFootprint.isAllDay;
-        var 
+        var eventDef = seg.footprint.eventDef;
+        var isDraggable = view.isEventDefDraggable(eventDef);
+        var isResizableFromStart = !disableResizing && seg.isStart && view.isEventDefResizableFromStart(eventDef);
+        var isResizableFromEnd = !disableResizing && seg.isEnd && view.isEventDefResizableFromEnd(eventDef);
+        var classes = this.getSegClasses(seg, isDraggable, isResizableFromStart || isResizableFromEnd);
+        var skinCss = util_1.cssToStr(this.getSkinCss(eventDef));
+        var timeText;
+        var fullTimeText; // more verbose time text. for the print stylesheet
+        var startTimeText; // just the start time text
+        classes.unshift('fc-time-grid-event', 'fc-v-event');
+        // if the event appears to span more than one day...
+        if (view.isMultiDayRange(componentFootprint.unzonedRange)) {
+            // Don't display time text on segments that run entirely through a day.
+            // That would appear as midnight-midnight and would look dumb.
+            // Otherwise, display the time text for the *segment's* times (like 6pm-midnight or midnight-10am)
+            if (seg.isStart || seg.isEnd) {
+                var zonedStart = calendar.msToMoment(seg.startMs);
+                var zonedEnd = calendar.msToMoment(seg.endMs);
+                timeText = this._getTimeText(zonedStart, zonedEnd, isAllDay);
+                fullTimeText = this._getTimeText(zonedStart, zonedEnd, isAllDay, 'LT');
+                startTimeText = this._getTimeText(zonedStart, zonedEnd, isAllDay, null, false); // displayEnd=false
+            }
+        }
+        else {
+            // Display the normal time text for the *event's* times
+            timeText = this.getTimeText(seg.footprint);
+            fullTimeText = this.getTimeText(seg.footprint, 'LT');
+            startTimeText = this.getTimeText(seg.footprint, null, false); // disp
