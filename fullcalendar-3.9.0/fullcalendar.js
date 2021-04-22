@@ -13806,4 +13806,49 @@ var TimeGridEventRenderer = /** @class */ (function (_super) {
             // Display the normal time text for the *event's* times
             timeText = this.getTimeText(seg.footprint);
             fullTimeText = this.getTimeText(seg.footprint, 'LT');
-            startTimeText = this.getTimeText(seg.footprint, null, false); // disp
+            startTimeText = this.getTimeText(seg.footprint, null, false); // displayEnd=false
+        }
+        return '<a class="' + classes.join(' ') + '"' +
+            (eventDef.url ?
+                ' href="' + util_1.htmlEscape(eventDef.url) + '"' :
+                '') +
+            (skinCss ?
+                ' style="' + skinCss + '"' :
+                '') +
+            '>' +
+            '<div class="fc-content">' +
+            (timeText ?
+                '<div class="fc-time"' +
+                    ' data-start="' + util_1.htmlEscape(startTimeText) + '"' +
+                    ' data-full="' + util_1.htmlEscape(fullTimeText) + '"' +
+                    '>' +
+                    '<span>' + util_1.htmlEscape(timeText) + '</span>' +
+                    '</div>' :
+                '') +
+            (eventDef.title ?
+                '<div class="fc-title">' +
+                    util_1.htmlEscape(eventDef.title) +
+                    '</div>' :
+                '') +
+            '</div>' +
+            '<div class="fc-bg"/>' +
+            /* TODO: write CSS for this
+            (isResizableFromStart ?
+              '<div class="fc-resizer fc-start-resizer" />' :
+              ''
+              ) +
+            */
+            (isResizableFromEnd ?
+                '<div class="fc-resizer fc-end-resizer" />' :
+                '') +
+            '</a>';
+    };
+    // Given segments that are assumed to all live in the *same column*,
+    // compute their verical/horizontal coordinates and assign to their elements.
+    TimeGridEventRenderer.prototype.updateFgSegCoords = function (segs) {
+        this.timeGrid.computeSegVerticals(segs); // horizontals relies on this
+        this.computeFgSegHorizontals(segs); // compute horizontal coordinates, z-index's, and reorder the array
+        this.timeGrid.assignSegVerticals(segs);
+        this.assignFgSegHorizontals(segs);
+    };
+    // Given an array of segments that are all in the
