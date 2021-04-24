@@ -13888,3 +13888,35 @@ var TimeGridEventRenderer = /** @class */ (function (_super) {
             else {
                 // sort highest pressure first
                 this.sortForwardSegs(forwardSegs);
+                // this segment's forwardCoord will be calculated from the backwardCoord of the
+                // highest-pressure forward segment.
+                this.computeFgSegForwardBack(forwardSegs[0], seriesBackwardPressure + 1, seriesBackwardCoord);
+                seg.forwardCoord = forwardSegs[0].backwardCoord;
+            }
+            // calculate the backwardCoord from the forwardCoord. consider the series
+            seg.backwardCoord = seg.forwardCoord -
+                (seg.forwardCoord - seriesBackwardCoord) / // available width for series
+                    (seriesBackwardPressure + 1); // # of segments in the series
+            // use this segment's coordinates to computed the coordinates of the less-pressurized
+            // forward segments
+            for (i = 0; i < forwardSegs.length; i++) {
+                this.computeFgSegForwardBack(forwardSegs[i], 0, seg.forwardCoord);
+            }
+        }
+    };
+    TimeGridEventRenderer.prototype.sortForwardSegs = function (forwardSegs) {
+        forwardSegs.sort(util_1.proxy(this, 'compareForwardSegs'));
+    };
+    // A cmp function for determining which forward segment to rely on more when computing coordinates.
+    TimeGridEventRenderer.prototype.compareForwardSegs = function (seg1, seg2) {
+        // put higher-pressure first
+        return seg2.forwardPressure - seg1.forwardPressure ||
+            // put segments that are closer to initial edge first (and favor ones with no coords yet)
+            (seg1.backwardCoord || 0) - (seg2.backwardCoord || 0) ||
+            // do normal sorting...
+            this.compareEventSegs(seg1, seg2);
+    };
+    // Given foreground event segments that have already had their position coordinates computed,
+    // assigns position-related CSS values to their elements.
+    TimeGridEventRenderer.prototype.assignFgSegHorizontals = function (segs) {
+ 
