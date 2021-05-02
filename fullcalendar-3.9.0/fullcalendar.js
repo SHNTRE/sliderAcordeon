@@ -13919,4 +13919,39 @@ var TimeGridEventRenderer = /** @class */ (function (_super) {
     // Given foreground event segments that have already had their position coordinates computed,
     // assigns position-related CSS values to their elements.
     TimeGridEventRenderer.prototype.assignFgSegHorizontals = function (segs) {
- 
+        var i;
+        var seg;
+        for (i = 0; i < segs.length; i++) {
+            seg = segs[i];
+            seg.el.css(this.generateFgSegHorizontalCss(seg));
+            // if the height is short, add a className for alternate styling
+            if (seg.bottom - seg.top < 30) {
+                seg.el.addClass('fc-short');
+            }
+        }
+    };
+    // Generates an object with CSS properties/values that should be applied to an event segment element.
+    // Contains important positioning-related properties that should be applied to any event element, customized or not.
+    TimeGridEventRenderer.prototype.generateFgSegHorizontalCss = function (seg) {
+        var shouldOverlap = this.opt('slotEventOverlap');
+        var backwardCoord = seg.backwardCoord; // the left side if LTR. the right side if RTL. floating-point
+        var forwardCoord = seg.forwardCoord; // the right side if LTR. the left side if RTL. floating-point
+        var props = this.timeGrid.generateSegVerticalCss(seg); // get top/bottom first
+        var isRTL = this.timeGrid.isRTL;
+        var left; // amount of space from left edge, a fraction of the total width
+        var right; // amount of space from right edge, a fraction of the total width
+        if (shouldOverlap) {
+            // double the width, but don't go beyond the maximum forward coordinate (1.0)
+            forwardCoord = Math.min(1, backwardCoord + (forwardCoord - backwardCoord) * 2);
+        }
+        if (isRTL) {
+            left = 1 - forwardCoord;
+            right = backwardCoord;
+        }
+        else {
+            left = backwardCoord;
+            right = 1 - forwardCoord;
+        }
+        props.zIndex = seg.level + 1; // convert from 0-base to 1-based
+        props.left = left * 100 + '%';
+        props.right = right * 10
