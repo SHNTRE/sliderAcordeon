@@ -14053,4 +14053,50 @@ var TimeGridHelperRenderer = /** @class */ (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     TimeGridHelperRenderer.prototype.renderSegs = function (segs, sourceSeg) {
-     
+        var helperNodes = [];
+        var i;
+        var seg;
+        var sourceEl;
+        // TODO: not good to call eventRenderer this way
+        this.eventRenderer.renderFgSegsIntoContainers(segs, this.component.helperContainerEls);
+        // Try to make the segment that is in the same row as sourceSeg look the same
+        for (i = 0; i < segs.length; i++) {
+            seg = segs[i];
+            if (sourceSeg && sourceSeg.col === seg.col) {
+                sourceEl = sourceSeg.el;
+                seg.el.css({
+                    left: sourceEl.css('left'),
+                    right: sourceEl.css('right'),
+                    'margin-left': sourceEl.css('margin-left'),
+                    'margin-right': sourceEl.css('margin-right')
+                });
+            }
+            helperNodes.push(seg.el[0]);
+        }
+        return $(helperNodes); // must return the elements rendered
+    };
+    return TimeGridHelperRenderer;
+}(HelperRenderer_1.default));
+exports.default = TimeGridHelperRenderer;
+
+
+/***/ }),
+/* 248 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var FillRenderer_1 = __webpack_require__(57);
+var TimeGridFillRenderer = /** @class */ (function (_super) {
+    tslib_1.__extends(TimeGridFillRenderer, _super);
+    function TimeGridFillRenderer() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    TimeGridFillRenderer.prototype.attachSegEls = function (type, segs) {
+        var timeGrid = this.component;
+        var containerEls;
+        // TODO: more efficient lookup
+        if (type === 'bgEvent') {
+            containerEls = timeGrid.bgContainerEls;
+        }
+        else if (type === 'businessHours
