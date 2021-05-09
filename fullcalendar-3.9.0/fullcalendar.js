@@ -14156,4 +14156,53 @@ var Popover = /** @class */ (function () {
         }
     };
     // Hides the popover, through CSS, but does not remove it from the DOM
-    Popover.prototype.hi
+    Popover.prototype.hide = function () {
+        if (!this.isHidden) {
+            this.el.hide();
+            this.isHidden = true;
+            this.trigger('hide');
+        }
+    };
+    // Creates `this.el` and renders content inside of it
+    Popover.prototype.render = function () {
+        var _this = this;
+        var options = this.options;
+        this.el = $('<div class="fc-popover"/>')
+            .addClass(options.className || '')
+            .css({
+            // position initially to the top left to avoid creating scrollbars
+            top: 0,
+            left: 0
+        })
+            .append(options.content)
+            .appendTo(options.parentEl);
+        // when a click happens on anything inside with a 'fc-close' className, hide the popover
+        this.el.on('click', '.fc-close', function () {
+            _this.hide();
+        });
+        if (options.autoHide) {
+            this.listenTo($(document), 'mousedown', this.documentMousedown);
+        }
+    };
+    // Triggered when the user clicks *anywhere* in the document, for the autoHide feature
+    Popover.prototype.documentMousedown = function (ev) {
+        // only hide the popover if the click happened outside the popover
+        if (this.el && !$(ev.target).closest(this.el).length) {
+            this.hide();
+        }
+    };
+    // Hides and unregisters any handlers
+    Popover.prototype.removeElement = function () {
+        this.hide();
+        if (this.el) {
+            this.el.remove();
+            this.el = null;
+        }
+        this.stopListeningTo($(document), 'mousedown');
+    };
+    // Positions the popover optimally, using the top/left/right options
+    Popover.prototype.position = function () {
+        var options = this.options;
+        var origin = this.el.offsetParent().offset();
+        var width = this.el.outerWidth();
+        var height = t
