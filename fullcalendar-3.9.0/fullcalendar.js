@@ -14099,4 +14099,61 @@ var TimeGridFillRenderer = /** @class */ (function (_super) {
         if (type === 'bgEvent') {
             containerEls = timeGrid.bgContainerEls;
         }
-        else if (type === 'businessHours
+        else if (type === 'businessHours') {
+            containerEls = timeGrid.businessContainerEls;
+        }
+        else if (type === 'highlight') {
+            containerEls = timeGrid.highlightContainerEls;
+        }
+        timeGrid.updateSegVerticals(segs);
+        timeGrid.attachSegsByCol(timeGrid.groupSegsByCol(segs), containerEls);
+        return segs.map(function (seg) {
+            return seg.el[0];
+        });
+    };
+    return TimeGridFillRenderer;
+}(FillRenderer_1.default));
+exports.default = TimeGridFillRenderer;
+
+
+/***/ }),
+/* 249 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* A rectangular panel that is absolutely positioned over other content
+------------------------------------------------------------------------------------------------------------------------
+Options:
+  - className (string)
+  - content (HTML string or jQuery element set)
+  - parentEl
+  - top
+  - left
+  - right (the x coord of where the right edge should be. not a "CSS" right)
+  - autoHide (boolean)
+  - show (callback)
+  - hide (callback)
+*/
+Object.defineProperty(exports, "__esModule", { value: true });
+var $ = __webpack_require__(3);
+var util_1 = __webpack_require__(4);
+var ListenerMixin_1 = __webpack_require__(7);
+var Popover = /** @class */ (function () {
+    function Popover(options) {
+        this.isHidden = true;
+        this.margin = 10; // the space required between the popover and the edges of the scroll container
+        this.options = options || {};
+    }
+    // Shows the popover on the specified position. Renders it if not already
+    Popover.prototype.show = function () {
+        if (this.isHidden) {
+            if (!this.el) {
+                this.render();
+            }
+            this.el.show();
+            this.position();
+            this.isHidden = false;
+            this.trigger('show');
+        }
+    };
+    // Hides the popover, through CSS, but does not remove it from the DOM
+    Popover.prototype.hi
