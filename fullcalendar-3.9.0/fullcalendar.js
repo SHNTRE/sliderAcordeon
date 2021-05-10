@@ -14205,4 +14205,48 @@ var Popover = /** @class */ (function () {
         var options = this.options;
         var origin = this.el.offsetParent().offset();
         var width = this.el.outerWidth();
-        var height = t
+        var height = this.el.outerHeight();
+        var windowEl = $(window);
+        var viewportEl = util_1.getScrollParent(this.el);
+        var viewportTop;
+        var viewportLeft;
+        var viewportOffset;
+        var top; // the "position" (not "offset") values for the popover
+        var left; //
+        // compute top and left
+        top = options.top || 0;
+        if (options.left !== undefined) {
+            left = options.left;
+        }
+        else if (options.right !== undefined) {
+            left = options.right - width; // derive the left value from the right value
+        }
+        else {
+            left = 0;
+        }
+        if (viewportEl.is(window) || viewportEl.is(document)) {
+            viewportEl = windowEl;
+            viewportTop = 0; // the window is always at the top left
+            viewportLeft = 0; // (and .offset() won't work if called here)
+        }
+        else {
+            viewportOffset = viewportEl.offset();
+            viewportTop = viewportOffset.top;
+            viewportLeft = viewportOffset.left;
+        }
+        // if the window is scrolled, it causes the visible area to be further down
+        viewportTop += windowEl.scrollTop();
+        viewportLeft += windowEl.scrollLeft();
+        // constrain to the view port. if constrained by two edges, give precedence to top/left
+        if (options.viewportConstrain !== false) {
+            top = Math.min(top, viewportTop + viewportEl.outerHeight() - height - this.margin);
+            top = Math.max(top, viewportTop + this.margin);
+            left = Math.min(left, viewportLeft + viewportEl.outerWidth() - width - this.margin);
+            left = Math.max(left, viewportLeft + this.margin);
+        }
+        this.el.css({
+            top: top - origin.top,
+            left: left - origin.left
+        });
+    };
+    // Triggers a callback. Calls a function in the option hash o
