@@ -14249,4 +14249,48 @@ var Popover = /** @class */ (function () {
             left: left - origin.left
         });
     };
-    // Triggers a callback. Calls a function in the option hash o
+    // Triggers a callback. Calls a function in the option hash of the same name.
+    // Arguments beyond the first `name` are forwarded on.
+    // TODO: better code reuse for this. Repeat code
+    Popover.prototype.trigger = function (name) {
+        if (this.options[name]) {
+            this.options[name].apply(this, Array.prototype.slice.call(arguments, 1));
+        }
+    };
+    return Popover;
+}());
+exports.default = Popover;
+ListenerMixin_1.default.mixInto(Popover);
+
+
+/***/ }),
+/* 250 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var $ = __webpack_require__(3);
+var util_1 = __webpack_require__(4);
+var EventRenderer_1 = __webpack_require__(42);
+/* Event-rendering methods for the DayGrid class
+----------------------------------------------------------------------------------------------------------------------*/
+var DayGridEventRenderer = /** @class */ (function (_super) {
+    tslib_1.__extends(DayGridEventRenderer, _super);
+    function DayGridEventRenderer(dayGrid, fillRenderer) {
+        var _this = _super.call(this, dayGrid, fillRenderer) || this;
+        _this.dayGrid = dayGrid;
+        return _this;
+    }
+    DayGridEventRenderer.prototype.renderBgRanges = function (eventRanges) {
+        // don't render timed background events
+        eventRanges = $.grep(eventRanges, function (eventRange) {
+            return eventRange.eventDef.isAllDay();
+        });
+        _super.prototype.renderBgRanges.call(this, eventRanges);
+    };
+    // Renders the given foreground event segments onto the grid
+    DayGridEventRenderer.prototype.renderFgSegs = function (segs) {
+        var rowStructs = this.rowStructs = this.renderSegRows(segs);
+        // append to each row's content skeleton
+        this.dayGrid.rowEls.each(function (i, rowNode) {
+            $(rowNode).find('.fc-content-skeleton > table').append(rowStructs[i].t
