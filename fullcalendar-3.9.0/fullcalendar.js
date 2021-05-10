@@ -14293,4 +14293,39 @@ var DayGridEventRenderer = /** @class */ (function (_super) {
         var rowStructs = this.rowStructs = this.renderSegRows(segs);
         // append to each row's content skeleton
         this.dayGrid.rowEls.each(function (i, rowNode) {
-            $(rowNode).find('.fc-content-skeleton > table').append(rowStructs[i].t
+            $(rowNode).find('.fc-content-skeleton > table').append(rowStructs[i].tbodyEl);
+        });
+    };
+    // Unrenders all currently rendered foreground event segments
+    DayGridEventRenderer.prototype.unrenderFgSegs = function () {
+        var rowStructs = this.rowStructs || [];
+        var rowStruct;
+        while ((rowStruct = rowStructs.pop())) {
+            rowStruct.tbodyEl.remove();
+        }
+        this.rowStructs = null;
+    };
+    // Uses the given events array to generate <tbody> elements that should be appended to each row's content skeleton.
+    // Returns an array of rowStruct objects (see the bottom of `renderSegRow`).
+    // PRECONDITION: each segment shoud already have a rendered and assigned `.el`
+    DayGridEventRenderer.prototype.renderSegRows = function (segs) {
+        var rowStructs = [];
+        var segRows;
+        var row;
+        segRows = this.groupSegRows(segs); // group into nested arrays
+        // iterate each row of segment groupings
+        for (row = 0; row < segRows.length; row++) {
+            rowStructs.push(this.renderSegRow(row, segRows[row]));
+        }
+        return rowStructs;
+    };
+    // Given a row # and an array of segments all in the same row, render a <tbody> element, a skeleton that contains
+    // the segments. Returns object with a bunch of internal data about how the render was calculated.
+    // NOTE: modifies rowSegs
+    DayGridEventRenderer.prototype.renderSegRow = function (row, rowSegs) {
+        var colCnt = this.dayGrid.colCnt;
+        var segLevels = this.buildSegLevels(rowSegs); // group into sub-arrays of levels
+        var levelCnt = Math.max(1, segLevels.length); // ensure at least one level
+        var tbody = $('<tbody/>');
+        var segMatrix = []; // lookup for which segments are rendered into which level+col cells
+        var cellMatrix = []; // lookup for all <td> elements
