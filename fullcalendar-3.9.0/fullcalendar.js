@@ -14328,4 +14328,48 @@ var DayGridEventRenderer = /** @class */ (function (_super) {
         var levelCnt = Math.max(1, segLevels.length); // ensure at least one level
         var tbody = $('<tbody/>');
         var segMatrix = []; // lookup for which segments are rendered into which level+col cells
-        var cellMatrix = []; // lookup for all <td> elements
+        var cellMatrix = []; // lookup for all <td> elements of the level+col matrix
+        var loneCellMatrix = []; // lookup for <td> elements that only take up a single column
+        var i;
+        var levelSegs;
+        var col;
+        var tr;
+        var j;
+        var seg;
+        var td;
+        // populates empty cells from the current column (`col`) to `endCol`
+        function emptyCellsUntil(endCol) {
+            while (col < endCol) {
+                // try to grab a cell from the level above and extend its rowspan. otherwise, create a fresh cell
+                td = (loneCellMatrix[i - 1] || [])[col];
+                if (td) {
+                    td.attr('rowspan', parseInt(td.attr('rowspan') || 1, 10) + 1);
+                }
+                else {
+                    td = $('<td/>');
+                    tr.append(td);
+                }
+                cellMatrix[i][col] = td;
+                loneCellMatrix[i][col] = td;
+                col++;
+            }
+        }
+        for (i = 0; i < levelCnt; i++) {
+            levelSegs = segLevels[i];
+            col = 0;
+            tr = $('<tr/>');
+            segMatrix.push([]);
+            cellMatrix.push([]);
+            loneCellMatrix.push([]);
+            // levelCnt might be 1 even though there are no actual levels. protect against this.
+            // this single empty row is useful for styling.
+            if (levelSegs) {
+                for (j = 0; j < levelSegs.length; j++) {
+                    seg = levelSegs[j];
+                    emptyCellsUntil(seg.leftCol);
+                    // create a container that occupies or more columns. append the event element.
+                    td = $('<td class="fc-event-container"/>').append(seg.el);
+                    if (seg.leftCol !== seg.rightCol) {
+                        td.attr('colspan', seg.rightCol - seg.leftCol + 1);
+                    }
+                    else {
