@@ -14425,4 +14425,39 @@ var DayGridEventRenderer = /** @class */ (function (_super) {
         }
         return levels;
     };
-    
+    // Given a flat array of segments, return an array of sub-arrays, grouped by each segment's row
+    DayGridEventRenderer.prototype.groupSegRows = function (segs) {
+        var segRows = [];
+        var i;
+        for (i = 0; i < this.dayGrid.rowCnt; i++) {
+            segRows.push([]);
+        }
+        for (i = 0; i < segs.length; i++) {
+            segRows[segs[i].row].push(segs[i]);
+        }
+        return segRows;
+    };
+    // Computes a default event time formatting string if `timeFormat` is not explicitly defined
+    DayGridEventRenderer.prototype.computeEventTimeFormat = function () {
+        return this.opt('extraSmallTimeFormat'); // like "6p" or "6:30p"
+    };
+    // Computes a default `displayEventEnd` value if one is not expliclty defined
+    DayGridEventRenderer.prototype.computeDisplayEventEnd = function () {
+        return this.dayGrid.colCnt === 1; // we'll likely have space if there's only one day
+    };
+    // Builds the HTML to be used for the default element for an individual segment
+    DayGridEventRenderer.prototype.fgSegHtml = function (seg, disableResizing) {
+        var view = this.view;
+        var eventDef = seg.footprint.eventDef;
+        var isAllDay = seg.footprint.componentFootprint.isAllDay;
+        var isDraggable = view.isEventDefDraggable(eventDef);
+        var isResizableFromStart = !disableResizing && isAllDay &&
+            seg.isStart && view.isEventDefResizableFromStart(eventDef);
+        var isResizableFromEnd = !disableResizing && isAllDay &&
+            seg.isEnd && view.isEventDefResizableFromEnd(eventDef);
+        var classes = this.getSegClasses(seg, isDraggable, isResizableFromStart || isResizableFromEnd);
+        var skinCss = util_1.cssToStr(this.getSkinCss(eventDef));
+        var timeHtml = '';
+        var timeText;
+        var titleHtml;
+        classes.unshift('fc-day-grid-event', 'fc-h-event');
