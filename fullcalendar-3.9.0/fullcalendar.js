@@ -14461,3 +14461,54 @@ var DayGridEventRenderer = /** @class */ (function (_super) {
         var timeText;
         var titleHtml;
         classes.unshift('fc-day-grid-event', 'fc-h-event');
+        // Only display a timed events time if it is the starting segment
+        if (seg.isStart) {
+            timeText = this.getTimeText(seg.footprint);
+            if (timeText) {
+                timeHtml = '<span class="fc-time">' + util_1.htmlEscape(timeText) + '</span>';
+            }
+        }
+        titleHtml =
+            '<span class="fc-title">' +
+                (util_1.htmlEscape(eventDef.title || '') || '&nbsp;') + // we always want one line of height
+                '</span>';
+        return '<a class="' + classes.join(' ') + '"' +
+            (eventDef.url ?
+                ' href="' + util_1.htmlEscape(eventDef.url) + '"' :
+                '') +
+            (skinCss ?
+                ' style="' + skinCss + '"' :
+                '') +
+            '>' +
+            '<div class="fc-content">' +
+            (this.dayGrid.isRTL ?
+                titleHtml + ' ' + timeHtml : // put a natural space in between
+                timeHtml + ' ' + titleHtml //
+            ) +
+            '</div>' +
+            (isResizableFromStart ?
+                '<div class="fc-resizer fc-start-resizer" />' :
+                '') +
+            (isResizableFromEnd ?
+                '<div class="fc-resizer fc-end-resizer" />' :
+                '') +
+            '</a>';
+    };
+    return DayGridEventRenderer;
+}(EventRenderer_1.default));
+exports.default = DayGridEventRenderer;
+// Computes whether two segments' columns collide. They are assumed to be in the same row.
+function isDaySegCollision(seg, otherSegs) {
+    var i;
+    var otherSeg;
+    for (i = 0; i < otherSegs.length; i++) {
+        otherSeg = otherSegs[i];
+        if (otherSeg.leftCol <= seg.rightCol &&
+            otherSeg.rightCol >= seg.leftCol) {
+            return true;
+        }
+    }
+    return false;
+}
+// A cmp function for determining the leftmost event
+functio
