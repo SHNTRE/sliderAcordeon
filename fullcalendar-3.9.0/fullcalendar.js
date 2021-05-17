@@ -14511,4 +14511,43 @@ function isDaySegCollision(seg, otherSegs) {
     return false;
 }
 // A cmp function for determining the leftmost event
-functio
+function compareDaySegCols(a, b) {
+    return a.leftCol - b.leftCol;
+}
+
+
+/***/ }),
+/* 251 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var $ = __webpack_require__(3);
+var HelperRenderer_1 = __webpack_require__(58);
+var DayGridHelperRenderer = /** @class */ (function (_super) {
+    tslib_1.__extends(DayGridHelperRenderer, _super);
+    function DayGridHelperRenderer() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    // Renders a mock "helper" event. `sourceSeg` is the associated internal segment object. It can be null.
+    DayGridHelperRenderer.prototype.renderSegs = function (segs, sourceSeg) {
+        var helperNodes = [];
+        var rowStructs;
+        // TODO: not good to call eventRenderer this way
+        rowStructs = this.eventRenderer.renderSegRows(segs);
+        // inject each new event skeleton into each associated row
+        this.component.rowEls.each(function (row, rowNode) {
+            var rowEl = $(rowNode); // the .fc-row
+            var skeletonEl = $('<div class="fc-helper-skeleton"><table/></div>'); // will be absolutely positioned
+            var skeletonTopEl;
+            var skeletonTop;
+            // If there is an original segment, match the top position. Otherwise, put it at the row's top level
+            if (sourceSeg && sourceSeg.row === row) {
+                skeletonTop = sourceSeg.el.position().top;
+            }
+            else {
+                skeletonTopEl = rowEl.find('.fc-content-skeleton tbody');
+                if (!skeletonTopEl.length) {
+                    skeletonTopEl = rowEl.find('.fc-content-skeleton table');
+                }
+                skeletonTop = skeletonTopEl.position()
