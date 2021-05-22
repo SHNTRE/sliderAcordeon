@@ -14550,4 +14550,57 @@ var DayGridHelperRenderer = /** @class */ (function (_super) {
                 if (!skeletonTopEl.length) {
                     skeletonTopEl = rowEl.find('.fc-content-skeleton table');
                 }
-                skeletonTop = skeletonTopEl.position()
+                skeletonTop = skeletonTopEl.position().top;
+            }
+            skeletonEl.css('top', skeletonTop)
+                .find('table')
+                .append(rowStructs[row].tbodyEl);
+            rowEl.append(skeletonEl);
+            helperNodes.push(skeletonEl[0]);
+        });
+        return $(helperNodes); // must return the elements rendered
+    };
+    return DayGridHelperRenderer;
+}(HelperRenderer_1.default));
+exports.default = DayGridHelperRenderer;
+
+
+/***/ }),
+/* 252 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var $ = __webpack_require__(3);
+var FillRenderer_1 = __webpack_require__(57);
+var DayGridFillRenderer = /** @class */ (function (_super) {
+    tslib_1.__extends(DayGridFillRenderer, _super);
+    function DayGridFillRenderer() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.fillSegTag = 'td'; // override the default tag name
+        return _this;
+    }
+    DayGridFillRenderer.prototype.attachSegEls = function (type, segs) {
+        var nodes = [];
+        var i;
+        var seg;
+        var skeletonEl;
+        for (i = 0; i < segs.length; i++) {
+            seg = segs[i];
+            skeletonEl = this.renderFillRow(type, seg);
+            this.component.rowEls.eq(seg.row).append(skeletonEl);
+            nodes.push(skeletonEl[0]);
+        }
+        return nodes;
+    };
+    // Generates the HTML needed for one row of a fill. Requires the seg's el to be rendered.
+    DayGridFillRenderer.prototype.renderFillRow = function (type, seg) {
+        var colCnt = this.component.colCnt;
+        var startCol = seg.leftCol;
+        var endCol = seg.rightCol + 1;
+        var className;
+        var skeletonEl;
+        var trEl;
+        if (type === 'businessHours') {
+            className = 'bgevent';
+    
