@@ -14647,4 +14647,54 @@ var MonthViewDateProfileGenerator = /** @class */ (function (_super) {
         var rowCnt;
         // ensure 6 weeks
         if (this.opt('fixedWeekCount')) {
-            rowCnt = Math.ceil(// could be partial weeks due to hiddenDa
+            rowCnt = Math.ceil(// could be partial weeks due to hiddenDays
+            end.diff(start, 'weeks', true) // dontRound=true
+            );
+            end.add(6 - rowCnt, 'weeks');
+        }
+        return new UnzonedRange_1.default(start, end);
+    };
+    return MonthViewDateProfileGenerator;
+}(BasicViewDateProfileGenerator_1.default));
+exports.default = MonthViewDateProfileGenerator;
+
+
+/***/ }),
+/* 254 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var util_1 = __webpack_require__(4);
+var EventRenderer_1 = __webpack_require__(42);
+var ListEventRenderer = /** @class */ (function (_super) {
+    tslib_1.__extends(ListEventRenderer, _super);
+    function ListEventRenderer() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    ListEventRenderer.prototype.renderFgSegs = function (segs) {
+        if (!segs.length) {
+            this.component.renderEmptyMessage();
+        }
+        else {
+            this.component.renderSegList(segs);
+        }
+    };
+    // generates the HTML for a single event row
+    ListEventRenderer.prototype.fgSegHtml = function (seg) {
+        var view = this.view;
+        var calendar = view.calendar;
+        var theme = calendar.theme;
+        var eventFootprint = seg.footprint;
+        var eventDef = eventFootprint.eventDef;
+        var componentFootprint = eventFootprint.componentFootprint;
+        var url = eventDef.url;
+        var classes = ['fc-list-item'].concat(this.getClasses(eventDef));
+        var bgColor = this.getBgColor(eventDef);
+        var timeHtml;
+        if (componentFootprint.isAllDay) {
+            timeHtml = view.getAllDayHtml();
+        }
+        else if (view.isMultiDayRange(componentFootprint.unzonedRange)) {
+            if (seg.isStart || seg.isEnd) {
+                timeHtml = u
