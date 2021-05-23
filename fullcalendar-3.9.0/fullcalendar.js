@@ -14747,4 +14747,51 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var tslib_1 = __webpack_require__(2);
 var $ = __webpack_require__(3);
 var EventPointing_1 = __webpack_require__(59);
-var ListEventPointing = /** @class *
+var ListEventPointing = /** @class */ (function (_super) {
+    tslib_1.__extends(ListEventPointing, _super);
+    function ListEventPointing() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    // for events with a url, the whole <tr> should be clickable,
+    // but it's impossible to wrap with an <a> tag. simulate this.
+    ListEventPointing.prototype.handleClick = function (seg, ev) {
+        var url;
+        _super.prototype.handleClick.call(this, seg, ev); // might prevent the default action
+        // not clicking on or within an <a> with an href
+        if (!$(ev.target).closest('a[href]').length) {
+            url = seg.footprint.eventDef.url;
+            if (url && !ev.isDefaultPrevented()) {
+                window.location.href = url; // simulate link click
+            }
+        }
+    };
+    return ListEventPointing;
+}(EventPointing_1.default));
+exports.default = ListEventPointing;
+
+
+/***/ }),
+/* 256 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var EventSourceParser_1 = __webpack_require__(38);
+var ArrayEventSource_1 = __webpack_require__(52);
+var FuncEventSource_1 = __webpack_require__(215);
+var JsonFeedEventSource_1 = __webpack_require__(216);
+EventSourceParser_1.default.registerClass(ArrayEventSource_1.default);
+EventSourceParser_1.default.registerClass(FuncEventSource_1.default);
+EventSourceParser_1.default.registerClass(JsonFeedEventSource_1.default);
+
+
+/***/ }),
+/* 257 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var ThemeRegistry_1 = __webpack_require__(51);
+var StandardTheme_1 = __webpack_require__(213);
+var JqueryUiTheme_1 = __webpack_require__(214);
+var Bootstrap3Theme_1 = __webpack_require__(258);
+var Bootstrap4Theme_1 = __webpack_require__(259);
+ThemeRegistry_
