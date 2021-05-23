@@ -14697,4 +14697,54 @@ var ListEventRenderer = /** @class */ (function (_super) {
         }
         else if (view.isMultiDayRange(componentFootprint.unzonedRange)) {
             if (seg.isStart || seg.isEnd) {
-                timeHtml = u
+                timeHtml = util_1.htmlEscape(this._getTimeText(calendar.msToMoment(seg.startMs), calendar.msToMoment(seg.endMs), componentFootprint.isAllDay));
+            }
+            else {
+                timeHtml = view.getAllDayHtml();
+            }
+        }
+        else {
+            // Display the normal time text for the *event's* times
+            timeHtml = util_1.htmlEscape(this.getTimeText(eventFootprint));
+        }
+        if (url) {
+            classes.push('fc-has-url');
+        }
+        return '<tr class="' + classes.join(' ') + '">' +
+            (this.displayEventTime ?
+                '<td class="fc-list-item-time ' + theme.getClass('widgetContent') + '">' +
+                    (timeHtml || '') +
+                    '</td>' :
+                '') +
+            '<td class="fc-list-item-marker ' + theme.getClass('widgetContent') + '">' +
+            '<span class="fc-event-dot"' +
+            (bgColor ?
+                ' style="background-color:' + bgColor + '"' :
+                '') +
+            '></span>' +
+            '</td>' +
+            '<td class="fc-list-item-title ' + theme.getClass('widgetContent') + '">' +
+            '<a' + (url ? ' href="' + util_1.htmlEscape(url) + '"' : '') + '>' +
+            util_1.htmlEscape(eventDef.title || '') +
+            '</a>' +
+            '</td>' +
+            '</tr>';
+    };
+    // like "4:00am"
+    ListEventRenderer.prototype.computeEventTimeFormat = function () {
+        return this.opt('mediumTimeFormat');
+    };
+    return ListEventRenderer;
+}(EventRenderer_1.default));
+exports.default = ListEventRenderer;
+
+
+/***/ }),
+/* 255 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var $ = __webpack_require__(3);
+var EventPointing_1 = __webpack_require__(59);
+var ListEventPointing = /** @class *
