@@ -14603,4 +14603,48 @@ var DayGridFillRenderer = /** @class */ (function (_super) {
         var trEl;
         if (type === 'businessHours') {
             className = 'bgevent';
-    
+        }
+        else {
+            className = type.toLowerCase();
+        }
+        skeletonEl = $('<div class="fc-' + className + '-skeleton">' +
+            '<table><tr/></table>' +
+            '</div>');
+        trEl = skeletonEl.find('tr');
+        if (startCol > 0) {
+            trEl.append('<td colspan="' + startCol + '"/>');
+        }
+        trEl.append(seg.el.attr('colspan', endCol - startCol));
+        if (endCol < colCnt) {
+            trEl.append('<td colspan="' + (colCnt - endCol) + '"/>');
+        }
+        this.component.bookendCells(trEl);
+        return skeletonEl;
+    };
+    return DayGridFillRenderer;
+}(FillRenderer_1.default));
+exports.default = DayGridFillRenderer;
+
+
+/***/ }),
+/* 253 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var BasicViewDateProfileGenerator_1 = __webpack_require__(228);
+var UnzonedRange_1 = __webpack_require__(5);
+var MonthViewDateProfileGenerator = /** @class */ (function (_super) {
+    tslib_1.__extends(MonthViewDateProfileGenerator, _super);
+    function MonthViewDateProfileGenerator() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    // Computes the date range that will be rendered.
+    MonthViewDateProfileGenerator.prototype.buildRenderRange = function (currentUnzonedRange, currentRangeUnit, isRangeAllDay) {
+        var renderUnzonedRange = _super.prototype.buildRenderRange.call(this, currentUnzonedRange, currentRangeUnit, isRangeAllDay);
+        var start = this.msToUtcMoment(renderUnzonedRange.startMs, isRangeAllDay);
+        var end = this.msToUtcMoment(renderUnzonedRange.endMs, isRangeAllDay);
+        var rowCnt;
+        // ensure 6 weeks
+        if (this.opt('fixedWeekCount')) {
+            rowCnt = Math.ceil(// could be partial weeks due to hiddenDa
