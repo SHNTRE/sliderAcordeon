@@ -14844,4 +14844,55 @@ Bootstrap3Theme.prototype.iconClasses = {
     prevYear: 'glyphicon-backward',
     nextYear: 'glyphicon-forward'
 };
-Bootstrap3Theme.prototype.iconOverrideOption = 'bootstr
+Bootstrap3Theme.prototype.iconOverrideOption = 'bootstrapGlyphicons';
+Bootstrap3Theme.prototype.iconOverrideCustomButtonOption = 'bootstrapGlyphicon';
+Bootstrap3Theme.prototype.iconOverridePrefix = 'glyphicon-';
+
+
+/***/ }),
+/* 259 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var Theme_1 = __webpack_require__(19);
+var Bootstrap4Theme = /** @class */ (function (_super) {
+    tslib_1.__extends(Bootstrap4Theme, _super);
+    function Bootstrap4Theme() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    return Bootstrap4Theme;
+}(Theme_1.default));
+exports.default = Bootstrap4Theme;
+Bootstrap4Theme.prototype.classes = {
+    widget: 'fc-bootstrap4',
+    tableGrid: 'table-bordered',
+    tableList: 'table',
+    tableListHeading: 'table-active',
+    buttonGroup: 'btn-group',
+    button: 'btn btn-primary',
+    stateActive: 'active',
+    stateDisabled: 'disabled',
+    today: 'alert alert-info',
+    popover: 'card card-primary',
+    popoverHeader: 'card-header',
+    popoverContent: 'card-body',
+    // day grid
+    // for left/right border color when border is inset from edges (all-day in agenda view)
+    // avoid `table` class b/c don't want margins/padding/structure. only border color.
+    headerRow: 'table-bordered',
+    dayRow: 'table-bordered',
+    // list view
+    listView: 'card card-primary'
+};
+Bootstrap4Theme.prototype.baseIconClass = 'fa';
+Bootstrap4Theme.prototype.iconClasses = {
+    close: 'fa-times',
+    prev: 'fa-chevron-left',
+    next: 'fa-chevron-right',
+    prevYear: 'fa-angle-double-left',
+    nextYear: 'fa-angle-double-right'
+};
+Bootstrap4Theme.prototype.iconOverrideOption = 'bootstrapFontAwesome';
+Bootstrap4Theme.prototype.iconOverrideCustomButtonOption = 'bootstrapFontAwesome';
+Bootstrap4Theme.prototype.iconOverrid
