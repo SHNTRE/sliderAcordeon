@@ -14794,4 +14794,54 @@ var StandardTheme_1 = __webpack_require__(213);
 var JqueryUiTheme_1 = __webpack_require__(214);
 var Bootstrap3Theme_1 = __webpack_require__(258);
 var Bootstrap4Theme_1 = __webpack_require__(259);
-ThemeRegistry_
+ThemeRegistry_1.defineThemeSystem('standard', StandardTheme_1.default);
+ThemeRegistry_1.defineThemeSystem('jquery-ui', JqueryUiTheme_1.default);
+ThemeRegistry_1.defineThemeSystem('bootstrap3', Bootstrap3Theme_1.default);
+ThemeRegistry_1.defineThemeSystem('bootstrap4', Bootstrap4Theme_1.default);
+
+
+/***/ }),
+/* 258 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var tslib_1 = __webpack_require__(2);
+var Theme_1 = __webpack_require__(19);
+var Bootstrap3Theme = /** @class */ (function (_super) {
+    tslib_1.__extends(Bootstrap3Theme, _super);
+    function Bootstrap3Theme() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    return Bootstrap3Theme;
+}(Theme_1.default));
+exports.default = Bootstrap3Theme;
+Bootstrap3Theme.prototype.classes = {
+    widget: 'fc-bootstrap3',
+    tableGrid: 'table-bordered',
+    tableList: 'table',
+    tableListHeading: 'active',
+    buttonGroup: 'btn-group',
+    button: 'btn btn-default',
+    stateActive: 'active',
+    stateDisabled: 'disabled',
+    today: 'alert alert-info',
+    popover: 'panel panel-default',
+    popoverHeader: 'panel-heading',
+    popoverContent: 'panel-body',
+    // day grid
+    // for left/right border color when border is inset from edges (all-day in agenda view)
+    // avoid `panel` class b/c don't want margins/radius. only border color.
+    headerRow: 'panel-default',
+    dayRow: 'panel-default',
+    // list view
+    listView: 'panel panel-default'
+};
+Bootstrap3Theme.prototype.baseIconClass = 'glyphicon';
+Bootstrap3Theme.prototype.iconClasses = {
+    close: 'glyphicon-remove',
+    prev: 'glyphicon-chevron-left',
+    next: 'glyphicon-chevron-right',
+    prevYear: 'glyphicon-backward',
+    nextYear: 'glyphicon-forward'
+};
+Bootstrap3Theme.prototype.iconOverrideOption = 'bootstr
