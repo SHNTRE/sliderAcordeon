@@ -14968,4 +14968,43 @@ ViewRegistry_1.defineView('list', {
     }
 });
 ViewRegistry_1.defineView('listDay', {
-    type: 'list'
+    type: 'list',
+    duration: { days: 1 },
+    defaults: {
+        listDayFormat: 'dddd' // day-of-week is all we need. full date is probably in header
+    }
+});
+ViewRegistry_1.defineView('listWeek', {
+    type: 'list',
+    duration: { weeks: 1 },
+    defaults: {
+        listDayFormat: 'dddd',
+        listDayAltFormat: 'LL'
+    }
+});
+ViewRegistry_1.defineView('listMonth', {
+    type: 'list',
+    duration: { month: 1 },
+    defaults: {
+        listDayAltFormat: 'dddd' // day-of-week is nice-to-have
+    }
+});
+ViewRegistry_1.defineView('listYear', {
+    type: 'list',
+    duration: { year: 1 },
+    defaults: {
+        listDayAltFormat: 'dddd' // day-of-week is nice-to-have
+    }
+});
+
+
+/***/ }),
+/* 263 */
+/***/ (function(module, exports) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+
+
+/***/ })
+/******/ ]);
+});
