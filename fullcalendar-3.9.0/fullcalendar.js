@@ -14895,4 +14895,77 @@ Bootstrap4Theme.prototype.iconClasses = {
 };
 Bootstrap4Theme.prototype.iconOverrideOption = 'bootstrapFontAwesome';
 Bootstrap4Theme.prototype.iconOverrideCustomButtonOption = 'bootstrapFontAwesome';
-Bootstrap4Theme.prototype.iconOverrid
+Bootstrap4Theme.prototype.iconOverridePrefix = 'fa-';
+
+
+/***/ }),
+/* 260 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var ViewRegistry_1 = __webpack_require__(22);
+var BasicView_1 = __webpack_require__(62);
+var MonthView_1 = __webpack_require__(229);
+ViewRegistry_1.defineView('basic', {
+    'class': BasicView_1.default
+});
+ViewRegistry_1.defineView('basicDay', {
+    type: 'basic',
+    duration: { days: 1 }
+});
+ViewRegistry_1.defineView('basicWeek', {
+    type: 'basic',
+    duration: { weeks: 1 }
+});
+ViewRegistry_1.defineView('month', {
+    'class': MonthView_1.default,
+    duration: { months: 1 },
+    defaults: {
+        fixedWeekCount: true
+    }
+});
+
+
+/***/ }),
+/* 261 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var ViewRegistry_1 = __webpack_require__(22);
+var AgendaView_1 = __webpack_require__(226);
+ViewRegistry_1.defineView('agenda', {
+    'class': AgendaView_1.default,
+    defaults: {
+        allDaySlot: true,
+        slotDuration: '00:30:00',
+        slotEventOverlap: true // a bad name. confused with overlap/constraint system
+    }
+});
+ViewRegistry_1.defineView('agendaDay', {
+    type: 'agenda',
+    duration: { days: 1 }
+});
+ViewRegistry_1.defineView('agendaWeek', {
+    type: 'agenda',
+    duration: { weeks: 1 }
+});
+
+
+/***/ }),
+/* 262 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var ViewRegistry_1 = __webpack_require__(22);
+var ListView_1 = __webpack_require__(230);
+ViewRegistry_1.defineView('list', {
+    'class': ListView_1.default,
+    buttonTextKey: 'list',
+    defaults: {
+        buttonText: 'list',
+        listDayFormat: 'LL',
+        noEventsMessage: 'No events to display'
+    }
+});
+ViewRegistry_1.defineView('listDay', {
+    type: 'list'
