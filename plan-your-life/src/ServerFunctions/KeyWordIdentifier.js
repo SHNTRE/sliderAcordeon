@@ -94,4 +94,82 @@ function extractCache(command){
 
 	// Creates an array containing all the words within a String for easy manipulation
 	command.forEach(function(element){
-		if
+		if (keywords.includes(element)) {
+			keys.push(keyword.trim());
+			keyValues.push(values.trim());
+			keyword = element
+			values = '';
+		} else {
+			values = values + ' ' + element;
+		}
+	});
+	// Pushes the last keyword and value on to the arrays
+	keys.push(keyword.trim());
+	keyValues.push(values.trim());
+	// console.log('keys: ' + keys);
+	// console.log('keyValues: ' + keyValues);
+}
+
+// Goes through the extracted cache and assigns the JSON values the correct values
+// Check Design Document to understand what each key word should represent
+function updateJSON(){
+
+	// console.log(keys);
+	
+	switch(keys[1]){
+		case 'add':
+			if(keys[2] != 'event'){
+				addRequest();
+				break;
+			}
+		case 'remind':
+			remindRequest();
+			break;
+		case 'list':
+			newListRequest();
+			break;
+		default:
+			throw new Error("No keyword provided.");
+			break;
+	}
+
+}
+
+/*
+Function that parses an 'add' request to populate the corresponding JSON
+*/
+function addRequest(){
+
+	for(i = 1; i < keys.length; i++){
+		if(keys[i] === 'add'){
+			add = 'true';
+			item = keyValues[i];
+		} else if(keys[i] === 'to'){
+			destination = keyValues[i];
+		} else {
+			// console.log('Out of key words');
+		}
+	}
+}
+
+/*
+Function that parses a 'remind' request to populate the corresponding JSON
+*/
+function remindRequest(){
+
+	foundTo = false; //boolean to determine if the first 'to' indicating the request is a remind request has been found
+
+	for(i = 1; i < keys.length; i++){
+		// if(keys[i] === 'remind'){ 
+		// 	remind = 'true';
+		// 	event = keyValues[i];
+		// } else 
+		if(keys[i] === 'to' || keys[i] === 'event' && !foundTo){ //only treats 'to' as a keyword once when parsing the string
+			remind = 'true';
+			foundTo = true;
+			event = keyValues[i];
+		} else if(keys[i] === 'on'){
+			time = convertDay(keyValues[i]);
+		} else if(keys[i] === 'at'){
+			time = keyValues[i];
+		} else if(keys[i] === 'from
