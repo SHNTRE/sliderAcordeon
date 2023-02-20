@@ -172,4 +172,79 @@ function remindRequest(){
 			time = convertDay(keyValues[i]);
 		} else if(keys[i] === 'at'){
 			time = keyValues[i];
-		} else if(keys[i] === 'from
+		} else if(keys[i] === 'from'){
+			where = keyValues[i];
+		} else if(keys[i] === 'for'){
+			duration = keyValues[i];
+		} else {
+			// console.log('Out of key words');
+		}
+	}
+}
+
+/*
+Function that parses an 'new list' request to populate the corresponding JSON
+*/
+function newListRequest(){
+
+	foundList = false;
+
+	for(i = 1; i < keys.length; i++){
+		if(keys[i] === 'list' && !foundList){
+			newList = 'true';
+			destination = keyValues[i];
+		} else {
+			// console.log('Out of key words');
+		}
+	}
+}
+
+// Converts the name of a day of the week(monday,..., sunday) to the numerical equivalent(1,..., 7)
+function convertDay(dateTime){
+	var date = new Date();
+	if(dateTime === 'monday'){
+		return getNextDayOfWeek(date, 1);
+	} else if (dateTime === 'tuesday'){
+		return getNextDayOfWeek(date, 2);
+	} else if (dateTime === 'wednesday'){
+		return getNextDayOfWeek(date, 3);
+	} else if (dateTime === 'thursday'){
+		return getNextDayOfWeek(date, 4);
+	} else if (dateTime === 'friday'){
+		return getNextDayOfWeek(date, 5);
+	} else if (dateTime === 'saturday'){
+		return getNextDayOfWeek(date, 6);
+	} else if (dateTime === 'sunday'){
+		return getNextDayOfWeek(date, 7);
+	} else {
+		return dateTime;
+	}
+}
+
+// Given a specific day and a day of the week (Monday = 1,..., Sunday = 7)
+// It will return the date of the next occuring Monday,..., Sunday
+function getNextDayOfWeek(date, dayOfWeek) {
+
+    var resultDate = new Date(date.getTime());
+
+    resultDate.setDate(date.getDate() + (7 + dayOfWeek - date.getDay()) % 7);
+
+    return resultDate;
+}
+
+
+//Creates the JSON object using the fields that were updated by the KWI
+function createEvent(){
+	var newEvent = {
+		'newList': newList,
+		'add': add,
+		'download': download,
+		'remind': remind,
+		'remove': remove,
+		'destination': destination,
+		'item': item,
+		'time': time,
+		'where': where,
+		'event': event,
+		'duration': duration,
+	
