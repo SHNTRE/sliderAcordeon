@@ -247,4 +247,26 @@ function createEvent(){
 		'where': where,
 		'event': event,
 		'duration': duration,
-	
+	};
+	// console.log(newEvent);
+	return newEvent;
+}
+
+/*
+Function that identifiese keywords of command and sends a JSON file to backend for API calls requests.
+Done through helper method
+s*/
+function KWI(command){
+	resetFields();
+	getKeyWords();
+	command = command.toLowerCase();
+	command = command.split(' ');
+	extractCache(command);
+	updateJSON();
+	userEvent = createEvent();
+	// console.log(userEvent);
+	return userEvent;
+}
+
+module.exports.KWI = KWI;
+module.exports.getNextDayOfWeek = getNextDayOfWeek;
