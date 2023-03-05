@@ -117,4 +117,66 @@ describe("KeyWordIdentifierTest", function() {
 		KeyWordIdentifier.KWI("remind me");
 		}
 		catch(err){
-		
+			assert.equal('No content provided(i.e. Destination, time, location, etc.)', err);
+			done();	
+		}		
+	});
+	it("create JSON for complex reminder \"remind me to pick up tom\"", function(done) {
+		var intendedEvent7 = {
+			'newList': 'false',
+			'add': 'false',
+			'download': 'false',
+			'remind': 'true',
+			'remove': 'false',
+			'destination': '',
+			'item': '',
+			'time': '',
+			'where': '',
+			'event': 'pick up tom',
+			'duration': '',
+		};
+		var kwiEvent7 = KeyWordIdentifier.KWI("remind me to pick up tom");
+		assert.equal(JSON.stringify(intendedEvent7), JSON.stringify(kwiEvent7));
+		done();		
+	});
+	it("create JSON for complex reminder \"remind me to go to the mall\"", function(done) {
+		var intendedEvent8 = {
+			'newList': 'false',
+			'add': 'false',
+			'download': 'false',
+			'remind': 'true',
+			'remove': 'false',
+			'destination': '',
+			'item': '',
+			'time': '',
+			'where': '',
+			'event': 'go to the mall',
+			'duration': '',
+		};
+		var kwiEvent8 = KeyWordIdentifier.KWI("remind me to go to the mall");
+		assert.equal(JSON.stringify(intendedEvent8), JSON.stringify(kwiEvent8));
+		done();		
+	});
+	it("create JSON for complex reminder using add \"add event christmas on 12/24/2018\"", function(done) {
+		var intendedEvent9 = {
+			'newList': 'false',
+			'add': 'false',
+			'download': 'false',
+			'remind': 'true',
+			'remove': 'false',
+			'destination': '',
+			'item': '',
+			'time': '12/24/2018',
+			'where': '',
+			'event': 'christmas',
+			'duration': '',
+		};
+		var kwiEvent9 = KeyWordIdentifier.KWI("add event christmas on 12/24/2018");
+		assert.equal(JSON.stringify(intendedEvent9), JSON.stringify(kwiEvent9));
+		done();		
+	});
+	it("create JSON for complex create list \"new list wishlist\"", function(done) {
+		var intendedEvent10 = {
+			'newList': 'true',
+			'add': 'false',
+			'download': 'false
