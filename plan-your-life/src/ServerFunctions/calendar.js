@@ -49,4 +49,52 @@ function createEvent(eventDetails) {
  * @param eventDetails A JSON object holding event Id.
  */
 function deleteEvent(eventDetails) {
-    deleteId = eventDe
+    deleteId = eventDetails;
+    fs.readFile('credentials.json', (err, content) => {
+        if (err) return console.log('Error loading client secret file:', err);
+        // Authorize a client with credentials, then call the Google Calendar API.
+        authorize(JSON.parse(content), removeEvent);
+    });
+}
+
+async function getEvents() {
+    events =  getEventId(oAuth2Client);
+    console.log('events in getEventId after leaving calendar.events.list: ' + events);
+    
+    /*fs.readFile(CREDENTIALS_PATH, (err, content) => {
+        if (err) return console.log('Error loading client secret file:', err);
+        // Authorize a client with credentials, then call the Google Calendar API.
+        //authorize(JSON.parse(content), getEventId);
+        
+        
+        //return events;
+    });*/
+    return events;
+}
+/**
+ * Wrapper function to delete event
+ * @param eventDetails A JSON object holding event Id.
+ */
+function getEvent(eventDetails) {
+    fs.readFile('credentials.json', (err, content) => {
+        if (err) return console.log('Error loading client secret file:', err);
+        // Authorize a client with credentials, then call the Google Calendar API.
+        authorize(JSON.parse(content), getEventId);
+    });
+}
+
+/**
+ * Adds event with information given by variable event to users's primary calendar
+ * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
+ */
+function addEvent(auth) {
+    const calendar = google.calendar({ version: 'v3', auth });
+    //This code will be in an insert function that takes in the event as a parameter
+    calendar.events.insert({
+        auth: auth,
+        calendarId: 'primary',
+        resource: event,
+    }, function (err, event) {
+        if (err) {
+            console.log('There was an error contacting the Calendar service: ' + err);
+           
