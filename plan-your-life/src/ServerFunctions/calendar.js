@@ -97,4 +97,73 @@ function addEvent(auth) {
     }, function (err, event) {
         if (err) {
             console.log('There was an error contacting the Calendar service: ' + err);
-           
+            return;
+        }
+        console.log('Event created: ' + event.summary);
+    });
+}
+
+/**
+ * Deletes event specified by eventId.
+ * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
+ */
+function removeEvent(auth) {
+    const calendar = google.calendar({version: 'v3', auth});    
+    calendar.events.delete({
+      calendarId: 'primary',
+      eventId: deleteId,
+    }, (err, res) => {
+      if (err) return console.log('The API returned an error: ' + err);
+      else
+        console.log('Event deleted.');
+      
+    });
+}
+
+/**
+ * Stores the next upcoming eventId to deleteId.
+ * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
+ */
+async function getEventId(auth) {
+    
+    const calendar = google.calendar({version: 'v3', auth});
+    const res = await calendar.events.list({
+      calendarId: 'primary',
+      timeMin: (new Date()).toISOString(),
+      maxResults: 10,
+      singleEvents: true,
+      orderBy: 'startTime',
+    });
+    console.log(res.data);
+    /*, (err, res) => {
+      if (err) return console.log('The API returned an error: ' + err);
+      const events = res.data.items;
+      if (events.length) {
+        //console.log('Upcoming 10 events:');
+        events.map((event, i) => {
+          deleteId = event.id;
+          //console.log(event);
+          eventsToReturn[i] = event;
+          //console.log(eventsToReturn[i]);
+          //console.log('\n\ni: ' + i);
+        });
+      } 
+      else {
+        console.log('No upcoming events found.');
+      }
+      var j;
+      for (j = 0; j < 10; j++) {
+        //console.log(eventsToReturn[j].summary);
+        console.log(eventsToReturn[j]);
+      }
+    }); */
+    
+  }
+
+//Google functions
+
+/**
+ * Create an OAuth2 client with the given credentials, and then execute the
+ * given callback function.
+ * @param {Object} credentials The authorization client credentials.
+ * @para
