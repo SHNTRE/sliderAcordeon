@@ -10,4 +10,16 @@ describe('AppSignInComponent', () => {
     TestBed.configureTestingModule({
       declarations: [ AppSignInComponent ]
     })
-    .compileComponen
+    .compileComponents();
+  }));
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(AppSignInComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
