@@ -1,0 +1,12 @@
+<h1 mat-dialog-title>Switch Users</h1>
+<div mat-dialog-content>
+  <div class="popup-text">Click </div><div class="popup-text"><a href="https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Ftasks%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcalendar&response_type=code&client_id=12352763295-sl6ipfoe5oqld84fo76qjj5u9l07el3d.apps.googleusercontent.com&redirect_uri=urn%3Aietf%3Awg%3Aoauth%3A2.0%3Aoob" target="_blank">here</a></div> <div class="popup-text"> and sign in to Google. Then paste the resulting code below.</div>
+  
+  <mat-form-field>
+    <input matInput [(ngModel)]="data.key">
+  </mat-form-field>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">Cancel</button>
+  <button mat-button [mat-dialog-close]="data.key" cdkFocusInitial>Submit</button>
+</div>

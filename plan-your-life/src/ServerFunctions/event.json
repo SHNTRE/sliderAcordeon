@@ -1,0 +1,14 @@
+
+{
+  "summary": "Work Meeting",
+  "location": "Case Western Reserve University",
+  "description": "This is a demo.",
+  "start": {
+    "dateTime": "2018-11-20T09:00:00-07:00",
+    "timeZone": "America/New_York"
+  },
+  "end": {
+    "dateTime": "2018-11-20T17:00:00-07:00",
+    "timeZone": "America/New_York"
+  }
+}
