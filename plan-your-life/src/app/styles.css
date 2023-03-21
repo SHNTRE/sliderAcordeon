@@ -1,0 +1,63 @@
+body{
+    background-color: #00e5ff;
+}
+
+.glyphicon-calendar {
+  color: white;
+  font-size: 200%;
+  display: inline;
+  position: absolute;
+  padding-top: .5%;
+  left: 33%;
+}
+
+.glyphicon-check {
+    color: white;
+    font-size: 200%;
+    display: inline;
+    position: absolute;
+    padding-top: .5%;
+    left: 66%;
+}
+
+.search {
+    overflow: hidden;
+    display: flex;
+}
+
+.search input[type=text] .search-container button {
+    padding: 6px;
+    margin-top: 8px;
+    margin-right: 16px;
+    border: none;
+    font-size: 17px;
+    float: none;
+    text-align: left;
+    width: 25%;
+    margin: 0;
+    padding: 14px;
+}
+
+input{
+    border: none;
+    width: 60%;
+}
+
+.submit{
+    background-color: #ab47bc;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 20px;
+}
+
+.search-container {
+    padding-top: 20%;
+    padding-left: 26%;
+    font-size: 25px;
+}
+
+.title-cont
