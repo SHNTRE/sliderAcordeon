@@ -60,4 +60,23 @@ input{
     font-size: 25px;
 }
 
-.title-cont
+.title-container {
+    padding-top: 3%;
+    padding-left: 36%;
+}
+
+.search .search-container button:hover {
+    background: #ccc;
+}
+
+.question {
+    float: right;
+    font-size: 25px;
+    color: white;
+    padding: 25px;
+}
+
+.navbar{
+    background-color: #263238;
+    border-color: #263238;
+}
