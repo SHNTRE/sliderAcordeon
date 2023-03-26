@@ -15,4 +15,23 @@ export class UserPromptComponent implements OnInit {
     text: ''
   }
 
-  construct
+  constructor(private pylService: PylService, private http: HttpClient ) { }
+
+  ngOnInit() {
+  }
+
+  
+  
+  logSubmit(){
+    console.log("Query Entered successfully.");
+  }
+
+  sendQuery(): void{
+    
+    console.log("Query recieved, " + this.query.text);
+    this.pylService.sendNewQuery(this.query);
+    this.query.text = '';
+  }
+
+  
+}
