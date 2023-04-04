@@ -1,0 +1,49 @@
+/* ------------------------ BODY ------------------------*/
+body{
+    background-color: #03A9F4;
+    padding-top: 100px;
+    min-width: 1024px;
+}
+
+.col-xs-6 > p{
+    padding: 20px;
+}
+
+input{
+    border: none;
+    width: 100%;
+}
+
+/* ------------------------ SEARCH BAR ------------------------ */
+
+.searchContain{
+    padding-left: 28%;
+}
+
+/* contains search section */
+.search {
+    width: 500px;
+    font-size: 25px;
+}
+
+/* search bar */
+input[type=text] {
+    padding: 12px 20px;
+    box-sizing: border-box;
+}
+
+/* search button */
+button[type=submit]{
+    background-color: darkblue;
+    padding: 11.5px 20px;
+    border: none;
+    position: absolute;
+}
+
+/* search button icon */
+.material-icons.md-36 { font-size: 36px; color:white;}
+
+
+/* ------------------------ NAV BAR ------------------------*/
+.navbar{
+    
